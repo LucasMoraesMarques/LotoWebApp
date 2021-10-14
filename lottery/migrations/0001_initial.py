@@ -8,20 +8,57 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Lottery',
+            name="Lottery",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(choices=[('lotofacil', 'Lotofácil'), ('diadesorte', 'Dia de Sorte'), ('megasena', 'Mega Sena')], max_length=50)),
-                ('numbersRange', django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), size=None)),
-                ('possiblesChoicesRange', django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), size=None)),
-                ('possiblesPointsToEarn', django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), size=None)),
-                ('possiblesPricesRange', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
-                ('urlResultAPI', models.URLField(max_length=500)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        choices=[
+                            ("lotofacil", "Lotofácil"),
+                            ("diadesorte", "Dia de Sorte"),
+                            ("megasena", "Mega Sena"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "numbersRange",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.IntegerField(), size=None
+                    ),
+                ),
+                (
+                    "possiblesChoicesRange",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.IntegerField(), size=None
+                    ),
+                ),
+                (
+                    "possiblesPointsToEarn",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.IntegerField(), size=None
+                    ),
+                ),
+                (
+                    "possiblesPricesRange",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.FloatField(), size=None
+                    ),
+                ),
+                ("urlResultAPI", models.URLField(max_length=500)),
             ],
         ),
     ]

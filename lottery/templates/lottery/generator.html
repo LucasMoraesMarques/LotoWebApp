@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+    <div class="container">
+        <form action="{% url 'lottery:generator' 1 %}" method="POST">
+        {% csrf_token %}
+
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2>Escolha a quantia de números por jogo</h2>
+        {% for value in nPlayed %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" id="check-{{nPlayed}}" name="nPlayed" value="{{value}}">
+                <label class="form-check-label" for="check-{{nPlayed}}">{{value}}</label>
+            </div>
+        {% endfor %}
+                </div>
+        <div class="row">
+            <div class="col">
+                    <div class="container" style="max-width:330px">
+            <h2>Escolha os números a serem fixados</h2>
+              <div class="row row-cols-{{cols}}">
+                  {% for value in nFixed %}
+                    <div class="col" style="padding:5px;">
+                        <input type="checkbox" class="btn-check" id="btn-check-fixed-{{value}}-outlined" name="nFixed" value="{{value}}" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btn-check-fixed-{{value}}-outlined">{{value}}</label>
+                    </div>
+                  {% endfor %}
+              </div>
+        </div>
+
+
+                </div>
+            <div class="col">
+                        <div class="container" style="max-width:330px">
+            <h2>Escolha os números a serem removidos</h2>
+              <div class="row row-cols-{{cols}}">
+                  {% for value in nRemoved %}
+                    <div class="col" style="padding:5px;">
+                        <input type="checkbox" class="btn-check" id="btn-check-removed-{{value}}-outlined" name="nRemoved" value="{{value}}" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btn-check-removed-{{value}}-outlined">{{value}}</label><br>
+                    </div>
+                  {% endfor %}
+
+              </div>
+        </div>
+                    </div>
+            </div>
+
+        </div>
+
+
+
+
+        <input type="submit" class="btn btn-primary">
+    </form>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+

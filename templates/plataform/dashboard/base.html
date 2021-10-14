@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Loto Assistant</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
+  <title>
+    Soft UI Dashboard by Creative Tim
+  </title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
+  <!-- Nucleo Icons -->
+  <link href="{% static 'assets/css/nucleo-icons.css' %}" rel="stylesheet"/>
+  <link href="{% static 'assets/css/nucleo-svg.css' %}" rel="stylesheet"/>
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="{% static 'assets/css/nucleo-svg.css' %}" rel="stylesheet"/>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="{% static 'assets/css/soft-ui-dashboard.css' %}" rel="stylesheet"/>
+
+
+</head>
+<body class="g-sidenav-show">
+    <!-- Sidebar -->
+    {% include 'components/sidebar.html' %}
+    <!-- End Sidebar -->
+  <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg ">
+
+    <!-- Navbar -->
+    {% include 'components/navbar.html' %}
+    <!-- End Navbar -->
+
+    <!-- Content -->
+    {% block content %}
+
+    {% endblock %}
+    <!-- End Content -->
+
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+    <!-- End Footer -->
+  </main>
+</body>
+
+<!--   Core JS Files   -->
+<script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+<script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/smooth-scrollbar.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<script src="{% static 'assets/js/soft-ui-dashboard.min.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+  var pathname = window.location.pathname
+  var links = document.getElementsByClassName('nav-link')
+  for(link of links){
+    if(link.id && pathname.includes(link.id)){
+      link.classList.add('active')
+    }
+  }
+
+  var breadcrumb = document.getElementById('breadcrumb')
+  var pathnameList = pathname.split('/').filter(value => value != '')
+  console.log(pathnameList)
+  breadcrumb.innerHTML += `<li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="">Plataforma</a></li>`
+  for(name of pathnameList){
+    breadcrumb.innerHTML += `<li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="${name}">${name}</a></li>`
+  }
+  breadcrumb.lastChild = `<li class="breadcrumb-item text-sm text-dark active" aria-current="page">${name}</li>`
+  document.getElementById('currentPage').innerHTML = name.substring(0, 1).toUpperCase() + name.substring(1)
+</script>
+
+{% block script %}
+{% endblock %}
+</html>

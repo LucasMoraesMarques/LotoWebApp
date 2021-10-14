@@ -6,19 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lottery', '0003_auto_20210902_1030'),
+        ("lottery", "0003_auto_20210902_1030"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='lottery',
-            old_name='urlResultAPI',
-            new_name='urlHistoricResultAPI',
+            model_name="lottery",
+            old_name="urlResultAPI",
+            new_name="urlHistoricResultAPI",
         ),
         migrations.AddField(
-            model_name='lottery',
-            name='urlDailyResultAPI',
-            field=models.URLField(default='http:loto.com', max_length=500),
+            model_name="lottery",
+            name="urlDailyResultAPI",
+            field=models.URLField(default="http:loto.com", max_length=500),
             preserve_default=False,
         ),
     ]

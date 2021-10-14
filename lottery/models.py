@@ -4,9 +4,9 @@ from django.conf import settings
 
 # Create your models here.
 LOTTERY_CHOICES = [
-    ('lotofacil', 'Lotofácil'),
-    ('diadesorte', 'Dia de Sorte'),
-    ('megasena', 'Mega Sena')
+    ("lotofacil", "Lotofácil"),
+    ("diadesorte", "Dia de Sorte"),
+    ("megasena", "Mega Sena"),
 ]
 
 
@@ -36,7 +36,7 @@ class Draw(models.Model):
     drawHasAccumulated = models.BooleanField()
 
     def __str__(self):
-        return self.lottery.name + '_' + str(self.number)
+        return self.lottery.name + "_" + str(self.number)
 
 
 class Game(models.Model):
@@ -46,6 +46,8 @@ class Game(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def __str__(self):
+        return str(self.id)
 
 
 class GamesGroup(models.Model):
@@ -62,6 +64,5 @@ class GamesGroup(models.Model):
         on_delete=models.CASCADE,
     )
 
-
-
-
+    def __str__(self):
+        return str(self.name)

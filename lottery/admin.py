@@ -1,5 +1,6 @@
 from django.contrib import admin
 from lottery.models import *
+
 # Register your models here.
 
 
@@ -21,4 +22,3 @@ class GamesAdmin(admin.ModelAdmin):
 @admin.register(GamesGroup)
 class GamesGroupAdmin(admin.ModelAdmin):
     pass
-
