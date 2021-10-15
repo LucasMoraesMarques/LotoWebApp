@@ -4085,8 +4085,7 @@ fieldset:disabled .btn {
 .btn-outline-success:disabled,
 .btn-outline-success.disabled {
   color: var(--bs-success);;
-  background-color: transparent;
-}
+  background-color: rgba(0, 0, 0, 0.1);}
 
 .btn-outline-info {
   color: #17c1e8;
@@ -4205,7 +4204,7 @@ fieldset:disabled .btn {
 .btn-outline-danger:disabled,
 .btn-outline-danger.disabled {
   color: #ea0606;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .btn-outline-light {
@@ -19147,10 +19146,9 @@ fieldset:disabled .btn {
 }
 
 .btn-outline-danger:hover:not(.active) {
-  background-color: transparent;
-  opacity: .75;
+  background-color: var(--bs-danger);
   box-shadow: none;
-  color: #ea0606;
+  color: #fff;
 }
 
 .btn-light:hover,
