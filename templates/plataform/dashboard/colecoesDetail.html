@@ -1,0 +1,232 @@
+{% extends 'plataform/dashboard/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 w-100">
+  <div class="row">
+    <div class="card h-100 mb-4">
+      <div class="card-header pb-0">
+        <h5 class="font-weight-bolder">Análise da Coleção</h5>
+        <div class="row">
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Nome</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    Jogo 1
+                  </h5>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Loteria</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    Dia de Sorte
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Nº Conjuntos</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    5
+                  </h5>
+                </div>
+              </div>
+            </div>
+             <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Nº Jogos</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    100
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+              <img class="position-relative z-index-2 pt-4 ms-6 mb-2"
+                 src="{% static 'assets/img/collection-detail.svg' %}" alt="detail" style="width:35%">
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+        <div class="d-inline">
+          <h5 class="font-weight-bolder">Coleção Jogo 1</h5>
+          <p class="text-sm">
+            <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo da coleção</p>
+            <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
+            50 conjuntos encontrados
+          </p>
+        </div>
+      </div>
+      <div class="card-body px-2 pt-0 pb-2">
+        <div class="table-responsive p-0">
+          <table class="table align-items-center mb-0 display" id="gamesTable">
+            <thead>
+            <tr>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Conjunto</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Nº Jogos</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Nº Marcações</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Ativo</th>
+              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Info
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td class="text-sm text-center">
+                Bolão 1
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-primary">100</span>
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-primary">15</span>
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+              </td>
+              <td class="align-middle text-center">
+                <a>
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-sm text-center">
+                Bolão 2
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-primary">150</span>
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-primary">16</span>
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-danger">INATIVO</span>
+              </td>
+              <td class="align-middle text-center">
+                <a>
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-sm text-center">
+                Bolão 3
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-primary">120</span>
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-primary">6</span>
+              </td>
+              <td class="text-sm text-center">
+                <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+              </td>
+              <td class="align-middle text-center">
+                <a href="http://localhost:8000/jogos/conjuntos/5665">
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+$(document).ready(function() {
+    $('table.display').DataTable({
+      language: {
+            "lengthMenu": "Mostrar _MENU_ jogos por página",
+            "zeroRecords": "",
+            "info": "Página _PAGE_ de _PAGES_",
+            "infoEmpty": "Nenhum jogo encontrado",
+            "infoFiltered": "(Filtrados de _MAX_ jogos)",
+            "paginate": {
+              "previous": "←",
+              "next": "→"
+            },
+            "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+            "search": "Filtrar"
+
+        }
+    });
+
+    $('#collectionsTable_filter input[type="search"]').attr(
+      'placeholder', "Busque por loteria, nome ou nº de jogos"
+    )
+
+    $('.dataTables_filter input[type="search"]').css(
+     {'width':'300px','display':'inline-block'}
+  );
+} );
+</script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+{% endblock %}

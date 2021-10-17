@@ -65,6 +65,13 @@ def jogos(request):
     return render(request, "plataform/dashboard/jogos.html", ctx)
 
 
+def conjuntosDetail(request, id):
+    return render(request, "plataform/dashboard/conjuntosDetail.html")
+
+
+def colecoesDetail(request, id):
+    return render(request, "plataform/dashboard/colecoesDetail.html")
+
 def relatorios(request):
     return render(request, "plataform/dashboard/relatorios.html")
 

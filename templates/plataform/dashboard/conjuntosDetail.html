@@ -1,0 +1,357 @@
+{% extends 'plataform/dashboard/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 w-100">
+  <div class="row">
+    <div class="card h-100 mb-4">
+      <div class="card-header pb-0">
+        <h5 class="font-weight-bolder">Análise do Conjunto</h5>
+        <div class="row">
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Nome</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    Jogo 1
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Loteria</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="d-flex px-2 py-1">
+                    <img src="{% static 'assets/img/loterias/logos/diadesorte.png' %}" alt="Logo da Lotofácil"
+                         class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                         data-bs-placement="top"
+                         title="Dia de Sorte" data-container="body" data-animation="true">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Coleções</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    em 2
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Nº Jogos</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    100
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Marcações</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    15
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Ativo</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                    Sim
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+        <div class="d-inline">
+          <h5 class="font-weight-bolder">Conjunto Jogo 1</h5>
+          <p class="text-sm">
+            <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
+            50 jogos encontrados
+          </p>
+        </div>
+      </div>
+      <div class="card-body px-2 pt-0 pb-2">
+        <div class="table-responsive p-0">
+          <table class="table align-items-center mb-0 display" id="gamesTable">
+            <thead>
+            <tr>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jogo Nº</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Números</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Soma</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Max Seq</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Min Seq</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Salto</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Paridade</th>
+              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Info
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td class="text-sm text-center">
+                3*
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">1</span>
+                <span class="badge badge-sm bg-gradient-primary">5</span>
+                <span class="badge badge-sm bg-gradient-primary">26</span>
+                <span class="badge badge-sm bg-gradient-primary">34</span>
+                <span class="badge badge-sm bg-gradient-primary">40</span>
+                <span class="badge badge-sm bg-gradient-primary">55</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-info">Par</span>
+              </td>
+              <td class="align-middle text-center">
+                <a>
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-sm text-center">
+                4*
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">1</span>
+                <span class="badge badge-sm bg-gradient-primary">5</span>
+                <span class="badge badge-sm bg-gradient-primary">26</span>
+                <span class="badge badge-sm bg-gradient-primary">34</span>
+                <span class="badge badge-sm bg-gradient-primary">40</span>
+                <span class="badge badge-sm bg-gradient-primary">55</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-info">Par</span>
+              </td>
+              <td class="align-middle text-center">
+                <a>
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-sm text-center">
+                5*
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">1</span>
+                <span class="badge badge-sm bg-gradient-primary">5</span>
+                <span class="badge badge-sm bg-gradient-primary">26</span>
+                <span class="badge badge-sm bg-gradient-primary">34</span>
+                <span class="badge badge-sm bg-gradient-primary">40</span>
+                <span class="badge badge-sm bg-gradient-primary">55</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-info">Par</span>
+              </td>
+              <td class="align-middle text-center">
+                <a>
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-sm text-center">
+                1*
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">1</span>
+                <span class="badge badge-sm bg-gradient-primary">5</span>
+                <span class="badge badge-sm bg-gradient-primary">26</span>
+                <span class="badge badge-sm bg-gradient-primary">34</span>
+                <span class="badge badge-sm bg-gradient-primary">40</span>
+                <span class="badge badge-sm bg-gradient-primary">55</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">40</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">50</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">70</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-primary">80</span>
+              </td>
+              <td class="text-sm">
+                <span class="badge badge-sm bg-gradient-warning">Ímpar</span>
+              </td>
+              <td class="align-middle text-center">
+                <a>
+                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+$(document).ready(function() {
+    $('table.display').DataTable({
+      language: {
+            "lengthMenu": "Mostrar _MENU_ jogos por página",
+            "zeroRecords": "",
+            "info": "Página _PAGE_ de _PAGES_",
+            "infoEmpty": "Nenhum jogo encontrado",
+            "infoFiltered": "(Filtrados de _MAX_ jogos)",
+            "paginate": {
+              "previous": "←",
+              "next": "→"
+            },
+            "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+            "search": "Filtrar"
+
+        }
+    });
+
+    $('#collectionsTable_filter input[type="search"]').attr(
+      'placeholder', "Busque por loteria, nome ou nº de jogos"
+    )
+
+    $('.dataTables_filter input[type="search"]').css(
+     {'width':'300px','display':'inline-block'}
+  );
+} );
+</script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+{% endblock %}

@@ -21,6 +21,8 @@
   <link href="{% static 'assets/css/nucleo-svg.css' %}" rel="stylesheet"/>
   <!-- CSS Files -->
   <link id="pagestyle" href="{% static 'assets/css/soft-ui-dashboard.css' %}" rel="stylesheet"/>
+  {% block css %}
+  {% endblock %}
 
 
 </head>
@@ -74,6 +76,8 @@
   }
   breadcrumb.lastChild = `<li class="breadcrumb-item text-sm text-dark active" aria-current="page">${name}</li>`
   document.getElementById('currentPage').innerHTML = name.substring(0, 1).toUpperCase() + name.substring(1)
+
+
 </script>
 
 {% block script %}
