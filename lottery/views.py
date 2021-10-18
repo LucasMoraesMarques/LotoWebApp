@@ -43,7 +43,7 @@ def jogos(request):
     if request.method == "POST":
         print(request.POST)
     print(request)
-    loto = Lottery.objects.get(id=3)
+    loto = Lottery.objects.get(id=1)
     choicesNPlayed = [i for i in loto.possiblesChoicesRange]
     choices = [i for i in range(1, loto.numbersRangeLimit + 1)]
     cols = 10

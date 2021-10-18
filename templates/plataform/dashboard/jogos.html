@@ -29,19 +29,19 @@
     <!-- Tabs Nav -->
     <ul class="nav nav-pills nav-fill p-1" role="tablist">
       <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#geradores" data-bs-target="#geradores"
+        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#geradores-tab" data-bs-target="#geradores-tab"
            role="tab" aria-controls="preview" aria-selected="true">
           <i class="fas fa-tools"></i> Geradores
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#colecoes" data-bs-target="#colecoes" role="tab"
+        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#colecoes-tab" data-bs-target="#colecoes-tab" role="tab"
            aria-controls="code" aria-selected="false">
           <i class="fas fa-list-ol"></i> Coleções
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#resultados" data-bs-target="#resultados"
+        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#resultados-tab" data-bs-target="#resultados-tab"
            role="tab" aria-controls="code" aria-selected="false">
           <i class="fas fa-tasks"></i> Resultados
         </a>
@@ -49,9 +49,10 @@
     </ul>
     <!-- End Tabs Nav -->
 
+    <!-- Content Section -->
     <div class="tab-content" id="nav-tabContent">
       <!-- Generators Section -->
-      <div class="tab-pane fade show active" id="geradores" role="tabpanel" aria-labelledby="nav-geradores-tab">
+      <div class="tab-pane fade show active" id="geradores-tab" role="tabpanel" aria-labelledby="nav-geradores-tab">
         <!-- Info Section -->
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
@@ -81,7 +82,7 @@
                            class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
                       <div class="position-relative d-flex align-items-center justify-content-center h-100">
                         <img class="w-100 position-relative z-index-2 pt-4"
-                             src="{% static 'assets/img/gen-options.svg' %}" alt="rocket">
+                             src="{% static 'assets/img/gen-options.svg' %}" alt="Pessoa escolhendo entre opções">
                       </div>
                     </div>
                   </div>
@@ -99,7 +100,8 @@
                     {% for type in lototypes %}
                     <img src="{% static 'assets/img/loterias/logos/'|add:type.0|add:'.png' %}" alt="Logo da {{type.1}}"
                          class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
-                         title="{{ type.1 }}" data-container="body" data-animation="true" style="width:50px; height:50px;">
+                         title="{{ type.1 }}" data-container="body" data-animation="true"
+                         style="width:50px; height:50px;">
                     {% endfor %}
                   </div>
                   <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
@@ -118,7 +120,7 @@
           <div class="col-lg- mb-lg-0 mb-4">
             <div class="card z-index-2">
               <div class="card-body p-3">
-                <form action="{% url 'lottery:jogos' %}" method="POST">
+                <form action="{% url 'lottery:jogos' %}" method="POST" id="gerador-form">
                   {% csrf_token %}
                   <div class="row">
                     <div class="col-lg-7">
@@ -141,24 +143,25 @@
                         <h6 class="font-weight-bolder">Modalidade</h6>
                         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                           {% for type in lototypes %}
-                          <input type="radio" class="btn-check" name="lototype" id="{{type.0}}" value="{{type.0}}"
+                          <input type="radio" class="btn-check" name="lototype" id="modalidade-{{type.0}}"
+                                 value="{{type.0}}"
                                  autocomplete="off" required>
-                          <label class="btn btn-outline-primary" for="{{type.0}}">{{type.1}}</label>
+                          <label class="btn btn-outline-primary" for="modalidade-{{type.0}}">{{type.1}}</label>
                           {% endfor %}
                         </div>
 
                         <div class="form-group">
-                          <label for="example-text-input" class="form-control-label"><h6 class="font-weight-bolder">Nome
+                          <label for="gameset-name" class="form-control-label"><h6 class="font-weight-bolder">Nome
                             do Jogo</h6></label>
-                          <input class="form-control" type="text" value="" id="example-text-input" required>
+                          <input class="form-control" type="text" name="gameset-name" value="" id="gameset-name" required>
                         </div>
 
                         <div class="form-group">
-                          <label for="collection-select" class="form-control-label"><h6 class="font-weight-bolder">
+                          <label for="collection-gen-select" class="form-control-label"><h6 class="font-weight-bolder">
                             Coleção</h6></label>
                           <div class="input-group mb-3">
-                            <select class="form-control" id="collection-select" aria-describedby="add-collection"
-                                    required>
+                            <select class="form-control" id="collection-gen-select" aria-describedby="add-collection"
+                                    name="collection" required>
                               <option>Jogos Bolão</option>
                               <option>Jogos 2</option>
                               <option>Teste</option>
@@ -167,7 +170,6 @@
                               nova
                             </button>
                           </div>
-
                         </div>
                       </div>
                     </div>
@@ -175,7 +177,8 @@
                       <div class="border-radius-lg h-100">
                         <div class="position-relative d-flex align-items-center justify-content-center h-100">
                           <img class="w-100 position-relative z-index-2 pt-4"
-                               src="{% static 'assets/img/gen-options2.svg' %}" alt="rocket">
+                               src="{% static 'assets/img/gen-options2.svg' %}"
+                               alt="Pessoa habilitando botões do tipo switch">
                         </div>
                       </div>
                     </div>
@@ -183,15 +186,17 @@
                   <div class="row">
                     <div class="col">
                       <h6 class="font-weight-bolder">Escolha a quantia de números por jogo</h6>
-                      {% for value in nPlayed %}
-                      <div class="form-check form-check-inline" id="check-played">
-                        <input class="form-check-input-sm" type="radio" id="check-played-{{value}}" name="nPlayed"
-                               value="{{value}}" required>
-                        <label class="form-check-label" for="check-played-{{value}}">{{value}}</label>
+                      <div class="d-flex flex-row h-100" id="check-nPlayed">
+                        {% for value in nPlayed %}
+                        <div class="form-check" id="check-played">
+                          <input class="form-check-input mx-2" type="radio" id="check-played-{{value}}" name="nPlayed"
+                                 value="{{value}}" required>
+                          <label class="custom-control-label fs-6" for="check-played-{{value}}">{{value}}</label>
+                        </div>
+                        {% endfor %}
                       </div>
-                      {% endfor %}
                     </div>
-                    <div class="row mt-3 justify-content-center">
+                    <div class="row mt-3 justify-content-center" id="grid-fixed-removed">
                       <div class="col-md-6">
                         <h6 class="font-weight-bolder">Escolha os números a serem fixados</h6>
                         <div class="row row-cols-{{cols}} gx-0 px-0" id="grid-fixed">
@@ -200,14 +205,12 @@
                             <input type="checkbox" class="btn-check" id="check-fixed-{{value}}"
                                    name="nFixed" value="{{value}}" autocomplete="off"
                                    onchange="mapNumbers(this.id, 'fixed')">
-                            <label class="btn btn-outline-success mb-2" for="check-fixed-{{value}}"
+                            <label class="btn btn-outline-success mb-2 disabled" for="check-fixed-{{value}}"
                                    style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
                                    id="label-check-fixed-{{value}}">{{value}}</label>
                           </div>
                           {% endfor %}
                         </div>
-
-
                       </div>
                       <div class="col-md-6">
                         <h6 class="font-weight-bolder">Escolha os números a serem removidos</h6>
@@ -217,12 +220,11 @@
                             <input type="checkbox" class="btn-check" id="check-removed-{{value}}"
                                    name="nRemoved" value="{{value}}" autocomplete="off"
                                    onchange="mapNumbers(this.id, 'removed')">
-                            <label class="btn btn-outline-danger mb-2" for="check-removed-{{value}}"
+                            <label class="btn btn-outline-danger mb-2 disabled" for="check-removed-{{value}}"
                                    style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
                                    id="label-check-removed-{{value}}">{{value}}</label><br>
                           </div>
                           {% endfor %}
-
                         </div>
                       </div>
                     </div>
@@ -231,7 +233,8 @@
                         <div class="border-radius-lg h-100">
                           <div class="position-relative d-flex align-items-center justify-content-center h-100">
                             <img class="w-100 position-relative z-index-2 pt-4"
-                                 src="{% static 'assets/img/gen-options3.svg' %}" alt="rocket">
+                                 src="{% static 'assets/img/gen-options3.svg' %}"
+                                 alt="Mulher posicionando botões do tipo slider">
                           </div>
                         </div>
                       </div>
@@ -239,16 +242,16 @@
                         <div class="form-group">
                           <label for="prime-numbers" class="form-control-label mt-2"><h6 class="font-weight-bolder">
                             Número de Primos</h6></label>
-                          <input class="form-control d-inline" type="number" value="" id="prime-numbers">
-                          <label for="example-text-input" class="form-control-label mt-2"><h6
+                          <input class="form-control d-inline" type="number" name="nPrimes" value="" id="prime-numbers">
+                          <label for="max-seq" class="form-control-label mt-2"><h6
                               class="font-weight-bolder">Máxima Sequência</h6></label>
-                          <input class="form-control d-inline" type="number" value="" id="example-text-input">
-                          <label for="example-text-input" class="form-control-label mt-2"><h6
+                          <input class="form-control d-inline" type="number" value="" name="max-seq" id="max-seq">
+                          <label for="min-seq" class="form-control-label mt-2"><h6
                               class="font-weight-bolder">Mínima Sequência</h6></label>
-                          <input class="form-control d-inline" type="number" value="" id="example-text-input">
-                          <label for="example-text-input" class="form-control-label mt-2"><h6
+                          <input class="form-control d-inline" type="number" value="" name="min-seq" id="min-seq">
+                          <label for="max-gap" class="form-control-label mt-2"><h6
                               class="font-weight-bolder">Máximo Salto</h6></label>
-                          <input class="form-control d-inline" type="number" value="" id="example-text-input">
+                          <input class="form-control d-inline" type="number" value="" name="max-gap" id="max-gap">
                           <h6 class="font-weight-bolder mt-2">Par ou Ímpar</h6>
                           <div class="d-flex flex-row h-100">
                             <div class="form-check mb-3">
@@ -262,19 +265,35 @@
                           </div>
                         </div>
                       </div>
-
                     </div>
-
                   </div>
-                  <button type="submit" class="btn btn-primary mt-2">Calcular Combinações</button>
+                  <button type="button" class="btn btn-primary mt-2" id="calc-combs-btn">Calcular Combinações</button>
+                  <div class="row" id="nJogos-input" style="display:none">
+                    <div class="col form-group" >
+                    <label for="nJogos" class="form-control-label mt-2"><h6 class="font-weight-bolder">
+                      Número de Jogos</h6></label>
+                    <p id="nCombs-span"></p>
+                    <input class="form-control d-inline" type="number" name="nJogos" value="" id="nJogos">
+                    <button type="submit" class="btn btn-primary mt-2">Gerar Jogos</button>
+                  </div>
+                  <div class="col-lg-3 ms-auto text-center mt-5 mt-lg-0">
+                      <div class="border-radius-lg h-100">
+                        <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                          <img class="w-100 position-relative z-index-2 pt-4"
+                               src="{% static 'assets/img/nJogos-input.svg' %}"
+                               alt="Pessoa usando uma calculadora">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </form>
               </div>
-
             </div>
           </div>
         </div>
         <!-- End Generator Section -->
 
+        <!-- Game Set Table Section -->
         <div class="row my-4">
           <div class="col">
             <div class="card">
@@ -283,14 +302,14 @@
                   <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
                   <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
                   <p class="text-sm">
-                    <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
+                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
                     50 conjuntos encontrados
                   </p>
                 </div>
               </div>
               <div class="card-body px-2 pt-0 pb-2">
                 <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display" id="gamesTable">
+                  <table class="table align-items-center mb-0 display" id="gameset-table">
                     <thead>
                     <tr>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Loteria</th>
@@ -327,7 +346,7 @@
                         <span class="badge badge-sm bg-gradient-primary">50</span>
                       </td>
                       <td class="align-middle text-center">
-                        <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+                        <span class="badge badge-sm bg-gradient-success">SIM</span>
                       </td>
                       <td class="align-middle text-center">
                         <a>
@@ -355,7 +374,7 @@
                         <span class="badge badge-sm bg-gradient-primary">100</span>
                       </td>
                       <td class="align-middle text-center">
-                        <span class="badge badge-sm bg-gradient-danger">INATIVO</span>
+                        <span class="badge badge-sm bg-gradient-danger">SIM</span>
                       </td>
                       <td class="align-middle text-center">
                         <a href="http://localhost:8000/jogos/conjuntos/5665">
@@ -383,7 +402,7 @@
                         <span class="badge badge-sm bg-gradient-primary">30</span>
                       </td>
                       <td class="align-middle text-center">
-                        <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+                        <span class="badge badge-sm bg-gradient-success">NÃO</span>
                       </td>
                       <td class="align-middle text-center">
                         <a>
@@ -426,11 +445,12 @@
             </div>
           </div>
         </div>
+        <!-- End Game Set Table Section -->
       </div>
       <!-- End Generators Section -->
 
       <!-- Collections Section -->
-      <div class="tab-pane fade" id="colecoes" role="tabpanel" aria-labelledby="nav-colecoes-tab">
+      <div class="tab-pane fade" id="colecoes-tab" role="tabpanel" aria-labelledby="nav-colecoes-tab">
         <!-- Info Section -->
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
@@ -457,7 +477,7 @@
                            class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
                       <div class="position-relative d-flex align-items-center justify-content-center h-100">
                         <img class="w-100 position-relative z-index-2 pt-4"
-                             src="{% static 'assets/img/collection-add.svg' %}" alt="rocket">
+                             src="{% static 'assets/img/collection-add.svg' %}" alt="Arquivos com um ícone de adicionar">
                       </div>
                     </div>
                   </div>
@@ -489,7 +509,7 @@
                     <div class="numbers">
                       <p class="text-sm mb-0 text-capitalize font-weight-bold">Que juntas somam </p>
                       <h5 class="font-weight-bolder mb-0">
-                        15000 jogos
+                        100 conjuntos
                       </h5>
                     </div>
                   </div>
@@ -502,9 +522,9 @@
                 <div class="row">
                   <div class="col-8">
                     <div class="numbers">
-                      <p class="text-sm mb-0 text-capitalize font-weight-bold">De</p>
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">E</p>
                       <h5 class="font-weight-bolder mb-0">
-                        2 conjuntos
+                        5000 jogos
                       </h5>
                     </div>
                   </div>
@@ -520,6 +540,7 @@
         </div>
         <!-- End Info Section -->
 
+        <!-- Collections Table Section -->
         <div class="row my-4">
           <div class="col">
             <div class="card mb-4 p-3 d-flex">
@@ -546,13 +567,10 @@
                   </p>
                   <p>As coleções devem estar com os conjuntos de jogos separados em abas se for do tipo xlsx, ou em por
                     vírgulas se for csv. Veja os modelos abaixo:
-
                   <p class="text-center">
-                  <a href=""><i class="fa fa-file-excel fs-2 mx-3"></i></a>
-                  <a href=""><i class="fa fa-file-csv fs-2 mx-3"></i></a>
+                    <a href=""><i class="fa fa-file-excel fs-2 mx-3"></i></a>
+                    <a href=""><i class="fa fa-file-csv fs-2 mx-3"></i></a>
                   </p>
-
-
                   </p>
                 </div>
               </div>
@@ -567,18 +585,18 @@
               </div>
               <div class="card-body px-2 pt-0 pb-2">
                 <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display" id="collectionsTable">
+                  <table class="table align-items-center mb-0 display" id="collections-table">
                     <thead>
                     <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Loteria</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nome</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nº de
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Loteria</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder ps-2">Nome</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº de
                         Conjuntos
                       </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nº de
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº de
                         Jogos
                       </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Info
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Info
                       </th>
                     </tr>
                     </thead>
@@ -692,11 +710,13 @@
             </div>
           </div>
         </div>
+        <!-- End Collections Table Section -->
       </div>
       <!-- End Collections Section -->
 
       <!-- Results Section-->
-      <div class="tab-pane fade" id="resultados" role="tabpanel" aria-labelledby="nav-resultados-tab">
+      <div class="tab-pane fade" id="resultados-tab" role="tabpanel" aria-labelledby="nav-resultados-tab">
+        <!-- End Info Section -->
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
             <div class="card">
@@ -722,7 +742,7 @@
                            class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
                       <div class="position-relative d-flex align-items-center justify-content-center h-100">
                         <img class="w-100 position-relative z-index-2 pt-4"
-                             src="{% static 'assets/img/results-info.svg' %}" alt="rocket">
+                             src="{% static 'assets/img/results-info.svg' %}" alt="Gráfico de barras crescente">
                       </div>
                     </div>
                   </div>
@@ -750,7 +770,9 @@
             </div>
           </div>
         </div>
+        <!-- Info Section -->
 
+        <!-- Results Analysis Section -->
         <div class="row mt-4">
           <div class="col-lg-4">
             <div class="card z-index-2">
@@ -759,16 +781,17 @@
                 <h6 class="font-weight-bolder">Modalidade</h6>
                 <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                   {% for type in lototypes %}
-                  <input type="radio" class="btn-check" name="lototype2" id="{{type.0}}2" value="{{type.0}}"
+                  <input type="radio" class="btn-check" name="lototype2" id="results-{{type.0}}" value="{{type.0}}"
                          autocomplete="off" required>
-                  <label class="btn btn-outline-primary" for="{{type.0}}2">{{type.1}}</label>
+                  <label class="btn btn-outline-primary" for="results-{{type.0}}">{{type.1}}</label>
                   {% endfor %}
                 </div>
                 <div class="form-group">
                   <label for="collection-select" class="form-control-label"><h6 class="font-weight-bolder">
                     Coleção</h6></label>
                   <div class="input-group mb-3">
-                    <select class="form-control" id="collection-select" aria-describedby="add-collection" required>
+                    <select class="form-control" id="collection-select" aria-describedby="add-collection" required
+                    name="collection-name">
                       <option>Jogos Bolão</option>
                       <option>Jogos 2</option>
                       <option>Teste</option>
@@ -787,15 +810,16 @@
                   </div>
                 </div>
                 <div class="form-check form-switch">
-                  <label class="form-check-label" for="flexSwitchCheckDefault"><h6 class="font-weight-bolder">Ativo</h6>
+                  <label class="form-check-label" for="status"><h6 class="font-weight-bolder">Ativo</h6>
                   </label>
-                  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" checked="">
+                  <input class="form-check-input" type="checkbox" id="status" checked="">
                 </div>
                 <div class="form-group">
                   <label for="collection-select" class="form-control-label"><h6 class="font-weight-bolder">
                     Concurso</h6></label>
                   <div class="input-group mb-3">
-                    <select class="form-control" id="draw-select" aria-describedby="add-collection" required>
+                    <select class="form-control" id="draw-select" aria-describedby="add-collection" required
+                    name="draw">
                       <option>2250</option>
                       <option>2249</option>
                       <option>2248</option>
@@ -952,8 +976,11 @@
               </div>
             </div>
           </div>
+        </div>
+        <!-- End Results Analysis Section -->
 
-          <div class="row my-4">
+        <!-- Results Table Section -->
+        <div class="row my-4">
             <div class="col">
               <div class="card">
                 <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
@@ -967,24 +994,24 @@
                     <table class="table align-items-center mb-0 display" id="collectionsTable">
                       <thead>
                       <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Loteria</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nome</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nº
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Loteria</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder ps-2">Nome</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº
                           de
                           Conjuntos
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nº
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº
                           de
                           Jogos
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">
                           Jogos
                           Premiados
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">
                           Ativo
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Info
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Info
                         </th>
                       </tr>
                       </thead>
@@ -1012,7 +1039,7 @@
                           <span class="badge badge-sm bg-gradient-primary">4000</span>
                         </td>
                         <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+                          <span class="badge badge-sm bg-gradient-success">SIM</span>
                         </td>
                         <td class="align-middle text-center">
                           <a>
@@ -1044,7 +1071,7 @@
                           <span class="badge badge-sm bg-gradient-primary">1200</span>
                         </td>
                         <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-danger">INATIVO</span>
+                          <span class="badge badge-sm bg-gradient-danger">NÃO</span>
                         </td>
                         <td class="align-middle text-center">
                           <a>
@@ -1076,7 +1103,7 @@
                           <span class="badge badge-sm bg-gradient-primary">120</span>
                         </td>
                         <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+                          <span class="badge badge-sm bg-gradient-success">SIM</span>
                         </td>
                         <td class="align-middle text-center">
                           <a>
@@ -1092,11 +1119,12 @@
               </div>
             </div>
           </div>
-        </div>
+        <!-- End Results Table Section -->
       </div>
       <!-- End Results Section -->
     </div>
   </div>
+  <!-- End Content Section -->
 </div>
 
 
@@ -1319,11 +1347,11 @@ function handleGeneratorSelect(radio){
 
   if(radio.id == "smart"){
     $("#smart-gen-options").show()
-    np.map((index, element) => { $('#'.concat(element.id)).toggle(); $('label[for='.concat(element.id, ']')).toggle()})
+    np.map((index, element) => { $('#'.concat(element.id)).hide(); $('label[for='.concat(element.id, ']')).hide()})
   }
   else{
     $("#smart-gen-options").hide()
-    np.map((index, element) => { $('#'.concat(element.id)).toggle(); $('label[for='.concat(element.id, ']')).toggle()})
+    np.map((index, element) => { $('#'.concat(element.id)).show(); $('label[for='.concat(element.id, ']')).show()})
 
   }
 }
@@ -1355,13 +1383,87 @@ $(document).ready(function() {
   );
 } );
 
+var lotoTypeInfo = new Object({
+  lotofacil: {
+    nPlayedList: Array.from(new Array(6), (x, i) => i+15),
+    nPossiblesList: Array.from(new Array(25), (x, i) => i+1),
+  },
+  diadesorte: {
+    nPlayedList: Array.from(new Array(9), (x, i) => i+7),
+    nPossiblesList: Array.from(new Array(31), (x, i) => i+1),
+  },
+  megasena: {
+    nPlayedList: Array.from(new Array(10), (x, i) => i+6),
+    nPossiblesList: Array.from(new Array(60), (x, i) => i+1),
+  }
+})
 
+function calcNumberOfCombinations(){
+  let lototype = $("input[name='lototype']:checked")[0].value
+  console.log(lototype)
+  let nPlayedChosen = parseInt(document.forms['gerador-form']['nPlayed'].value)
+  let nFixedChosen = Array.from($("input[name='nFixed']:checked"))
+  console.log(nFixedChosen.length)
+  let nRemovedChosen = Array.from($("input[name='nRemoved']:checked"))
+  console.log(nRemovedChosen.length)
+  let m = lotoTypeInfo[lototype].nPossiblesList.length - nFixedChosen.length - nRemovedChosen.length
+  let n = nPlayedChosen - nFixedChosen.length
+  return math.combinations(m, n)
+
+}
+$('#check-nPlayed').change(function(){
+  $("input[name='nFixed']").map((ind,el) => {
+  $("label[for='" + el.id + "']").removeClass('disabled');
+  })
+
+  $("input[name='nRemoved']").map((ind,el) => {
+  $("label[for='" + el.id + "']").removeClass('disabled');
+  })
+  $('#check-nPlayed').off()
+  $('#check-nPlayed').change(function(){
+  //checkSumOfChecksLTnPlayed()
+})
+})
+
+function checkSumOfChecksLTnPlayed(){
+    let nFixedChosen = Array.from($("input[name='nFixed']:checked"))
+    let nPlayedChosen = parseInt(document.forms['gerador-form']['nPlayed'].value)
+    let nRemovedChosen = Array.from($("input[name='nRemoved']:checked"))
+    let sum = nFixedChosen.length + nRemovedChosen.length
+    console.log(sum)
+    if (sum == nPlayedChosen){
+    $("input[name='nFixed']").map((ind,el) => {
+  $("label[for='" + el.id + "']").addClass('disabled');
+  })
+   $("input[name='nRemoved']").map((ind,el) => {
+  $("label[for='" + el.id + "']").addClass('disabled');
+  })
+  }
+  else{
+    $("input[name='nFixed']").map((ind,el) => {
+  $("label[for='" + el.id + "']").removeClass('disabled');
+  })
+   $("input[name='nRemoved']").map((ind,el) => {
+  $("label[for='" + el.id + "']").removeClass('disabled');
+  })
+  }
+}
+
+function showSubmitBtn(){
+  let nCombs = calcNumberOfCombinations()
+  $("#calc-combs-btn").hide()
+  $("#nJogos-input").show()
+  $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
+}
+//$('#grid-fixed-removed').change(checkSumOfChecksLTnPlayed)
+$('#calc-combs-btn').click(showSubmitBtn)
 
 
 
 </script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.1/math.js"></script>
 {% endblock %}
 
 
