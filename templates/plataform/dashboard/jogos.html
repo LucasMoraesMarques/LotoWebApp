@@ -120,7 +120,7 @@
           <div class="col-lg- mb-lg-0 mb-4">
             <div class="card z-index-2">
               <div class="card-body p-3">
-                <form action="{% url 'lottery:jogos' %}" method="POST" id="gerador-form">
+                <form id="gerador-form">
                   {% csrf_token %}
                   <div class="row">
                     <div class="col-lg-7">
@@ -274,7 +274,7 @@
                       Número de Jogos</h6></label>
                     <p id="nCombs-span"></p>
                     <input class="form-control d-inline" type="number" name="nJogos" value="" id="nJogos">
-                    <button type="submit" class="btn btn-primary mt-2">Gerar Jogos</button>
+                    <input type="submit" class="btn btn-primary mt-2" id="submit-generator" value="Gerar jogos">
                   </div>
                   <div class="col-lg-3 ms-auto text-center mt-5 mt-lg-0">
                       <div class="border-radius-lg h-100">
@@ -287,6 +287,28 @@
                     </div>
                   </div>
                 </form>
+                <table id="table-jogos" style="display:none;">
+                  <thead>
+                    <th class="mx-3">Bola 1</th>
+                  <th class="mx-3">Bola 2</th>
+                  <th class="mx-3">Bola 3</th>
+                  <th class="mx-3">Bola 4</th>
+                  <th class="mx-3">Bola 5</th>
+                  <th class="mx-3">Bola 6</th>
+                  <th class="mx-3">Bola 7</th>
+                  <th class="mx-3">Bola 8</th>
+                  <th class="mx-3">Bola 9</th>
+                  <th class="mx-3">Bola 10</th>
+                  <th class="mx-3">Bola 11</th>
+                  <th class="mx-3">Bola 12</th>
+                  <th class="mx-3">Bola 13</th>
+                  <th class="mx-3">Bola 14</th>
+                  <th class="mx-3">Bola 15</th>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1458,7 +1480,49 @@ function showSubmitBtn(){
 //$('#grid-fixed-removed').change(checkSumOfChecksLTnPlayed)
 $('#calc-combs-btn').click(showSubmitBtn)
 
+$("#gerador-form").submit(function(e){
+  e.preventDefault()
+  var serializedData = $(this).serialize()
 
+  $.ajax({
+    type: "POST",
+    url: "{% url 'lottery:generator' %}",
+    data: serializedData,
+    success: function(response){
+      $("#generator-form").trigger('reset')
+      $("#table-jogos").show()
+      var data = JSON.parse(response["jogos"]);
+      for( list of data['data']){
+        $("#table-jogos tbody").append(
+                    `<tr class="text-center">
+                    <td>${list[0]}</td>
+                    <td>${list[1]}</td>
+                    <td>${list[2]}</td>
+                    <td>${list[3]}</td>
+                    <td>${list[4]}</td>
+                    <td>${list[5]}</td>
+                    <td>${list[6]}</td>
+                    <td>${list[7]}</td>
+                    <td>${list[8]}</td>
+                    <td>${list[9]}</td>
+                    <td>${list[10]}</td>
+                    <td>${list[11]}</td>
+                    <td>${list[12]}</td>
+                    <td>${list[13]}</td>
+                    <td>${list[14]}</td>
+                    </tr>`
+                )
+
+
+      }
+
+    },
+    error: function(response){
+      alert(response["responseJSON"]["error"]);
+    }
+
+  })
+})
 
 </script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>

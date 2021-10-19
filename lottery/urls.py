@@ -20,12 +20,12 @@ app_name = "lottery"
 
 urlpatterns = [
     path("", views.landing, name="landing"),
-    path("generator/<int:loto>/", views.generator, name="generator"),
     path("dashboard", views.dashboard, name="dashboard"),
     path("loterias", views.loterias, name="loterias"),
     path("jogos", views.jogos, name="jogos"),
     path("jogos/conjuntos/<int:id>", views.conjuntosDetail, name="jogos"),
     path("jogos/colecoes/<int:id>", views.colecoesDetail, name="jogos"),
+    path("jogos/generator", views.generator, name="generator"),
     path("relatorios", views.relatorios, name="relatorios"),
     path("profile", views.profile, name="profile"),
     path("login", views.signin, name="signin"),
