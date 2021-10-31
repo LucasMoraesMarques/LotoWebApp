@@ -43,7 +43,9 @@ def dashboard(request):
 
 
 def loterias(request):
-    return render(request, "plataform/dashboard/loterias.html")
+    ctx = {
+        'lototypes': LOTTERY_CHOICES}
+    return render(request, "plataform/dashboard/loterias.html", ctx)
 
 
 def jogos(request):
@@ -106,6 +108,10 @@ def conjuntosDetail(request, id):
 
 def colecoesDetail(request, id):
     return render(request, "plataform/dashboard/colecoesDetail.html")
+
+
+def concursosDetail(request, id):
+    return render(request, "plataform/dashboard/concursosDetail.html")
 
 def relatorios(request):
     return render(request, "plataform/dashboard/relatorios.html")

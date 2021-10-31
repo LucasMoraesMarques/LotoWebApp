@@ -426,7 +426,7 @@
                         <span class="badge badge-sm bg-gradient-danger">SIM</span>
                       </td>
                       <td class="align-middle text-center">
-                        <a href="http://localhost:8000/jogos/conjuntos/5665">
+                        <a href="{% url 'lottery:conjunto-detail' 500 %}">
                           <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                         </a>
                       </td>
@@ -468,7 +468,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="card h-100">
               <div class="card-header pb-0">
-                <h5 class="font-weight-bolder">Seus Conjuntos</h5>
+                <h5 class="font-weight-bolder">Histórico</h5>
                 <p class="text-sm">
                   <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
                   Jogos do mês
@@ -720,7 +720,7 @@
                         <span class="badge badge-sm bg-gradient-primary">500</span>
                       </td>
                       <td class="align-middle text-center">
-                        <a href="http://localhost:8000/jogos/colecoes/5665">
+                        <a href="{% url 'lottery:colecao-detail' 500 %}">
                           <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                         </a>
                       </td>
