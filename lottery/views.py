@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from lottery.forms import GameGeneratorForm
-from lottery.models import Lottery, LOTTERY_CHOICES
+from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection
 from django import forms
 from django.core import serializers
 from django.http import JsonResponse
 import pandas as pd
 import numpy as np
 import random
+from lottery.backend.Jogos import generators
+from time import time
 import json
 # Create your views here.
 
@@ -70,45 +72,6 @@ def jogos(request):
     return render(request, "plataform/dashboard/jogos.html", ctx)
 
 
-def simpleGenerator(nPlayed, nJogos, removedNumbers, fixedNumbers):
-    """ Gerador simples. Sem filtros específicos
-
-    :param nPlayed: Quantidade de números escolhidos por jogo
-    :param nJogos: Número de jogos a ser criado
-    :param removedNumbers: Números removidos
-    :param fixedNumbers: Números fixados
-    :return: None. Cria n jogos pedidos pelo user
-    """
-    nFixed = len(fixedNumbers)
-    nPossibles = range(1, 26)
-    nPlayed = nPlayed
-    jogos = [0]
-    numbersAllowed = np.array(np.setdiff1d(np.array(nPossibles), removedNumbers))
-    numbersAllowed = np.setdiff1d(numbersAllowed, fixedNumbers)
-
-    cont = 0
-    while cont < nJogos:
-        numbersAllowedCopy = list(numbersAllowed)
-        random.shuffle(numbersAllowedCopy)
-        np.random.RandomState(cont)
-        jogo = np.zeros(nPlayed - nFixed)
-        for i in range(0, jogo.size):
-            number = np.random.choice(numbersAllowedCopy, 1)
-            jogo[i] = number
-            numbersAllowedCopy.remove(number)
-
-        jogo = np.union1d(jogo, fixedNumbers).astype("int8")
-        jogo = list(jogo)
-        if jogo in jogos:
-            continue
-        else:
-            jogos.append(jogo)
-            cont += 1
-
-    jogos.pop(0)
-    return pd.DataFrame(jogos)
-
-
 def generator(request):
     if request.is_ajax and request.method == "POST":
         form = forms.Form(request.POST)
@@ -117,8 +80,18 @@ def generator(request):
             data = dict(form.data)
             nRemoved = [int(i) for i in data['nRemoved']]
             nFixed = [int(i) for i in data['nFixed']]
-            jogos = simpleGenerator(int(data['nPlayed'][0]), int(data['nJogos'][0]), nRemoved, nFixed)
+            jogos = generators.simpleGenerator(data['lototype'][0], int(data['nPlayed'][0]), int(data['nJogos'][0]), nRemoved, nFixed)
             print(jogos.head())
+            gamesList = []
+            ts = time()
+            for index, jogo in jogos.iterrows():
+                game = Game.objects.get(arrayNumbers=jogo.to_list())
+                gamesList.append(game.id)
+            tf = time()
+            print(tf-ts)
+            instance = GamesGroup.objects.create(name='teste', user=request.user,
+                       lottery=Lottery.objects.get(name=data['lototype'][0]))
+            instance.games.set(gamesList)
             return JsonResponse({"jogos": jogos.to_json(orient="split")}, status=200)
         else:
             print('error1')

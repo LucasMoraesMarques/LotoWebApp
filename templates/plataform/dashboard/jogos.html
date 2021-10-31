@@ -145,7 +145,8 @@
                           {% for type in lototypes %}
                           <input type="radio" class="btn-check" name="lototype" id="modalidade-{{type.0}}"
                                  value="{{type.0}}"
-                                 autocomplete="off" required>
+                                 autocomplete="off" required
+                                  onclick="handleLototypeParams(this.value)">
                           <label class="btn btn-outline-primary" for="modalidade-{{type.0}}">{{type.1}}</label>
                           {% endfor %}
                         </div>
@@ -187,44 +188,24 @@
                     <div class="col">
                       <h6 class="font-weight-bolder">Escolha a quantia de números por jogo</h6>
                       <div class="d-flex flex-row h-100" id="check-nPlayed">
-                        {% for value in nPlayed %}
-                        <div class="form-check" id="check-played">
-                          <input class="form-check-input mx-2" type="radio" id="check-played-{{value}}" name="nPlayed"
-                                 value="{{value}}" required>
-                          <label class="custom-control-label fs-6" for="check-played-{{value}}">{{value}}</label>
-                        </div>
-                        {% endfor %}
+                        <p>Escolha a loteria e depois o número de marcações</p>
                       </div>
                     </div>
                     <div class="row mt-3 justify-content-center" id="grid-fixed-removed">
                       <div class="col-md-6">
                         <h6 class="font-weight-bolder">Escolha os números a serem fixados</h6>
-                        <div class="row row-cols-{{cols}} gx-0 px-0" id="grid-fixed">
-                          {% for value in nFixed %}
-                          <div class="col">
-                            <input type="checkbox" class="btn-check" id="check-fixed-{{value}}"
-                                   name="nFixed" value="{{value}}" autocomplete="off"
-                                   onchange="mapNumbers(this.id, 'fixed')">
-                            <label class="btn btn-outline-success mb-2 disabled" for="check-fixed-{{value}}"
-                                   style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
-                                   id="label-check-fixed-{{value}}">{{value}}</label>
-                          </div>
-                          {% endfor %}
+                        <div class="row row-cols-auto gx-2 justify-content-center" id="grid-fixed">
+                          <p>Escolha uma modalidade para liberar essa funcionalidade</p>
+                          <img src="{% static 'assets/img/check-fixed-info.svg' %}" style="width:60%" alt="">
+
                         </div>
                       </div>
                       <div class="col-md-6">
                         <h6 class="font-weight-bolder">Escolha os números a serem removidos</h6>
-                        <div class="row row-cols-{{cols}} gx-0 px-0" id="grid-removed">
-                          {% for value in nRemoved %}
-                          <div class="col">
-                            <input type="checkbox" class="btn-check" id="check-removed-{{value}}"
-                                   name="nRemoved" value="{{value}}" autocomplete="off"
-                                   onchange="mapNumbers(this.id, 'removed')">
-                            <label class="btn btn-outline-danger mb-2 disabled" for="check-removed-{{value}}"
-                                   style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
-                                   id="label-check-removed-{{value}}">{{value}}</label><br>
-                          </div>
-                          {% endfor %}
+                        <div class="row row-cols-auto gx-2 justify-content-center" id="grid-removed">
+                          <p>Além da loteria, escolha o número de marcações por jogos</p>
+                          <img src="{% static 'assets/img/check-removed-info.svg' %}" style="width:60%" alt="">
+
                         </div>
                       </div>
                     </div>
@@ -275,6 +256,8 @@
                     <p id="nCombs-span"></p>
                     <input class="form-control d-inline" type="number" name="nJogos" value="" id="nJogos">
                     <input type="submit" class="btn btn-primary mt-2" id="submit-generator" value="Gerar jogos">
+                    <input type="submit" class="btn btn-primary mt-2 mx-2" id="see-games-set" style="display:none"
+                           value="Ver Jogos" data-bs-toggle="modal" data-bs-target="#exampleModal">
                   </div>
                   <div class="col-lg-3 ms-auto text-center mt-5 mt-lg-0">
                       <div class="border-radius-lg h-100">
@@ -287,7 +270,42 @@
                     </div>
                   </div>
                 </form>
-                <table id="table-jogos" style="display:none;">
+                <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal1">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel1">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+                <div class="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="z-index:2000;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table id="table-jogos" style="display:none;">
                   <thead>
                     <th class="mx-3">Bola 1</th>
                   <th class="mx-3">Bola 2</th>
@@ -309,6 +327,15 @@
 
                   </tbody>
                 </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn bg-gradient-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
               </div>
             </div>
           </div>
@@ -1323,7 +1350,94 @@
       },
     });
 
+    var lotoTypeInfo = new Object({
+  lotofacil: {
+    nPlayedList: Array.from(new Array(6), (x, i) => i+15),
+    nPossiblesList: Array.from(new Array(25), (x, i) => i+1),
+  },
+  diadesorte: {
+    nPlayedList: Array.from(new Array(9), (x, i) => i+7),
+    nPossiblesList: Array.from(new Array(31), (x, i) => i+1),
+  },
+  megasena: {
+    nPlayedList: Array.from(new Array(10), (x, i) => i+6),
+    nPossiblesList: Array.from(new Array(60), (x, i) => i+1),
+  }
+})
 
+function mapNumbers(cellId, op){
+    console.log(op)
+    switch(op){
+      case "removed":
+        cellId = cellId.replace(op, 'fixed');
+        console.log(cellId);
+        $("#label-".concat(cellId)).toggleClass('disabled');
+        break;
+
+      case "fixed":
+        cellId = cellId.replace(op, 'removed');
+        console.log(cellId);
+        $("#label-".concat(cellId)).toggleClass('disabled')
+        break;
+    }
+
+}
+
+function handleLototypeParams(lototype){
+  $("#check-nPlayed").empty()
+  for(value of lotoTypeInfo[lototype].nPlayedList){
+    $("#check-nPlayed").append(
+           `<div class="form-check" id="check-n-{{value}}}">
+           <input class="form-check-input mx-2" type="radio" id="check-played-${value}" name="nPlayed"
+              value="${value}" required>
+           <label class="custom-control-label fs-6" for="check-played-${value}">${value}</label>
+           </div>
+           `
+  )
+  }
+
+  $('#check-nPlayed').change(function(){
+  $("input[name='nFixed']").map((ind,el) => {
+  $("label[for='" + el.id + "']").removeClass('disabled');
+  })
+
+  $("input[name='nRemoved']").map((ind,el) => {
+  $("label[for='" + el.id + "']").removeClass('disabled');
+  })
+  $('#check-nPlayed').off()
+  $('#check-nPlayed').change(function(){
+  //checkSumOfChecksLTnPlayed()
+})
+})
+
+  $("#grid-fixed").empty()
+  for(value of lotoTypeInfo[lototype].nPossiblesList){
+    $("#grid-fixed").append(
+                          `<div class="col">
+                            <input type="checkbox" class="btn-check" id="check-fixed-${value}"
+                                   name="nFixed" value="${value}" autocomplete="off"
+                                   onchange="mapNumbers(this.id, 'fixed')">
+                            <label class="btn btn-outline-success mb-2 disabled" for="check-fixed-${value}"
+                                   style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
+                                   id="label-check-fixed-${value}">${value}</label>
+                          </div>`
+  )
+  }
+
+  $("#grid-removed").empty()
+  for(value of lotoTypeInfo[lototype].nPossiblesList){
+    $("#grid-removed").append(
+                          `<div class="col">
+                            <input type="checkbox" class="btn-check" id="check-removed-${value}"
+                                   name="nRemoved" value="${value}" autocomplete="off"
+                                   onchange="mapNumbers(this.id, 'removed')">
+                            <label class="btn btn-outline-danger mb-2 disabled" for="check-removed-${value}"
+                                   style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
+                                   id="label-check-removed-${value}">${value}</label>
+                          </div>`
+  )
+  }
+}
 
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -1344,23 +1458,7 @@ $(document).ready(function(){
 
 
 
-function mapNumbers(cellId, op){
-    console.log(op)
-    switch(op){
-      case "removed":
-        cellId = cellId.replace(op, 'fixed');
-        console.log(cellId);
-        $("#label-".concat(cellId)).toggleClass('disabled');
-        break;
 
-      case "fixed":
-        cellId = cellId.replace(op, 'removed');
-        console.log(cellId);
-        $("#label-".concat(cellId)).toggleClass('disabled')
-        break;
-    }
-
-}
 
 
 function handleGeneratorSelect(radio){
@@ -1405,20 +1503,6 @@ $(document).ready(function() {
   );
 } );
 
-var lotoTypeInfo = new Object({
-  lotofacil: {
-    nPlayedList: Array.from(new Array(6), (x, i) => i+15),
-    nPossiblesList: Array.from(new Array(25), (x, i) => i+1),
-  },
-  diadesorte: {
-    nPlayedList: Array.from(new Array(9), (x, i) => i+7),
-    nPossiblesList: Array.from(new Array(31), (x, i) => i+1),
-  },
-  megasena: {
-    nPlayedList: Array.from(new Array(10), (x, i) => i+6),
-    nPossiblesList: Array.from(new Array(60), (x, i) => i+1),
-  }
-})
 
 function calcNumberOfCombinations(){
   let lototype = $("input[name='lototype']:checked")[0].value
@@ -1433,19 +1517,7 @@ function calcNumberOfCombinations(){
   return math.combinations(m, n)
 
 }
-$('#check-nPlayed').change(function(){
-  $("input[name='nFixed']").map((ind,el) => {
-  $("label[for='" + el.id + "']").removeClass('disabled');
-  })
 
-  $("input[name='nRemoved']").map((ind,el) => {
-  $("label[for='" + el.id + "']").removeClass('disabled');
-  })
-  $('#check-nPlayed').off()
-  $('#check-nPlayed').change(function(){
-  //checkSumOfChecksLTnPlayed()
-})
-})
 
 function checkSumOfChecksLTnPlayed(){
     let nFixedChosen = Array.from($("input[name='nFixed']:checked"))
@@ -1515,7 +1587,7 @@ $("#gerador-form").submit(function(e){
 
 
       }
-
+    $("#see-games-set").show()
     },
     error: function(response){
       alert(response["responseJSON"]["error"]);

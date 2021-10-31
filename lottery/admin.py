@@ -19,6 +19,17 @@ class GamesAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(GamesGroup)
+@admin.register(Gameset)
 class GamesGroupAdmin(admin.ModelAdmin):
-    pass
+    model = Gameset
+    verbose_name = "Gamesets"
+    list_display = ('name', 'user', 'lottery')
+    raw_id_fields = ('games',)
+
+
+@admin.register(Collection)
+class GamesGroupAdmin(admin.ModelAdmin):
+    model = Collection
+    verbose_name = "Collection"
+    list_display = ('name', 'user', 'lottery')
+    raw_id_fields = ('gamesets',)

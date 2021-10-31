@@ -6544,6 +6544,7 @@ fieldset:disabled .btn {
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 0.75rem;
   outline: 0;
+  z-index: 2000;
 }
 
 .modal-backdrop {
