@@ -11,7 +11,7 @@
 
     <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
       <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-        <p class="font-weight-bolder mb-0">Seja bem vindo(a), {{user.username}}.</p>
+        <p class="font-weight-bolder mb-0">Seja bem vindo(a), {{user.first_name}} {{user.last_name}}.</p>
       </div>
       <ul class="navbar-nav  justify-content-end">
         <li class="nav-item dropdown pe-2 d-flex align-items-center mx-2">
@@ -112,20 +112,6 @@
                   <div class="d-flex flex-column justify-content-center">
                     <h6 class="text-sm font-weight-normal mb-1">
                       <span class="font-weight-bold">Perfil</span>
-                    </h6>
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="mb-2">
-              <a class="dropdown-item border-radius-md" href="{% url 'lottery:profile' %}">
-                <div class="d-flex py-1">
-                  <div class="my-auto">
-                    <i class="fa fa-cog me-1 avatar avatar-sm bg-gradient-primary  me-3"></i>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="text-sm font-weight-normal mb-1">
-                      <span class="font-weight-bold">Configurações</span>
                     </h6>
                   </div>
                 </div>
