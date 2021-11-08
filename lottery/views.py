@@ -4,6 +4,7 @@ from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collec
 from django import forms
 from django.core import serializers
 from django.http import JsonResponse
+from django.db.models import Sum
 import pandas as pd
 import numpy as np
 import random
@@ -49,28 +50,31 @@ def loterias(request):
 
 
 def jogos(request):
-    if request.method == "POST":
-        print(request.POST)
-    print(request)
-    loto = Lottery.objects.get(id=1)
-    choicesNPlayed = [i for i in loto.possiblesChoicesRange]
-    choices = [i for i in range(1, loto.numbersRangeLimit + 1)]
-    cols = 10
-    if loto.name == "lotofacil":
-        cols = 5
-    if request.method == "POST":
-        form = forms.Form(request.POST)
-        print(request.POST)
-        if form.is_valid():
-            print(form.cleaned_data)
+    user = request.user
+    userGamesets = user.gamesets.all()
+    lastGamesets = userGamesets.order_by('-createdAt')[:5]
+    userCollections = user.collections.all()
+    lastCollections = userCollections.order_by('-createdAt')[:5]
+
+    gamesetsData = {
+        'gamesets': userGamesets,
+        'lastGamesets': lastGamesets,
+    }
+
+    collectionsData = {
+        'collections': userCollections,
+        'lastCollecions': lastCollections,
+        'totalGamesets': userGamesets.count(),
+        'totalCollections': userCollections.count(),
+        'totalGames': userGamesets.aggregate(sum=Sum('numberOfGames'))
+    }
 
     ctx={
         'lototypes': LOTTERY_CHOICES,
-        "nPlayed": choicesNPlayed,
-        "nFixed": choices,
-        "nRemoved": choices,
-        "cols": cols,
+        'gamesetsData': gamesetsData,
+        'collectionsData': collectionsData
     }
+    print(ctx)
     return render(request, "plataform/dashboard/jogos.html", ctx)
 
 
@@ -86,12 +90,14 @@ def generator(request):
             print(jogos.head())
             gamesList = []
             ts = time()
+            jogos['sum'] = jogos.sum(axis=1)
+            games = Game.objects.filter(lottery__name=data['lototype'][0])
             for index, jogo in jogos.iterrows():
-                game = Game.objects.get(arrayNumbers=jogo.to_list())
+                game = games.filter(sum=jogo.iloc[-1]).get(arrayNumbers=jogo.iloc[:-1].to_list())
                 gamesList.append(game.id)
             tf = time()
             print(tf-ts)
-            instance = GamesGroup.objects.create(name='teste', user=request.user,
+            instance = Gameset.objects.create(name='teste', user=request.user,
                        lottery=Lottery.objects.get(name=data['lototype'][0]))
             instance.games.set(gamesList)
             return JsonResponse({"jogos": jogos.to_json(orient="split")}, status=200)
@@ -102,12 +108,21 @@ def generator(request):
     return JsonResponse({"error": "Not found"}, status=400)
 
 
-def conjuntosDetail(request, id):
-    return render(request, "plataform/dashboard/conjuntosDetail.html")
+def conjuntosDetail(request, gameset_id):
+    gameset = Gameset.objects.filter(id=gameset_id)[0]
+    ctx = {
+        'gameset': gameset
+    }
+    return render(request, "plataform/dashboard/conjuntosDetail.html", ctx)
 
 
-def colecoesDetail(request, id):
-    return render(request, "plataform/dashboard/colecoesDetail.html")
+def colecoesDetail(request, collection_id):
+    collection = Collection.objects.filter(id=collection_id)[0]
+    ctx = {
+        'collection': collection
+    }
+
+    return render(request, "plataform/dashboard/colecoesDetail.html", ctx)
 
 
 def concursosDetail(request, id):

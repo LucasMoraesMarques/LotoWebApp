@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
-
+from django.utils import timezone
 # Create your models here.
 LOTTERY_CHOICES = [
     ("lotofacil", "Lotofácil"),
@@ -55,6 +55,7 @@ class Game(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Lottery type'
     )
+    sum = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['lottery']
@@ -83,6 +84,12 @@ class Gameset(models.Model):
         related_name='gamesets',
         verbose_name='Lottery type'
     )
+
+    numberOfGames = models.IntegerField(default=0)
+    gameLength = models.IntegerField(default=0)
+    isActive = models.BooleanField(default=False)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updateAt = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['name']
@@ -114,6 +121,11 @@ class Collection(models.Model):
         related_name='collections',
         verbose_name='Lottery type'
     )
+
+    numberOfGames = models.IntegerField(default=0)
+    numberOfGamesets = models.IntegerField(default=0)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updateAt = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['name']

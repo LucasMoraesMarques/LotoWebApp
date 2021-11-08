@@ -20,16 +20,16 @@ class GamesAdmin(admin.ModelAdmin):
 
 
 @admin.register(Gameset)
-class GamesGroupAdmin(admin.ModelAdmin):
+class GamesetAdmin(admin.ModelAdmin):
     model = Gameset
     verbose_name = "Gamesets"
-    list_display = ('name', 'user', 'lottery')
+    list_display = ('name', 'user', 'lottery', 'isActive')
     raw_id_fields = ('games',)
 
 
 @admin.register(Collection)
-class GamesGroupAdmin(admin.ModelAdmin):
+class CollectionAdmin(admin.ModelAdmin):
     model = Collection
     verbose_name = "Collection"
-    list_display = ('name', 'user', 'lottery')
+    list_display = ('name', 'user', 'lottery', 'createdAt')
     raw_id_fields = ('gamesets',)

@@ -28,7 +28,7 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    Jogo 1
+                    {{collection.name|capfirst}}
                   </h5>
                 </div>
               </div>
@@ -48,7 +48,7 @@
 
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    Dia de Sorte
+                    {{collection.lottery|capfirst}}
                   </h5>
                 </div>
               </div>
@@ -71,12 +71,12 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    5
+                    {{collection.numberOfGamesets}}
                   </h5>
                 </div>
               </div>
             </div>
-             <div class="card mb-2">
+            <div class="card mb-2">
               <div class="card-body p-3">
                 <div class="row">
                   <div class="col">
@@ -90,15 +90,15 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    100
+                    {{collection.numberOfGames}}
                   </h5>
                 </div>
               </div>
             </div>
           </div>
 
-              <img class="position-relative z-index-2 pt-4 ms-6 mb-2"
-                 src="{% static 'assets/img/collection-detail.svg' %}" alt="detail" style="width:35%">
+          <img class="position-relative z-index-2 pt-4 ms-6 mb-2"
+               src="{% static 'assets/img/collection-detail.svg' %}" alt="detail" style="width:35%">
         </div>
 
       </div>
@@ -108,11 +108,11 @@
     <div class="card">
       <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
         <div class="d-inline">
-          <h5 class="font-weight-bolder">Coleção Jogo 1</h5>
+          <h5 class="font-weight-bolder">Coleção {{collection.name}}</h5>
           <p class="text-sm">
-            <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo da coleção</p>
-            <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-            50 conjuntos encontrados
+          <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo da coleção</p>
+          <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
+          {{collection.numberOfGamesets}} conjuntos encontrados
           </p>
         </div>
       </div>
@@ -121,72 +121,58 @@
           <table class="table align-items-center mb-0 display" id="gamesTable">
             <thead>
             <tr>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Loteria</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Conjunto</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Nº Jogos</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Nº Marcações</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Ativo</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Nº
+                Jogos
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Nº
+                Marcações
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Ativo
+              </th>
               <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Info
               </th>
             </tr>
             </thead>
             <tbody>
+            {% for gameset in collection.gamesets.all %}
+            {% with 'assets/img/loterias/logos/'|add:gameset.lottery.name|add:'.png' as lotteryLogo %}
+
             <tr>
-              <td class="text-sm text-center">
-                Bolão 1
+              <td>
+                <div class="d-flex px-2 py-1 justify-content-center">
+                  <img src="{% static lotteryLogo %}" alt="Logo da {{gameset.lottery.name}}"
+                       class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       title="Logo da {{gameset.lottery.name}}" data-container="body" data-animation="true">
+                </div>
+                <p hidden>{{gameset.lottery.name}}</p>
               </td>
               <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-primary">100</span>
+                {{gameset.name|capfirst}}
               </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-primary">15</span>
+              <td class="text-sm text-center align-middle" >
+                <span class="badge badge-sm bg-gradient-primary">{{gameset.numberOfGames}}</span>
               </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-success">ATIVO</span>
+              <td class="text-sm text-center align-middle">
+                <span class="badge badge-sm bg-gradient-primary">{{gameset.gameLength}}</span>
+              </td>
+              <td class="text-sm text-center align-middle">
+                {% if gameset.isActive %}
+                <span class="badge badge-sm bg-gradient-success">SIM</span>
+                {% else %}
+                <span class="badge badge-sm bg-gradient-danger">NÃO</span>
+                {% endif %}
               </td>
               <td class="align-middle text-center">
-                <a>
-                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                </a>
+               <a href="{% url 'lottery:conjunto-detail' gameset.id  %}">
+                          <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                        </a>
               </td>
             </tr>
-            <tr>
-              <td class="text-sm text-center">
-                Bolão 2
-              </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-primary">150</span>
-              </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-primary">16</span>
-              </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-danger">INATIVO</span>
-              </td>
-              <td class="align-middle text-center">
-                <a>
-                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td class="text-sm text-center">
-                Bolão 3
-              </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-primary">120</span>
-              </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-primary">6</span>
-              </td>
-              <td class="text-sm text-center">
-                <span class="badge badge-sm bg-gradient-success">ATIVO</span>
-              </td>
-              <td class="align-middle text-center">
-                <a href="http://localhost:8000/jogos/conjuntos/5665">
-                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                </a>
-              </td>
-            </tr>
+            {% endwith %}
+            {% endfor %}
             </tbody>
           </table>
         </div>
@@ -226,7 +212,8 @@ $(document).ready(function() {
      {'width':'300px','display':'inline-block'}
   );
 } );
+
 </script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 {% endblock %}

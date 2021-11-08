@@ -28,7 +28,7 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    Jogo 1
+                    {{gameset.name|capfirst}}
                   </h5>
                 </div>
               </div>
@@ -49,12 +49,9 @@
                     </div>
 
                   </div>
-                  <div class="d-flex px-2 py-1">
-                    <img src="{% static 'assets/img/loterias/logos/diadesorte.png' %}" alt="Logo da Lotofácil"
-                         class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                         data-bs-placement="top"
-                         title="Dia de Sorte" data-container="body" data-animation="true">
-                  </div>
+                  <h5 class="font-weight-bolder mb-0">
+                  {{gameset.lottery.name|capfirst}}
+                  </h5>
                 </div>
               </div>
             </div>
@@ -75,7 +72,7 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    em 2
+                    em {{gameset.collections.count}}
                   </h5>
                 </div>
               </div>
@@ -97,7 +94,7 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    100
+                    {{gameset.numberOfGames}}
                   </h5>
                 </div>
               </div>
@@ -119,7 +116,7 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
-                    15
+                    {{gameset.gameLength}}
                   </h5>
                 </div>
               </div>
@@ -141,7 +138,11 @@
                     </div>
                   </div>
                   <h5 class="font-weight-bolder mb-0">
+                    {% if gameset.isActive %}
                     Sim
+                    {% else %}
+                    Não
+                    {% endif %}
                   </h5>
                 </div>
               </div>
@@ -156,10 +157,10 @@
     <div class="card">
       <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
         <div class="d-inline">
-          <h5 class="font-weight-bolder">Conjunto Jogo 1</h5>
+          <h5 class="font-weight-bolder">Conjunto {{gameset.name|capfirst}}</h5>
           <p class="text-sm">
             <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-            50 jogos encontrados
+            {{gameset.numberOfGames}} jogos encontrados
           </p>
         </div>
       </div>
@@ -169,7 +170,7 @@
             <thead>
             <tr>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jogo Nº</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Números</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Números</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Soma</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Max Seq</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Min Seq</th>
@@ -180,18 +181,16 @@
             </tr>
             </thead>
             <tbody>
+            {% for game in gameset.games.all %}
             <tr>
               <td class="text-sm text-center">
-                3*
+                {{forloop.counter}}
               </td>
               <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">1</span>
-                <span class="badge badge-sm bg-gradient-primary">5</span>
-                <span class="badge badge-sm bg-gradient-primary">26</span>
-                <span class="badge badge-sm bg-gradient-primary">34</span>
-                <span class="badge badge-sm bg-gradient-primary">40</span>
-                <span class="badge badge-sm bg-gradient-primary">55</span>
-              </td>
+              {% for number in game.arrayNumbers %}
+                <span class="badge badge-sm bg-gradient-primary">{{number}}</span>
+              {% endfor %}
+               </td>
               <td class="text-sm">
                 <span class="badge badge-sm bg-gradient-primary">50</span>
               </td>
@@ -213,105 +212,7 @@
                 </a>
               </td>
             </tr>
-            <tr>
-              <td class="text-sm text-center">
-                4*
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">1</span>
-                <span class="badge badge-sm bg-gradient-primary">5</span>
-                <span class="badge badge-sm bg-gradient-primary">26</span>
-                <span class="badge badge-sm bg-gradient-primary">34</span>
-                <span class="badge badge-sm bg-gradient-primary">40</span>
-                <span class="badge badge-sm bg-gradient-primary">55</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-info">Par</span>
-              </td>
-              <td class="align-middle text-center">
-                <a>
-                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td class="text-sm text-center">
-                5*
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">1</span>
-                <span class="badge badge-sm bg-gradient-primary">5</span>
-                <span class="badge badge-sm bg-gradient-primary">26</span>
-                <span class="badge badge-sm bg-gradient-primary">34</span>
-                <span class="badge badge-sm bg-gradient-primary">40</span>
-                <span class="badge badge-sm bg-gradient-primary">55</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-info">Par</span>
-              </td>
-              <td class="align-middle text-center">
-                <a>
-                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td class="text-sm text-center">
-                1*
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">1</span>
-                <span class="badge badge-sm bg-gradient-primary">5</span>
-                <span class="badge badge-sm bg-gradient-primary">26</span>
-                <span class="badge badge-sm bg-gradient-primary">34</span>
-                <span class="badge badge-sm bg-gradient-primary">40</span>
-                <span class="badge badge-sm bg-gradient-primary">55</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">40</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">50</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">70</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">80</span>
-              </td>
-              <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-warning">Ímpar</span>
-              </td>
-              <td class="align-middle text-center">
-                <a>
-                  <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                </a>
-              </td>
-            </tr>
+            {% endfor %}
             </tbody>
           </table>
         </div>
