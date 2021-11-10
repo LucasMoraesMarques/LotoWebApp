@@ -56,6 +56,7 @@ class Game(models.Model):
         verbose_name='Lottery type'
     )
     sum = models.IntegerField(default=0)
+    gameCode = models.BigIntegerField(default=0)
 
     class Meta:
         ordering = ['lottery']

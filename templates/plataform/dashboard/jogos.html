@@ -161,16 +161,17 @@
                           <label for="collection-gen-select" class="form-control-label"><h6 class="font-weight-bolder">
                             Coleção</h6></label>
                           <div class="input-group mb-3">
-                            <select class="form-control" id="collection-gen-select" aria-describedby="add-collection"
-                                    name="collection" required>
-                              <option>Jogos Bolão</option>
-                              <option>Jogos 2</option>
-                              <option>Teste</option>
+                            <select class="form-control custom-select" id="collection-gen-select" aria-describedby="add-collection"
+                                    name="collection" multiple required>
+                              {% for collection in collectionsData.collections %}
+                              <option value="{{collection.id}}">{{collection.name|capfirst}}</option>
+                              {% endfor %}
                             </select>
-                            <button class="btn btn-outline-primary mb-0" type="button" id="add-collection">Adicionar
+
+                          </div>
+                          <button class="btn btn-outline-primary mb-0" type="button" id="add-collection">Adicionar
                               nova
                             </button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -256,8 +257,19 @@
                     <p id="nCombs-span"></p>
                     <input class="form-control d-inline" type="number" name="nJogos" value="" id="nJogos">
                     <input type="submit" class="btn btn-primary mt-2" id="submit-generator" value="Gerar jogos">
-                    <input type="submit" class="btn btn-primary mt-2 mx-2" id="see-games-set" style="display:none"
+                    <input type="button" class="btn btn-primary mt-2 mx-2" id="see-games-set" style="display:none"
                            value="Ver Jogos" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                      <div class="progress-wrapper">
+                        <div class="progress-info">
+                          <div class="progress-percentage">
+                            <span class="text-sm font-weight-bold">60%</span>
+                          </div>
+                        </div>
+                        <div class="progress">
+                          <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                               aria-valuemax="100" style="width: 0%;"></div>
+                        </div>
+                      </div>
                   </div>
                   <div class="col-lg-3 ms-auto text-center mt-5 mt-lg-0">
                       <div class="border-radius-lg h-100">
@@ -325,7 +337,11 @@
                         <p class="text-xs font-weight-bold mb-0">{{gameset.name}}</p>
                       </td>
                       <td>
-                        <p class="text-xs font-weight-bold mb-0">{{gameset.collection.all.0}}</p>
+                        <ul class="text-xs font-weight-bold mb-0">
+                        {% for collection in gameset.collections.all %}
+                          <li>{{collection.name}}</li>
+                        {% endfor %}
+                        </ul>
                       </td>
                       <td class="align-middle text-center text-sm">
                         <span class="badge badge-sm bg-gradient-primary">{{gameset.numberOfGames}}</span>
@@ -1457,6 +1473,12 @@ $('#calc-combs-btn').click(showSubmitBtn)
 
 $("#gerador-form").submit(function(e){
   e.preventDefault()
+  setInterval(function(){
+  var njogos = parseInt($("#nJogos-input input").val())
+  var value = parseFloat($('.progress-bar').attr('aria-valuenow')) + (100/njogos)
+  $('.progress-bar').attr('aria-valuenow', value)
+  $('.progress-bar').width(`${value}%`)
+  }, 500)
   var serializedData = $(this).serialize()
 
   $.ajax({

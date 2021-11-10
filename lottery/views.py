@@ -1,3 +1,5 @@
+from functools import reduce
+
 from django.shortcuts import render
 from lottery.forms import GameGeneratorForm
 from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection
@@ -11,7 +13,18 @@ import random
 from lottery.backend.Jogos import generators
 from time import time
 import json
+import math
 # Create your views here.
+
+def reverseMapping(jogo):
+    jogo0 = np.zeros(25)
+    jogo = np.array(jogo)
+    for number in jogo:
+        jogo0[number-1] = 1
+    number = 0
+    for pos,value in enumerate(jogo0):
+        number += value*math.pow(2,pos)
+    return number
 
 
 def landing(request):
@@ -84,22 +97,34 @@ def generator(request):
         print(request.POST)
         if form.is_valid():
             data = dict(form.data)
-            nRemoved = [int(i) for i in data['nRemoved']]
-            nFixed = [int(i) for i in data['nFixed']]
-            jogos = generators.simpleGenerator(data['lototype'][0], int(data['nPlayed'][0]), int(data['nJogos'][0]), nRemoved, nFixed)
+            nRemoved = [int(i) for i in data.get('nRemoved', [])]
+            nFixed = [int(i) for i in data.get('nFixed', [])]
+            gameset = data.get('gameset-name')[0]
+            collection = data.get('collection')
+            loto=data['lototype'][0]
+            jogos = generators.simpleGenerator(loto, int(data['nPlayed'][0]), int(data['nJogos'][0]), nRemoved, nFixed)
             print(jogos.head())
             gamesList = []
             ts = time()
-            jogos['sum'] = jogos.sum(axis=1)
-            games = Game.objects.filter(lottery__name=data['lototype'][0])
+            games = Game.objects.filter(lottery__name=loto)
             for index, jogo in jogos.iterrows():
-                game = games.filter(sum=jogo.iloc[-1]).get(arrayNumbers=jogo.iloc[:-1].to_list())
+                code = reverseMapping(jogo)
+                game = games.get(gameCode=code)
                 gamesList.append(game.id)
             tf = time()
             print(tf-ts)
-            instance = Gameset.objects.create(name='teste', user=request.user,
-                       lottery=Lottery.objects.get(name=data['lototype'][0]))
+            instance = Gameset.objects.create(name=gameset, user=request.user,
+                       lottery=Lottery.objects.get(name=loto))
             instance.games.set(gamesList)
+            instance.numberOfGames = len(jogos)
+            instance.gameLength = data.get('nPlayed')[0]
+            instance.collections.set(collection)
+            instance.save()
+            collections = Collection.objects.filter(id__in=collection)
+            for instance in collections:
+                instance.numberOfGames += len(jogos)
+                instance.numberOfGamesets += 1
+                instance.save()
             return JsonResponse({"jogos": jogos.to_json(orient="split")}, status=200)
         else:
             print('error1')
