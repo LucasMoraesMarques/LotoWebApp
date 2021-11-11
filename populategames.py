@@ -6,7 +6,7 @@ import pandas as pd
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LotoWebApp.settings")
 django.setup()
-from lottery.models import Game
+from lottery.models import Game, Draw
 
 LOTTERY_CHOICES = {"lotofacil": 1, "diadesorte": 2, "megasena": 3}
 

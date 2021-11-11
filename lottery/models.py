@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.conf import settings
 from django.utils import timezone
 # Create your models here.
@@ -27,12 +27,13 @@ class Lottery(models.Model):
 
 
 class Draw(models.Model):
-    lottery = models.ForeignKey(Lottery, on_delete=models.CASCADE, verbose_name='Lottery type')
+    lottery = models.ForeignKey(Lottery, on_delete=models.CASCADE, verbose_name='Lottery type', related_name='draws')
     number = models.IntegerField('Draw unique identifier', default=1)
     date = models.DateField('Date draw occurred')
     result = ArrayField(models.IntegerField())
-    nWinnersByRange = ArrayField(models.IntegerField())
-    prizesInfoByRange = ArrayField(models.TextField())
+    extraResultField = models.CharField(max_length=100, null=True)
+    metadata = ArrayField(models.JSONField(null=True, default=dict), null=True)
+    prizesInfoByRange = ArrayField(models.JSONField(null=True), null=True)
     earnedValue = models.FloatField('Earned money from bets')
     nextDrawEstimatedPrize = models.FloatField('Prize estimated for next draw')
     nextDrawAccumulatedPrize = models.FloatField('Prize accumulated for next draw')
