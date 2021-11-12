@@ -43,8 +43,9 @@ def mapDrawFields(loto, dt):
                 earnedValue=row['Valor Arrecadado'],
                 nextDrawEstimatedPrize=row['Estimativa para o próximo concurso'],
                 nextDrawAccumulatedPrize=row['Valor Acumulado Próximo Concurso'],
-                drawHasAccumulated=True if row['Acumulado'] != 0 else False,
+                hasAccumulated=True if row[f"Ganhadores 6 acertos"] == 0 else False,
                 lottery=loto,
+                maxPrize=row['Rateio 6 acertos'],
                 metadata=metadata,
             )
             draw.save()
@@ -73,9 +74,10 @@ def mapDrawFields(loto, dt):
                 earnedValue=row['Valor Arrecadado'],
                 nextDrawEstimatedPrize=row['Estimativa para o próximo concurso'],
                 nextDrawAccumulatedPrize=row['Valor Acumulado Próximo Concurso'],
-                drawHasAccumulated=True if row['Acumulado'] != 0 else False,
+                hasAccumulated=True if row[f"Ganhadores 7 acertos"] == 0 else False,
                 lottery=loto,
                 metadata=metadata,
+                maxPrize=row['Rateio 7 acertos'],
                 extraResultField = row["Mês da Sorte"]
             )
             draw.save()
@@ -103,16 +105,17 @@ def mapDrawFields(loto, dt):
                 earnedValue=row['Valor Arrecadado'],
                 nextDrawEstimatedPrize=row['Estimativa para o próximo concurso'],
                 nextDrawAccumulatedPrize=row['Acumulado'],
-                drawHasAccumulated=True if row['Acumulado'] != 0 else False,
+                hasAccumulated=True if row[f"Ganhadores 15 acertos"] == 0 else False,
                 lottery=loto,
+                maxPrize=row['Rateio 15 acertos'],
                 metadata=metadata)
             draw.save()
 
 
 if __name__ == "__main__":
-    #draws = pd.read_excel("drawsLotofacil.xlsx", index_col=0, header=0)
-    draws = pd.read_excel("drawsMegasena.xlsx", index_col=0, header=0)
-    #draws = pd.read_excel("drawsDiadesorte.xlsx", index_col=0, header=0)
+    #draws = pd.read_excel("drawsLotofacil.xlsx", index_col=0, header=0).sort_index(ascending=True)
+    draws = pd.read_excel("drawsMegasena.xlsx", index_col=0, header=0).sort_index(ascending=True)
+    #draws = pd.read_excel("drawsDiadesorte.xlsx", index_col=0, header=0).sort_index(ascending=True)
     print(draws.head())
     lotoId = 3
     loto = Lottery.objects.get(id=lotoId)

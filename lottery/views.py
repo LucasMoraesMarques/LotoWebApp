@@ -56,9 +56,23 @@ def dashboard(request):
     return render(request, "plataform/dashboard/dashboard.html")
 
 
-def loterias(request):
+def loterias(request, name=''):
+    LOTTERY_CHOICES = [
+        ("lotofacil", "Lotofácil"),
+        ("diadesorte", "Dia de Sorte"),
+        ("megasena", "Mega Sena"),
+        ('', 'Todas as loterias')
+    ]
+    draws = Draw.objects.all()
+    filtered_draws = draws
+    if name:
+        filtered_draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
     ctx = {
-        'lototypes': LOTTERY_CHOICES}
+        'draws': filtered_draws,
+        'lototypes': LOTTERY_CHOICES,
+        'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id'),
+        'current_option': name
+    }
     return render(request, "plataform/dashboard/loterias.html", ctx)
 
 
@@ -150,8 +164,12 @@ def colecoesDetail(request, collection_id):
     return render(request, "plataform/dashboard/colecoesDetail.html", ctx)
 
 
-def concursosDetail(request, id):
-    return render(request, "plataform/dashboard/concursosDetail.html")
+def concursosDetail(request, name, number):
+    ctx = {
+        'draw': Draw.objects.get(lottery__name=name, number=number)
+    }
+    print(ctx['draw'].hasAccumulated)
+    return render(request, "plataform/dashboard/concursosDetail.html", ctx)
 
 def relatorios(request):
     return render(request, "plataform/dashboard/relatorios.html")

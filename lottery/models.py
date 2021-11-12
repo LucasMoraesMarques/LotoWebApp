@@ -27,23 +27,24 @@ class Lottery(models.Model):
 
 
 class Draw(models.Model):
-    lottery = models.ForeignKey(Lottery, on_delete=models.CASCADE, verbose_name='Lottery type', related_name='draws')
-    number = models.IntegerField('Draw unique identifier', default=1)
-    date = models.DateField('Date draw occurred')
+    lottery = models.ForeignKey(Lottery, on_delete=models.CASCADE, verbose_name='Lottery', related_name='draws')
+    number = models.IntegerField('Draw number', default=1)
+    date = models.DateField('Draw date')
     result = ArrayField(models.IntegerField())
     extraResultField = models.CharField(max_length=100, null=True)
     metadata = ArrayField(models.JSONField(null=True, default=dict), null=True)
     prizesInfoByRange = ArrayField(models.JSONField(null=True), null=True)
+    maxPrize = models.FloatField('Max prize', null=True)
     earnedValue = models.FloatField('Earned money from bets')
     nextDrawEstimatedPrize = models.FloatField('Prize estimated for next draw')
     nextDrawAccumulatedPrize = models.FloatField('Prize accumulated for next draw')
-    drawHasAccumulated = models.BooleanField('If draw has no winners')
+    hasAccumulated = models.BooleanField('Draw had winners?')
 
     class Meta:
         ordering = ['number']
         db_table = 'draws'
-        verbose_name = 'Lottery Draw'
-        verbose_name_plural = 'Lottery Draws'
+        verbose_name = 'Draw'
+        verbose_name_plural = 'Draws'
 
     def __str__(self):
         return self.lottery.name + "_" + str(self.number)
