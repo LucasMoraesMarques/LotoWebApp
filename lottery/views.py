@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 import random
 from lottery.backend.Jogos import generators
+from lottery.backend.Librarie import funcs
+
 from time import time
 import json
 import math
@@ -165,11 +167,53 @@ def colecoesDetail(request, collection_id):
 
 
 def concursosDetail(request, name, number):
-    ctx = {
-        'draw': Draw.objects.get(lottery__name=name, number=number)
+    draws = Draw.objects.filter(lottery__name=name)
+    current_draw = draws.get(number=number)
+    even = odd = 0
+    freq = {i:0 for i in current_draw.result}
+    totalFreq = {i: 0 for i in current_draw.result}
+    for value in current_draw.result:
+        if value % 2 == 0:
+            even += 1
+        else:
+            odd += 1
+
+        for draw in draws.order_by('-date').filter(number__lte=number):
+            if value in draw.result:
+                freq[value] += 1
+            else:
+                break
+    for draw in draws.order_by('number'):
+        for value in current_draw.result:
+            if value in draw.result:
+                totalFreq[value] += 1
+    seq = funcs.sequences(current_draw.result)
+    gaps = funcs.gap(current_draw.result)
+    primes = funcs.nPrimeNumbers(current_draw.result)
+
+
+    metadata = {
+        'charts': {
+            'even': even,
+            'odd': odd,
+            'freq': freq,
+        },
+        'Sequência Máxima': ["Maior sequência de números consecutivos", max(seq)],
+        'Sequência Mínima': ["Menor sequência de números consecutivos", min(seq)],
+        'Salto Máximo': ["Maior salto de 2 números sorteados", max(gaps)],
+        'Salto Mínimo': ["Maior salto de 2 números sorteados", min(gaps)],
+        'Números Primos': ["Total de números primos", primes],
+        'Soma': ["Soma de todos os números sorteados", sum(current_draw.result)],
+        'Média': ["Média dos números sorteados", round(sum(current_draw.result)/len(current_draw.result),2)]
     }
-    print(ctx['draw'].hasAccumulated)
+    ctx = {
+        'draw': current_draw,
+        'metadata': metadata,
+        'totalFreq': totalFreq
+    }
     return render(request, "plataform/dashboard/concursosDetail.html", ctx)
+
+
 
 def relatorios(request):
     return render(request, "plataform/dashboard/relatorios.html")
