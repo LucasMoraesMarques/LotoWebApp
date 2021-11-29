@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 from lottery import views
-
+import django.contrib.auth.views as authViews
 app_name = "lottery"
 
 urlpatterns = [
@@ -30,8 +30,8 @@ urlpatterns = [
     path("jogos/generator", views.generator, name="generator"),
     path("relatorios", views.relatorios, name="relatorios"),
     path("profile", views.profile, name="profile"),
-    path("login", views.signin, name="signin"),
-    path("cadastro", views.signup, name="signup"),
+    path("login", authViews.LoginView.as_view(template_name="plataform/auth/login.html"), name="login"),
+    path("cadastro", views.register, name="register"),
     path("billing", views.billing, name="billing"),
 
 ]

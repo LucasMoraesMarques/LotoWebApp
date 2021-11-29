@@ -1,6 +1,6 @@
 from functools import reduce
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from lottery.forms import GameGeneratorForm
 from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection
 from django import forms
@@ -12,6 +12,13 @@ import numpy as np
 import random
 from lottery.backend.Jogos import generators
 from lottery.backend.Librarie import funcs
+from lottery.forms import CustomUserCreationForm, LoginForm
+from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import User
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import views as auth_views
+from django.http import HttpResponseRedirect
 
 from time import time
 import json
@@ -27,6 +34,20 @@ def reverseMapping(jogo):
     for pos,value in enumerate(jogo0):
         number += value*math.pow(2,pos)
     return number
+
+
+def authenticateWithEmail(email, password):
+    if email and password:
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return "Este usuário não existe!"
+        else:
+            pwd_valid = check_password(password, user.password)
+            if pwd_valid:
+                return user
+            else:
+                return "Autenticação inválida!"
 
 
 def landing(request):
@@ -223,12 +244,24 @@ def profile(request):
     return render(request, "plataform/dashboard/profile.html")
 
 
-def signin(request):
-    return render(request, "plataform/auth/sign-in.html")
+class CustomLoginView(auth_views.LoginView):
+    template_name = "plataform/auth/login.html"
+    form_class = LoginForm
 
 
-def signup(request):
-    return render(request, "plataform/auth/sign-up.html")
+
+
+
+def register(request):
+    form = CustomUserCreationForm(request.POST)
+    if request.method == "POST":
+        new_user = CustomUserCreationForm(request.POST)
+        if new_user.is_valid():
+            new_user.save()
+            messages.success(request, "Usuário cadastrado com sucesso!")
+            return redirect('lottery:dashboard')
+    ctx = {"form": form}
+    return render(request, "plataform/auth/register.html", ctx)
 
 
 def billing(request):

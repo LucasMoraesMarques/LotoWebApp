@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import ModelBackend
 from django.utils import timezone
 # Create your models here.
 LOTTERY_CHOICES = [
@@ -8,6 +10,19 @@ LOTTERY_CHOICES = [
     ("diadesorte", "Dia de Sorte"),
     ("megasena", "Mega Sena"),
 ]
+
+
+class EmailBackend(ModelBackend):
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        UserModel = get_user_model()
+        try:
+            user = UserModel.objects.get(email=username)
+        except UserModel.DoesNotExist:
+            return None
+        else:
+            if user.check_password(password):
+                return user
+        return None
 
 
 class Lottery(models.Model):

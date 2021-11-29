@@ -1,3 +1,4 @@
 todosjogosloto.csv
 __pycache__/
 *.py[cod]
+.pyc
