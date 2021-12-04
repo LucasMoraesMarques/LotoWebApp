@@ -24,6 +24,12 @@
 {% block content %}
 <div class="container-fluid py-4">
   <!--i class="fa fa-bars" id="menu"></i-->
+  <div class="alert alert-success alert-dismissible fade show float-right" role="alert" style="display:none; position: sticky;top: 100px;z-index:1500;width:60%;margin-left:auto;color:#fff;" id="messages">
+        <span class="alert-text"></span>
+        <button type="button" class="btn-close" id="hide-message" aria-label="Close">
+            <span aria-hidden="true">X</span>
+        </button>
+    </div>
 
   <div class="nav-wrapper position-relative end-0">
     <!-- Tabs Nav -->
@@ -161,7 +167,7 @@
                           <label for="collection-gen-select" class="form-control-label"><h6 class="font-weight-bolder">
                             Coleção</h6></label>
                           <div class="input-group mb-3">
-                            <select class="form-control custom-select" id="collection-gen-select" aria-describedby="add-collection"
+                            <select class="form-control custom-select" id="collection-gen-select" aria-describedby="add-collection"  style="height:150px;"
                                     name="collection" multiple required>
                               {% for collection in collectionsData.collections %}
                               <option value="{{collection.id}}">{{collection.name|capfirst}}</option>
@@ -169,7 +175,7 @@
                             </select>
 
                           </div>
-                          <button class="btn btn-outline-primary mb-0" type="button" id="add-collection">Adicionar
+                          <button class="btn btn-outline-primary mb-0" type="button" id="add-collection" data-bs-toggle="modal" data-bs-target="#addCollectionModal">Adicionar
                               nova
                             </button>
                         </div>
@@ -510,20 +516,27 @@
                 <div class="col">
                   <h5 class="font-weight-bolder">Adicione Coleções</h5>
                   <span class="text-sm">Importe arquivos em formato csv ou xlsx</span>
-                  <form action="">
+                  <form action="{% url 'lottery:create-collection' %}" method="POST" enctype="multipart/form-data" id="collection-file-form">
+                    {% csrf_token %}
                     <div class="form-group">
                       <div class="custom-file mb-3">
-                        <input type="file" class="form-control" id="customFile">
+                        <input type="file" class="form-control" id="customFile" name="file">
                       </div>
                       <div class="input-group mb-3">
-                        <input type="text" placeholder="Nome da coleção" class="form-control"/>
+                        <input type="text" placeholder="Nome da coleção" class="form-control" name="name"/>
                         <button class="btn btn-outline-primary mb-0" type="submit" id="add-collection2">Adicionar nova
                         </button>
                       </div>
                     </div>
                   </form>
+                  <p class="text-center align-middle">
+                    <i class="fa fa-plus-square fs-3 "></i>
+                  </p>
+                  <p>Crie coleções vazias para usá-las ao gerar seus conjunto de jogos. Escolha o nome e a loteria para
+                  criar uma nova coleção
+                  </p>
                 </div>
-                <div class="col">
+                <div class="col d-flex align-items-center justify-content-center flex-column">
                   <p class="text-center align-middle">
                     <i class="fa fa-info-circle fs-3 "></i>
                   </p>
@@ -534,6 +547,9 @@
                     <a href=""><i class="fa fa-file-csv fs-2 mx-3"></i></a>
                   </p>
                   </p>
+                    <button class="btn btn-outline-primary mb-0" type="button" id="add-collection3" data-bs-toggle="modal" data-bs-target="#addCollectionModal">Criar
+                              nova
+                            </button>
                 </div>
               </div>
             </div>
@@ -1096,6 +1112,32 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="addCollectionModal" role="dialog" aria-labelledby="addCollectionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+    <div class="modal-content" style="z-index:2000;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addCollectionModalLabel">Adicionar nova coleção</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">X</span>
+        </button>
+      </div>
+      <form action="{% url 'lottery:create-collection' %}" method="POST" id="add-collection-form">
+        {% csrf_token %}
+      <div class="modal-body">
+          {% for field in collectionForm %}
+          {{field.label}}
+          {{field}}
+          {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal" id="close-add-collection">Fechar</button>
+        <button type="submit" class="btn bg-gradient-primary">Adicionar</button>
+      </div>
+     </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block script %}
@@ -1372,6 +1414,10 @@ $(document).ready(function(){
     $("#menu").on('click', function(){
         $("#sidenav-main").fadeToggle(300)
     });
+
+    $("#hide-message").on("click", function(){
+      $("#messages").hide()
+    })
 });
 
 
@@ -1517,6 +1563,63 @@ $("#gerador-form").submit(function(e){
     error: function(response){
     console.log(response)
       alert(response["responseJSON"]["error"]);
+    }
+
+  })
+})
+
+$("#add-collection-form").submit(function(e){
+  e.preventDefault()
+  var serializedData = $(this).serialize()
+  console.log(serializedData)
+  $.ajax({
+    type: "POST",
+    url: "{% url 'lottery:create-collection' %}",
+    data: serializedData,
+    success: function(response){
+      $("#add-collection-form").trigger('reset')
+      $("#close-add-collection").trigger('click')
+      $("#collection-gen-select").prepend(
+        `<option value="${response.id}">${response.name}</option>`
+      )
+      $("#messages").show()
+      $("#messages span.alert-text").text(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`)
+
+
+    },
+    error: function(response){
+    console.log(response)
+      alert(response.responseJSON["error"]);
+    }
+
+  })
+})
+
+$("#collection-file-form").submit(function(e){
+  e.preventDefault()
+  var data = new FormData($(this).get(0));
+  console.log(data)
+  $.ajax({
+    type: "POST",
+    url: "{% url 'lottery:create-collection' %}",
+    cache: false,
+    contentType: false,
+    processData: false,
+    data: data,
+    success: function(response){
+      $("#add-collection-form").trigger('reset')
+      $("#close-add-collection").trigger('click')
+      $("#collection-gen-select").prepend(
+        `<option value="${response.id}">${response.name}</option>`
+      )
+      $("#messages").show()
+      $("#messages span.alert-text").text(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`)
+
+
+    },
+    error: function(response){
+    console.log(response)
+      alert(response.responseJSON["error"]);
     }
 
   })

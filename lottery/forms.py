@@ -1,13 +1,8 @@
 from django import forms
-from lottery.models import Lottery
+from lottery.models import Lottery, Collection, LOTTERY_CHOICES
 from django.contrib.auth.forms import UserCreationForm, User
 from django.core.exceptions import ValidationError
 
-LOTTERY_CHOICES = [
-    ("lotofacil", "Lotofácil"),
-    ("diadesorte", "Dia de Sorte"),
-    ("megasena", "Mega Sena"),
-]
 
 
 class GameGeneratorForm(forms.Form):
@@ -98,3 +93,36 @@ class LoginForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'password']
+
+
+class CreateCollectionForm(forms.ModelForm):
+    class Meta:
+        model = Collection
+        fields = ['name', 'lottery']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'] = forms.CharField(max_length=50, label='Nome da Coleção')
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['lottery'].queryset = Lottery.objects.all()
+        self.fields['lottery'].label = 'Loteria'
+        self.fields['lottery'].widget.attrs.update({'class': 'form-control'})
+
+    def save(self, user):
+        collection = Collection.objects.create(
+            name=self.cleaned_data['name'],
+            lottery=self.cleaned_data['lottery'],
+            user=user
+        )
+        collection.save()
+        return collection
+
+
+class UploadCollectionForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'] = forms.CharField(max_length=50, label='Nome da Coleção')
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['file'] = forms.FileField()
+        self.fields['file'].widget.attrs.update({'class': 'form-control'})
+

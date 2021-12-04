@@ -1,7 +1,7 @@
 from functools import reduce
 
 from django.shortcuts import render, redirect
-from lottery.forms import GameGeneratorForm
+from lottery.forms import CreateCollectionForm, UploadCollectionForm
 from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection
 from django import forms
 from django.core import serializers
@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import User
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseRedirect
 
@@ -36,49 +37,45 @@ def reverseMapping(jogo):
     return number
 
 
-def authenticateWithEmail(email, password):
-    if email and password:
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return "Este usuário não existe!"
-        else:
-            pwd_valid = check_password(password, user.password)
-            if pwd_valid:
-                return user
-            else:
-                return "Autenticação inválida!"
+@login_required
+def createCollection(request):
+    print(request.POST)
+    if request.FILES:
+        form = UploadCollectionForm(request.POST, request.FILES)
+        if form.is_valid():
+            data = {
+                    'name': 'uploaded',
+                    'id': 2,
+                    'lottery': 'Megasena'
+                }
+            print(pd.read_csv(request.FILES['file'], delimiter=";"))
+            return JsonResponse(data=data, status=200)
+    else:
+        form = CreateCollectionForm(request.POST)
+        data = {}
+        if form.is_valid():
+            collection = form.save(request.user)
+            data = {
+                    'name': collection.name,
+                    'id': collection.id,
+                    'lottery': str(collection.lottery)
+                }
+            return JsonResponse(data=data, status=200)
+        return JsonResponse(data={'error': "Um erro inesperado impediu a criação da coleção. Tente novamente."}, status=400)
+
 
 
 def landing(request):
     return render(request, "landing/pages/about-us.html")
 
 
-def geneor(request, loto):
-    loto = Lottery.objects.get(id=loto)
-    choicesNPlayed = [i for i in loto.possiblesChoicesRange]
-    choices = [i for i in range(1, loto.numbersRangeLimit + 1)]
-    cols = 1
-    if loto.name == "lotofacil":
-        cols = 5
-    if request.method == "POST":
-        form = forms.Form(request.POST)
-        print(request.POST)
-        if form.is_valid():
-            print(form.cleaned_data)
-    context = {
-        "nPlayed": choicesNPlayed,
-        "nFixed": choices,
-        "nRemoved": choices,
-        "cols": cols,
-    }
-    return render(request, "lottery/generator.html", context)
-
-
+@login_required
 def dashboard(request):
     return render(request, "plataform/dashboard/dashboard.html")
 
 
+
+@login_required
 def loterias(request, name=''):
     LOTTERY_CHOICES = [
         ("lotofacil", "Lotofácil"),
@@ -99,12 +96,15 @@ def loterias(request, name=''):
     return render(request, "plataform/dashboard/loterias.html", ctx)
 
 
+@login_required
 def jogos(request):
     user = request.user
     userGamesets = user.gamesets.all()
     lastGamesets = userGamesets.order_by('-createdAt')[:5]
     userCollections = user.collections.all()
     lastCollections = userCollections.order_by('-createdAt')[:5]
+    collectionForm = CreateCollectionForm()
+    uploadCollectionForm = UploadCollectionForm()
 
     gamesetsData = {
         'gamesets': userGamesets,
@@ -122,12 +122,15 @@ def jogos(request):
     ctx={
         'lototypes': LOTTERY_CHOICES,
         'gamesetsData': gamesetsData,
-        'collectionsData': collectionsData
+        'collectionsData': collectionsData,
+        'collectionForm': collectionForm,
+        'uploadCollectionForm': uploadCollectionForm,
     }
     print(ctx)
     return render(request, "plataform/dashboard/jogos.html", ctx)
 
 
+@login_required
 def generator(request):
     if request.is_ajax and request.method == "POST":
         form = forms.Form(request.POST)
@@ -170,14 +173,16 @@ def generator(request):
     return JsonResponse({"error": "Not found"}, status=400)
 
 
+@login_required
 def conjuntosDetail(request, gameset_id):
-    gameset = Gameset.objects.filter(id=gameset_id)[0]
+    gameset = Gameset.objects.get(id=gameset_id)
     ctx = {
         'gameset': gameset
     }
     return render(request, "plataform/dashboard/conjuntosDetail.html", ctx)
 
 
+@login_required
 def colecoesDetail(request, collection_id):
     collection = Collection.objects.filter(id=collection_id)[0]
     ctx = {
@@ -187,6 +192,7 @@ def colecoesDetail(request, collection_id):
     return render(request, "plataform/dashboard/colecoesDetail.html", ctx)
 
 
+@login_required
 def concursosDetail(request, name, number):
     draws = Draw.objects.filter(lottery__name=name)
     current_draw = draws.get(number=number)
@@ -235,21 +241,22 @@ def concursosDetail(request, name, number):
     return render(request, "plataform/dashboard/concursosDetail.html", ctx)
 
 
-
+@login_required
 def relatorios(request):
     return render(request, "plataform/dashboard/relatorios.html")
 
 
+@login_required
 def profile(request):
     return render(request, "plataform/dashboard/profile.html")
 
 
 class CustomLoginView(auth_views.LoginView):
     template_name = "plataform/auth/login.html"
-    form_class = LoginForm
 
 
-
+class CustomLogoutView(auth_views.LogoutView):
+    template_name = "plataform/auth/login.html"
 
 
 def register(request):
@@ -264,5 +271,6 @@ def register(request):
     return render(request, "plataform/auth/register.html", ctx)
 
 
+@login_required
 def billing(request):
     return render(request, "plataform/dashboard/billing.html")

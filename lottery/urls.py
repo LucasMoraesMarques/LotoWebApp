@@ -27,10 +27,12 @@ urlpatterns = [
     path("jogos", views.jogos, name="jogos"),
     path("jogos/conjuntos/<int:gameset_id>", views.conjuntosDetail, name="conjunto-detail"),
     path("jogos/colecoes/<int:collection_id>", views.colecoesDetail, name="colecao-detail"),
+    path("jogos/colecoes/create-collection", views.createCollection, name="create-collection"),
     path("jogos/generator", views.generator, name="generator"),
     path("relatorios", views.relatorios, name="relatorios"),
     path("profile", views.profile, name="profile"),
-    path("login", authViews.LoginView.as_view(template_name="plataform/auth/login.html"), name="login"),
+    path("login", views.CustomLoginView.as_view(), name="login"),
+    path("logout", views.CustomLogoutView.as_view(), name="logout"),
     path("cadastro", views.register, name="register"),
     path("billing", views.billing, name="billing"),
 
