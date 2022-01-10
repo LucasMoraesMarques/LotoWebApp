@@ -21,7 +21,7 @@ url_mapper = {
 class Loterias(object):
 
     def __init__(self, nome):
-        """ Classe Loterias
+        """ Classe loterias
 
         :param nome: Tipo de Loteria
         """
@@ -38,7 +38,7 @@ class Loterias(object):
         self.checkUpgrade()
 
     def __str__(self):
-        return """Classe Loterias\n
+        return """Classe loterias\n
     -> Possui todos os jogos possíveis\n
     -> Possui todos os resultados \n
     -> Aplica filtros na database de resultados\n"""

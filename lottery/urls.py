@@ -35,5 +35,6 @@ urlpatterns = [
     path("logout", views.CustomLogoutView.as_view(), name="logout"),
     path("cadastro", views.register, name="register"),
     path("billing", views.billing, name="billing"),
+    path("get-draw", views.get_selected_draw, name="get-draw")
 
 ]

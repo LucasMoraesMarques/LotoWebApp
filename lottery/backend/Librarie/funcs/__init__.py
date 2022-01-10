@@ -152,7 +152,7 @@ def nPrimeNumbers(jogo):
 def askUserFixedAndRemovedNumbers(loto, gen=1):
     """Pede o input dos números removidos e fixos
 
-    :param loto: Instância da classe Loterias
+    :param loto: Instância da classe loterias
     :param gen: Tipo de gerador. O padrão é 1 (gerador simples)
     :return: Números removidos, números fixados, marcações por jogo, número de jogos
     """

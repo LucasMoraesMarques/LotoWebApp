@@ -1,3 +1,4 @@
+import os.path
 from functools import reduce
 
 from django.shortcuts import render, redirect
@@ -13,16 +14,22 @@ import random
 from lottery.backend.Jogos import generators
 from lottery.backend.Librarie import funcs
 from lottery.forms import CustomUserCreationForm, LoginForm
+from django.forms.models import model_to_dict
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import User
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
-from django.http import HttpResponseRedirect
-
+from django.http import HttpResponseRedirect, HttpResponse
 from time import time
+from babel.dates import format_date
 import json
+import io
+from django.core.files.storage import default_storage
+from django.core.files import File
+from django.core.files.base import ContentFile
+from django.conf import settings
 import math
 # Create your views here.
 
@@ -274,3 +281,99 @@ def register(request):
 @login_required
 def billing(request):
     return render(request, "plataform/dashboard/billing.html")
+
+@login_required
+def get_selected_draw(request):
+    user = request.user
+    if request.method == 'GET':
+        lottery = request.GET.get('lottery', 0)
+        draws = list(Draw.objects.filter(lottery__name=lottery).order_by("-date").values('number'))
+        collections = list(user.collections.filter(lottery__name=lottery).values('id', 'name'))
+        data = {
+            'draws': draws,
+            'collections': collections
+        }
+        return JsonResponse(data=data, status=200)
+    if request.method == "POST":
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            data = request.POST
+            data = check_collection_in_draw(data)
+            return JsonResponse(data=data, status=200)
+
+
+def check_collection_in_draw(data):
+    col_is_active = data.get("active")
+    collection = Collection.objects.get(id=data.get("collection_id"))
+    lottery = data.get("lototype2")
+    draw = Draw.objects.get(number=data.get("draw"), lottery__name=lottery)
+    lottery = Lottery.objects.get(name=lottery)
+    file_url, total_balance = check_results(draw, lottery, collection)
+    data = {
+        'draw': model_to_dict(draw),
+        'results': model_to_dict(collection, fields=[field.name for field in collection._meta.fields]),
+        'filepath': file_url,
+        'total_balance': total_balance
+    }
+    data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
+    return data
+
+
+
+def check_results(draw, lottery, collection):
+    result = draw.result
+    print(result)
+    filename = f'{collection.name.replace(" ", "_")}_{draw.number}.txt'
+    restext = f"Resultado referente ao concurso nº {draw.number} da {lottery.name} " \
+              f"realizado no dia {format_date(draw.date, 'dd/MM/yyyy', 'pt_br')}\n"
+    lines = []
+    lines.append(restext)
+    gamesets = collection.gamesets.all()
+    print(gamesets)
+    total_balance = {
+        'Premiacao': 0,
+        'Valor Gasto': 0,
+        'Saldo': 0,
+        'Numero de Jogos': collection.numberOfGames
+    }
+    for gameset in gamesets:
+        lines.append(f"\n\n{gameset.name:=^20}\n")
+        games = gameset.games.all()
+        interval = lottery.possiblesPointsToEarn
+        scores = acertos(result, games, interval)
+        scores['Premiacao'] = 0
+        scores['Valor Gasto'] = gameset.numberOfGames * lottery.possiblesPricesRange[
+            gameset.gameLength - lottery.possiblesChoicesRange[0]]
+        for acerto in interval:
+            for faixa, data in draw.metadata[0].items():
+                print(faixa, data)
+                if int(data['descricaoFaixa'].split(" ")[0]) == acerto:
+                    scores['Premiacao'] += scores[f'Total {acerto}'] * data['valorPremio']
+        scores['Saldo'] = scores['Premiacao'] - scores['Valor Gasto']
+        total = [f'Total {i}' for i in interval]
+        moneyBalance = ['Premiacao', 'Valor Gasto', 'Saldo']
+        for value in total:
+            lines.append(f"\n{value}: {scores[value]}")
+
+        for value in moneyBalance:
+            lines.append(f"\n{value}: R$ {scores[value]:,.2f}")
+            total_balance[value] += scores[value]
+        lines.append('\n')
+        for k, v in scores.items():
+            if k not in total and k not in moneyBalance:
+                lines.append(f"\n{k}: {v} acertos")
+
+    default_storage.save(filename, ContentFile("".join(lines)))
+    return filename, total_balance
+
+
+def acertos(result, games, interval):
+    scores = {f'Total {i}': 0 for i in interval}
+    i = 1
+    for game in games:
+        score = len(set(game.arrayNumbers) & set(result))
+        scores[f"Jogo {i}"] = score
+        i += 1
+        if score in interval:
+            scores[f'Total {score}'] += 1
+    return scores
