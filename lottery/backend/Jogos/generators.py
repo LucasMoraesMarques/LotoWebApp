@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
-from lottery.models import Lottery
+from lottery.models import Lottery, Game
 import random
 
 
-
-def simpleGenerator(lototype, nPlayed, nJogos, removedNumbers, fixedNumbers):
+def simple(lototype, nPlayed, nJogos, removedNumbers, fixedNumbers):
     """ Gerador simples. Sem filtros específicos
 
     :param nPlayed: Quantidade de números escolhidos por jogo
@@ -46,7 +45,48 @@ def simpleGenerator(lototype, nPlayed, nJogos, removedNumbers, fixedNumbers):
     return jogos
 
 
+def smart(lototype, nJogos, removedNumbers, fixedNumbers, kwargs):
+    """ Gerador inteligente que realiza queries na database de combinações possíveis
 
+    :param nPlayed: Quantidade de números escolhidos por jogo
+    :param removedNumbers: Números removidos
+    :param fixedNumbers: Números fixados
+    :param kwargs: Filtros específicos para a query
+    :return: None. Cria n jogos pedidos pelo user dentro dos possíveis
+    """
+    games = calc_combs(lototype, removedNumbers, fixedNumbers, kwargs)
+    print(games.count())
+    games = games[:nJogos]
+    games = pd.DataFrame(games.values())
+    return games
+
+
+def calc_combs(lototype, numbersRemoved, numbersFixed, kwargs):
+    """ Calcula todas as combinações com os filtro dados através da database de todos os jogos
+
+    :param lototype: Loteria escolhida
+    :param numbersRemoved: Números removidos
+    :param numbersFixed: Números fixados
+    :param kwargs: Filtros inteligentes
+    :return: Todas as combinações válidas
+    """
+    loto = Lottery.objects.get(name=lototype)
+    games = Game.objects.filter(lottery=loto)
+    games = games.exclude(arrayNumbers__contains=numbersRemoved)
+    games = games.filter(arrayNumbers__contains=numbersFixed)
+    print(kwargs)
+    for k, v in kwargs.items():
+        if k == "nPrimes":
+            games = games.filter(n_primes=v)
+        elif k == "maxSeq":
+            games = games.filter(max_seq__lte=v)
+        elif k == "minSeq":
+            games = games.filter(min_seq__gte=v)
+        elif k == "maxGap":
+            games = games.filter(max_gap__lte=v)
+        elif k == "isOdd":
+            games = games.filter(is_odd=v)
+    return games
 
 
 """
@@ -221,71 +261,7 @@ class Jogos(object):
                           f"\\results\\res_{self.loteria.nome}_{sorteio.metadata['numero']}_"
                           f"{self.jogoname.replace('.xlsx', '')}.txt", 'amarelo'))
 
-    def complexGenerator(self, nPlayed, removedNumbers, fixedNumbers, **kwargs):
-        " Gerador inteligente que realiza queries na database de combinações possíveis
-
-        :param nPlayed: Quantidade de números escolhidos por jogo
-        :param removedNumbers: Números removidos
-        :param fixedNumbers: Números fixados
-        :param kwargs: Filtros específicos para a query
-        :return: None. Cria n jogos pedidos pelo user dentro dos possíveis
-        "
-
-        database = self.loteria.allJogosStandard
-        combs = funcs.calcCombs(database, nPlayed, removedNumbers, fixedNumbers, kwargs)
-        print("\n\033[1;30mO número de combinações possíveis são:", len(combs))
-
-        if len(combs) != 0:
-            nJogos = funcs.leia_int(st.textLine("Quantos jogos deseja?", 'azul'), nrange=range(1, combs.shape[0] + 1))
-            index = list(combs.index)
-            random.shuffle(index)
-            self.jogos = combs.loc[index[:nJogos]]
-            self.jogos.index = range(1, nJogos + 1)
-            self.applyFiltersOnJogos()
-            self.jogos = self.jogos.iloc[:, : nPlayed]
-            self.writeJogos()
-        else:
-            print(st.textLine("Não há combinações com esses filtros", 'vermelho'))
-
-    def simpleGenerator(self, nPlayed, nJogos, removedNumbers, fixedNumbers):
-        " Gerador simples. Sem filtros específicos
-
-        :param nPlayed: Quantidade de números escolhidos por jogo
-        :param nJogos: Número de jogos a ser criado
-        :param removedNumbers: Números removidos
-        :param fixedNumbers: Números fixados
-        :return: None. Cria n jogos pedidos pelo user
-        "
-        nFixed = len(fixedNumbers)
-        nPossibles = self.loteria.metadata["nPossiveis"]
-        self.nPlayed = nPlayed
-        jogos = [0]
-        numbersAllowed = np.array(np.setdiff1d(np.array(nPossibles), removedNumbers))
-        numbersAllowed = np.setdiff1d(numbersAllowed, fixedNumbers)
-
-        cont = 0
-        while cont < nJogos:
-            numbersAllowedCopy = list(numbersAllowed)
-            random.shuffle(numbersAllowedCopy)
-            np.random.RandomState(cont)
-            jogo = np.zeros(nPlayed - nFixed)
-            for i in range(0, jogo.size):
-                number = np.random.choice(numbersAllowedCopy, 1)
-                jogo[i] = number
-                numbersAllowedCopy.remove(number)
-
-            jogo = np.union1d(jogo, fixedNumbers).astype("int8")
-            jogo = list(jogo)
-            if jogo in jogos:
-                continue
-            else:
-                jogos.append(jogo)
-                cont += 1
-
-        jogos.pop(0)
-        self.jogos = pd.DataFrame(jogos)
-        self.writeJogos()
-
+   
     def applyFiltersOnJogos(self):
         " Gera metadados dos filtros sobre o conjunto de jogos
 

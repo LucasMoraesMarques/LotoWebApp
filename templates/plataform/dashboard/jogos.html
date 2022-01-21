@@ -24,8 +24,14 @@
 {% block content %}
 <div class="container-fluid py-4">
   <!--i class="fa fa-bars" id="menu"></i-->
-  <div class="alert alert-success alert-dismissible fade show float-right" role="alert" style="display:none; position: sticky;top: 100px;z-index:1500;width:60%;margin-left:auto;color:#fff;" id="messages">
-        <span class="alert-text"></span>
+  <div class="alert alert-success alert-dismissible fade show float-right" role="alert" style="{% if not messages %}display:none{% endif %}; position: fixed;top: 100px;z-index:1500;width:60%;color:#fff;" id="messages">
+        <span class="alert-text">
+          {% if messages %}
+          {% for message in messages %}
+            {{message}}
+          {% endfor %}
+          {% endif %}
+        </span>
         <button type="button" class="btn-close" id="hide-message" aria-label="Close">
             <span aria-hidden="true">X</span>
         </button>
@@ -170,7 +176,7 @@
                             <select class="form-control custom-select" id="collection-gen-select" aria-describedby="add-collection"  style="height:150px;"
                                     name="collection" multiple required>
                               {% for collection in collectionsData.collections %}
-                              <option value="{{collection.id}}">{{collection.name|capfirst}}</option>
+                              <option value="{{collection.id}}" loto-name="{{collection.loto_name}}">{{collection.name|capfirst}}</option>
                               {% endfor %}
                             </select>
 
@@ -228,18 +234,18 @@
                       </div>
                       <div class="col">
                         <div class="form-group">
-                          <label for="prime-numbers" class="form-control-label mt-2"><h6 class="font-weight-bolder">
+                          <label for="nPrimes" class="form-control-label mt-2"><h6 class="font-weight-bolder">
                             Número de Primos</h6></label>
-                          <input class="form-control d-inline" type="number" name="nPrimes" value="" id="prime-numbers">
-                          <label for="max-seq" class="form-control-label mt-2"><h6
+                          <input class="form-control d-inline" type="number" name="nPrimes" value="" id="nPrimes">
+                          <label for="maxSeq" class="form-control-label mt-2"><h6
                               class="font-weight-bolder">Máxima Sequência</h6></label>
-                          <input class="form-control d-inline" type="number" value="" name="max-seq" id="max-seq">
-                          <label for="min-seq" class="form-control-label mt-2"><h6
+                          <input class="form-control d-inline" type="number" value="" name="maxSeq" id="maxSeq">
+                          <label for="minSeq" class="form-control-label mt-2"><h6
                               class="font-weight-bolder">Mínima Sequência</h6></label>
-                          <input class="form-control d-inline" type="number" value="" name="min-seq" id="min-seq">
-                          <label for="max-gap" class="form-control-label mt-2"><h6
+                          <input class="form-control d-inline" type="number" value="" name="minSeq" id="minSeq">
+                          <label for="maxGap" class="form-control-label mt-2"><h6
                               class="font-weight-bolder">Máximo Salto</h6></label>
-                          <input class="form-control d-inline" type="number" value="" name="max-gap" id="max-gap">
+                          <input class="form-control d-inline" type="number" value="" name="maxGap" id="maxGap">
                           <h6 class="font-weight-bolder mt-2">Par ou Ímpar</h6>
                           <div class="d-flex flex-row h-100">
                             <div class="form-check mb-3">
@@ -255,27 +261,18 @@
                       </div>
                     </div>
                   </div>
+                  <input type='hidden' name='calcCombs' value='False'>
                   <button type="button" class="btn btn-primary mt-2" id="calc-combs-btn">Calcular Combinações</button>
                   <div class="row" id="nJogos-input" style="display:none">
                     <div class="col form-group" >
                     <label for="nJogos" class="form-control-label mt-2"><h6 class="font-weight-bolder">
                       Número de Jogos</h6></label>
                     <p id="nCombs-span"></p>
+                      <input type="hidden" id="nCombs">
                     <input class="form-control d-inline" type="number" name="nJogos" value="" id="nJogos">
-                    <input type="submit" class="btn btn-primary mt-2" id="submit-generator" value="Gerar jogos">
+                    <input type="button" class="btn btn-primary mt-2" id="submit-generator" value="Gerar jogos">
                     <input type="button" class="btn btn-primary mt-2 mx-2" id="see-games-set" style="display:none"
                            value="Ver Jogos" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                      <div class="progress-wrapper">
-                        <div class="progress-info">
-                          <div class="progress-percentage">
-                            <span class="text-sm font-weight-bold">60%</span>
-                          </div>
-                        </div>
-                        <div class="progress">
-                          <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                               aria-valuemax="100" style="width: 0%;"></div>
-                        </div>
-                      </div>
                   </div>
                   <div class="col-lg-3 ms-auto text-center mt-5 mt-lg-0">
                       <div class="border-radius-lg h-100">
@@ -623,7 +620,7 @@
                 </p>
               </div>
               <div class="card-body p-3">
-                {% for collection in collectionsData.collections %}
+                {% for collection in collectionsData.lastCollections %}
                 {% with 'assets/img/loterias/logos/'|add:collection.lottery.name|add:'.png' as lotteryLogo %}
                 <div class="timeline timeline-one-side">
                   <div class="timeline-block mb-3">
@@ -1119,42 +1116,33 @@
   <!-- End Content Section -->
 </div>
 
-<div class="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-    <div class="modal-content" style="z-index:2000;">
+<div class="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+  <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:80%; margin:auto;">
+    <div class="modal-content" style="z-index:2000;width:100%; margin:auto;" id="modal-content-gameset">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Jogos Gerados</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+          <span aria-hidden="true">X</span>
         </button>
       </div>
-      <div class="modal-body">
-        <table id="table-jogos" style="display:none;">
-                  <thead>
-                    <th class="mx-3">Bola 1</th>
-                  <th class="mx-3">Bola 2</th>
-                  <th class="mx-3">Bola 3</th>
-                  <th class="mx-3">Bola 4</th>
-                  <th class="mx-3">Bola 5</th>
-                  <th class="mx-3">Bola 6</th>
-                  <th class="mx-3">Bola 7</th>
-                  <th class="mx-3">Bola 8</th>
-                  <th class="mx-3">Bola 9</th>
-                  <th class="mx-3">Bola 10</th>
-                  <th class="mx-3">Bola 11</th>
-                  <th class="mx-3">Bola 12</th>
-                  <th class="mx-3">Bola 13</th>
-                  <th class="mx-3">Bola 14</th>
-                  <th class="mx-3">Bola 15</th>
-                  </thead>
-                  <tbody>
-
-                  </tbody>
-                </table>
+      <div class="modal-body" style="overflow-x:scroll">
+        <table id="table-jogos">
+          <thead>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn bg-gradient-primary">Save changes</button>
+      <div class="modal-footer d-flex flex-row">
+        <div class="saving" style="display:none;">
+        </div>
+        <div class="buttons d-flex flex-row">
+          <button type="button" class="btn bg-gradient-secondary mx-3" data-bs-dismiss="modal">Fechar</button>
+          <form id="save-games-batch" action="{% url 'lottery:save-games-batch' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" id="save-gameset" class="btn bg-gradient-primary">Salvar Jogo</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -1463,6 +1451,15 @@ function mapNumbers(cellId, op){
 }
 
 function handleLototypeParams(lototype){
+  $("#collection-gen-select").children().map((ind, el) => {
+    console.log($(el).attr("loto-name"), lototype)
+    if ($(el).attr("loto-name") == lototype){
+      $(el).show()
+    }
+   else{
+      $(el).hide()
+   }
+  })
   $("#check-nPlayed").empty()
   console.log(lotoTypeInfo[lototype])
   for(value of lotoTypeInfo[lototype].nPlayedList){
@@ -1517,6 +1514,7 @@ function handleLototypeParams(lototype){
                           </div>`
   )
   }
+  handleGeneratorSelect($("input[name=generator]:checked").get(0))
 }
 
     var win = navigator.platform.indexOf('Win') > -1;
@@ -1546,7 +1544,8 @@ $(document).ready(function(){
 
 
 function handleGeneratorSelect(radio){
-  var nPlayedRadios = $("#check-played input[type=radio]")
+console.log(radio.id)
+  var nPlayedRadios = $("#check-nPlayed input[type=radio]")
   var np = nPlayedRadios.filter((index, element) => { return index != 0 })
 
   if(radio.id == "smart"){
@@ -1589,17 +1588,41 @@ $(document).ready(function() {
 
 
 function calcNumberOfCombinations(){
-  let lototype = $("input[name='lototype']:checked")[0].value
-  console.log(lototype)
-  let nPlayedChosen = parseInt(document.forms['gerador-form']['nPlayed'].value)
-  let nFixedChosen = Array.from($("input[name='nFixed']:checked"))
-  console.log(nFixedChosen.length)
-  let nRemovedChosen = Array.from($("input[name='nRemoved']:checked"))
-  console.log(nRemovedChosen.length)
-  let m = lotoTypeInfo[lototype].nPossiblesList.length - nFixedChosen.length - nRemovedChosen.length
-  let n = nPlayedChosen - nFixedChosen.length
-  return math.combinations(m, n)
-
+  let generator = $("input[name='generator']:checked").val()
+  if ( generator == "simple" ){
+    $("input[name='calcCombs']").val("False")
+    let lototype = $("input[name='lototype']:checked").val()
+    console.log(lototype)
+    let nPlayedChosen = parseInt(document.forms['gerador-form']['nPlayed'].value)
+    let nFixedChosen = Array.from($("input[name='nFixed']:checked"))
+    console.log(nFixedChosen.length)
+    let nRemovedChosen = Array.from($("input[name='nRemoved']:checked"))
+    console.log(nRemovedChosen.length)
+    let m = lotoTypeInfo[lototype].nPossiblesList.length - nFixedChosen.length - nRemovedChosen.length
+    let n = nPlayedChosen - nFixedChosen.length
+    return math.combinations(m, n)
+  }
+  else{
+    $("input[name='calcCombs']").val("True")
+    let formData = $("#gerador-form").get(0)
+    var serializedData = $(formData).serialize()
+     $.ajax({
+    type: "POST",
+    url: "{% url 'lottery:generator' %}",
+    data: serializedData,
+    success: function(response){
+      $("#nCombs-span").text("O número de combinações possíveis é " + response["combs"])
+      $("#calc-combs-btn").hide()
+      $("#nJogos-input").show()
+      $("#nCombs").val(response["combs"])
+      $("input[name='calcCombs']").val("False")
+    },
+    error: function(response){
+    console.log(response)
+      alert(response["responseJSON"]["error"]);
+    }
+  })
+ }
 }
 
 
@@ -1629,55 +1652,85 @@ function checkSumOfChecksLTnPlayed(){
 
 function showSubmitBtn(){
   let nCombs = calcNumberOfCombinations()
-  $("#calc-combs-btn").hide()
-  $("#nJogos-input").show()
-  $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
+  if(nCombs){
+    $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
+    $("#calc-combs-btn").hide()
+    $("#nJogos-input").show()
+    $("#nCombs").val(nCombs)
+  }
 }
 //$('#grid-fixed-removed').change(checkSumOfChecksLTnPlayed)
 $('#calc-combs-btn').click(showSubmitBtn)
+$("#submit-generator").click(function(){
+  var nJogos = parseInt($("#nJogos").val())
+  var nCombs = parseInt($("#nCombs").val())
+  console.log(nCombs, nJogos)
+  console.log(nJogos > nCombs)
+  if (nJogos <= 0  | !nJogos){
+    $("#messages").show()
+    $("#messages span.alert-text").text("O número de jogos pedidos deve ser maior que zero e diferente de vazio. Tente novamente!")
+    $("#messages").removeClass("alert-success")
+    $("#messages").addClass("alert-danger")
+  }
+  else if (nJogos > nCombs){
+    $("#messages").show()
+    $("#messages span.alert-text").text("O número de jogos pedidos é maior que o número de combinação possíveis. Tente novamente!")
+    $("#messages").removeClass("alert-success")
+    $("#messages").addClass("alert-danger")
+  }
+  else {
+    $("#gerador-form").submit()
+  }
 
+})
 $("#gerador-form").submit(function(e){
   e.preventDefault()
-  setInterval(function(){
-  var njogos = parseInt($("#nJogos-input input").val())
-  var value = parseFloat($('.progress-bar').attr('aria-valuenow')) + (100/njogos)
-  $('.progress-bar').attr('aria-valuenow', value)
-  $('.progress-bar').width(`${value}%`)
-  }, 500)
   var serializedData = $(this).serialize()
+
+  var data = $(this).get(0)
+  console.log(data)
+  var collection = data["collection-gen-select"].value
+  var gameset = data["gameset-name"].value
+  var lottery = data["lototype"].value
 
   $.ajax({
     type: "POST",
     url: "{% url 'lottery:generator' %}",
     data: serializedData,
     success: function(response){
-      $("#generator-form").trigger('reset')
+      $("#gerador-form").trigger('reset')
+      checkSumOfChecksLTnPlayed()
       $("#table-jogos").show()
+
+      var cells = "<tr>"
       var data = JSON.parse(response["jogos"]);
-      for( list of data['data']){
-        $("#table-jogos tbody").append(
-                    `<tr class="text-center">
-                    <td>${list[0]}</td>
-                    <td>${list[1]}</td>
-                    <td>${list[2]}</td>
-                    <td>${list[3]}</td>
-                    <td>${list[4]}</td>
-                    <td>${list[5]}</td>
-                    <td>${list[6]}</td>
-                    <td>${list[7]}</td>
-                    <td>${list[8]}</td>
-                    <td>${list[9]}</td>
-                    <td>${list[10]}</td>
-                    <td>${list[11]}</td>
-                    <td>${list[12]}</td>
-                    <td>${list[13]}</td>
-                    <td>${list[14]}</td>
-                    </tr>`
-                )
-
-
+      console.log(response)
+      var codes = response["codes"]
+      for(let i=1; i < data.columns.length+1; i++){
+          cells += `<th class="mx-3">B${i}</th>`
+        }
+      cells += '</tr>'
+      $("#table-jogos thead").append(cells)
+      for(let i in data['data']){
+        cells = '<tr class="text-center">'
+        console.log(data['data'][i].length)
+        console.log(data['data'][i])
+        for(let j in data['data'][i]){
+          cells += `<td>${data['data'][i][j]}</td>`
+        }
+        cells += '</tr>'
+        $("#table-jogos tbody").append(cells)
       }
+      cells = ""
+      for(let i in codes){
+          cells += `<input type="hidden" name="game_code" value=${codes[i]}>`
+        }
+      cells += `<input type="hidden" name="collection" value=${collection}>`
+      cells += `<input type="hidden" name="gameset" value=${gameset}>`
+      cells += `<input type="hidden" name="lottery" value=${lottery}>`
+    $("#save-games-batch").append(cells)
     $("#see-games-set").show()
+    $("#table-jogos").DataTable()
     },
     error: function(response){
     console.log(response)
@@ -1698,8 +1751,9 @@ $("#add-collection-form").submit(function(e){
     success: function(response){
       $("#add-collection-form").trigger('reset')
       $("#close-add-collection").trigger('click')
+      $("#gerador-form").trigger('reset')
       $("#collection-gen-select").prepend(
-        `<option value="${response.id}">${response.name}</option>`
+        `<option value="${response.id}" loto-name="${response.lottery}">${response.name}</option>`
       )
       $("#messages").show()
       $("#messages span.alert-text").text(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`)
@@ -1744,6 +1798,20 @@ $("#collection-file-form").submit(function(e){
   })
 })
 
+$("#save-gameset").click(function(){
+  $("#modal-content-gameset .modal-footer .saving").append(`
+  <div class="spinner-border text-primary mx-3" role="status">
+</div>
+  <p>Salvando o jogo, não saia da página!</p>
+  `)
+  $("#modal-content-gameset .modal-footer .saving").addClass("d-flex", "flex-row")
+  $("#modal-content-gameset .modal-footer .saving").show()
+
+  $("#modal-content-gameset .modal-footer .buttons").toggleClass("d-flex")
+  $("#modal-content-gameset .modal-footer .buttons").hide()
+  $("#modal-content-gameset .modal-footer").addClass("justify-content-center")
+
+})
 </script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>

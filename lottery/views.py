@@ -7,7 +7,7 @@ from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collec
 from django import forms
 from django.core import serializers
 from django.http import JsonResponse
-from django.db.models import Sum
+from django.db.models import Sum, F
 import pandas as pd
 import numpy as np
 import random
@@ -91,13 +91,14 @@ def loterias(request, name=''):
         ('', 'Todas as loterias')
     ]
     draws = Draw.objects.all()
+    draws = draws.annotate(loto_name=F("lottery__name"))
     filtered_draws = draws
     if name:
         filtered_draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
     ctx = {
         'draws': filtered_draws,
         'lototypes': LOTTERY_CHOICES,
-        'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id'),
+        'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3],
         'current_option': name
     }
     return render(request, "plataform/dashboard/loterias.html", ctx)
@@ -106,10 +107,11 @@ def loterias(request, name=''):
 @login_required
 def jogos(request):
     user = request.user
-    userGamesets = user.gamesets.all()
-    lastGamesets = userGamesets.order_by('-createdAt')[:5]
-    userCollections = user.collections.all()
-    lastCollections = userCollections.order_by('-createdAt')[:5]
+    userGamesets = user.gamesets.all().order_by('-createdAt')
+    lastGamesets = userGamesets[:5]
+    userCollections = user.collections.all().order_by('-createdAt')
+    userCollections = userCollections.annotate(loto_name=F("lottery__name"))
+    lastCollections = userCollections[:5]
     collectionForm = CreateCollectionForm()
     uploadCollectionForm = UploadCollectionForm()
 
@@ -120,7 +122,7 @@ def jogos(request):
 
     collectionsData = {
         'collections': userCollections,
-        'lastCollecions': lastCollections,
+        'lastCollections': lastCollections,
         'totalGamesets': userGamesets.count(),
         'totalCollections': userCollections.count(),
         'totalGames': userGamesets.aggregate(sum=Sum('numberOfGames'))
@@ -146,38 +148,89 @@ def generator(request):
             data = dict(form.data)
             nRemoved = [int(i) for i in data.get('nRemoved', [])]
             nFixed = [int(i) for i in data.get('nFixed', [])]
-            gameset = data.get('gameset-name')[0]
-            collection = data.get('collection')
-            loto=data['lototype'][0]
-            jogos = generators.simpleGenerator(loto, int(data['nPlayed'][0]), int(data['nJogos'][0]), nRemoved, nFixed)
-            print(jogos.head())
-            gamesList = []
+            nPlayed = int(data['nPlayed'][0])
+            loto = data['lototype'][0]
+            generator = data["generator"][0]
+            filters_keys = ["nPrimes", "maxSeq", "minSeq", "maxGap", "isOdd"]
+            filters = {}
+            game_codes = []
             ts = time()
-            games = Game.objects.filter(lottery__name=loto)
-            for index, jogo in jogos.iterrows():
-                code = reverseMapping(jogo)
-                game = games.get(gameCode=code)
-                gamesList.append(game.id)
+            if generator == "simple":
+                nJogos = int(data['nJogos'][0])
+                jogos = generators.simple(loto, nPlayed, nJogos, nRemoved, nFixed)
+                print(jogos.head())
+                for index, jogo in jogos.iterrows():
+                    code = reverseMapping(jogo)
+                    game_codes.append(code)
+            else:
+                for key in filters_keys:
+                    if data.get(key)[0]:
+                        print(data.get(key)[0])
+                        filters[key] = data.get(key)[0]
+                if eval(data["calcCombs"][0]):
+                    n_combs = generators.calc_combs(loto, nRemoved, nFixed, filters).count()
+                    print(n_combs)
+                    return JsonResponse({"combs": n_combs}, status=200)
+                else:
+                    nJogos = int(data['nJogos'][0])
+                    jogos = generators.smart(loto, nJogos, nRemoved, nFixed, filters)
+                    data = []
+                    print(jogos.head())
+                    for index, jogo in jogos.iterrows():
+                        code = jogo["gameCode"]
+                        game_codes.append(code)
+                        data.append(jogo["arrayNumbers"])
+                    print(data)
+                    jogos = pd.DataFrame(data)
+
             tf = time()
-            print(tf-ts)
-            instance = Gameset.objects.create(name=gameset, user=request.user,
-                       lottery=Lottery.objects.get(name=loto))
-            instance.games.set(gamesList)
-            instance.numberOfGames = len(jogos)
-            instance.gameLength = data.get('nPlayed')[0]
-            instance.collections.set(collection)
-            instance.save()
-            collections = Collection.objects.filter(id__in=collection)
-            for instance in collections:
-                instance.numberOfGames += len(jogos)
-                instance.numberOfGamesets += 1
-                instance.save()
-            return JsonResponse({"jogos": jogos.to_json(orient="split")}, status=200)
+            print(tf - ts)
+
+            return JsonResponse({"jogos": jogos.to_json(orient="split"), "codes": game_codes}, status=200)
         else:
             print('error1')
             return JsonResponse({"error": form.errors}, status=400)
     print('error')
     return JsonResponse({"error": "Not found"}, status=400)
+
+
+
+@login_required
+def save_games_batch(request):
+    if request.method == "POST":
+        ts = time()
+        form = forms.Form(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            codes = request.POST.getlist("game_code")
+            gameset = request.POST.get("gameset")
+            lottery = request.POST.get('lottery')
+            instance = Gameset.objects.create(name=gameset, user=request.user,
+                                              lottery=Lottery.objects.get(name=lottery))
+            games_list = []
+            games = Game.objects.filter(lottery__name=lottery)
+            nPlayed = len(games[0].arrayNumbers)
+            collection = request.POST.get('collection')
+            for code in codes:
+                game = games.get(gameCode=int(code))
+                games_list.append(game.id)
+
+            instance.games.set(games_list)
+            instance.numberOfGames = len(games_list)
+            instance.gameLength = nPlayed
+            instance.collections.set([collection])
+            instance.save()
+            collections = Collection.objects.filter(id__in=collection)
+            for instance in collections:
+                instance.numberOfGames += len(games_list)
+                instance.numberOfGamesets += 1
+                instance.save()
+            tf = time()
+            print(tf - ts)
+            messages.success(request, f"Conjunto {gameset} salvo com sucesso!")
+        return HttpResponseRedirect('jogos')
+
+
 
 
 @login_required

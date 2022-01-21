@@ -4,3 +4,6 @@ __pycache__/
 .pyc
 media/*.txt
 LotoWebApp/__pycache__/*.pyc
+todasCombsFiltradasDiadesorte.csv
+todasCombsFiltradasLotofacil.csv
+megaFiltered.csv

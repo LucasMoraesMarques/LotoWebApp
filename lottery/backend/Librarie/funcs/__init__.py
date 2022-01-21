@@ -230,35 +230,6 @@ def checkJogo(jogo, maxGap, maxSeq, minSeq, isodd, nPrime):
     return boolArray
 
 
-def calcCombs(database, nPlayed, numbersRemoved, numbersFixed, kwargs):
-    """ Calcula todas as combinações com os filtro dados através da database de todos os jogos
-
-    :param database: Todos os jogos possíveis
-    :param nPlayed: Quantidade de números escolhidos no jogo
-    :param numbersRemoved: Números removidos
-    :param numbersFixed: Números fixados
-    :param kwargs: Filtros inteligentes
-    :return: Todas as combinações válidas
-    """
-    dt = database
-    dtAuxIndexes = dt.iloc[:, 0:nPlayed][~dt.isin(numbersRemoved)].dropna().astype('int8').index
-    dtAux1 = dt.iloc[dtAuxIndexes, 0: nPlayed]
-    for i in numbersFixed:
-        dtAuxIndexes = dtAux1[dtAux1.isin([i])].dropna(how="all").index
-        dtAux1 = dtAux1.loc[dtAuxIndexes, :]
-
-    dt = dt.loc[dtAux1.index, :]
-    for k, v in kwargs.items():
-        if 'max' in k:
-            dt = dt[dt[k] <= v]
-        elif 'min' in k:
-            dt = dt[dt[k] >= v]
-        elif k == 'nPrime' and v != 0:
-            dt = dt[dt[k] == v]
-        elif k == "isOdd":
-            dt = dt[dt[k] == bool(v)]
-
-    return dt
 
 
 def checkScores(jogo, res):

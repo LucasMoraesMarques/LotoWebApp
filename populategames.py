@@ -3,7 +3,7 @@ import re
 
 import django
 import pandas as pd
-
+import numpy as np
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LotoWebApp.settings")
 django.setup()
 from lottery.models import Game, Draw
@@ -11,17 +11,41 @@ from lottery.models import Game, Draw
 LOTTERY_CHOICES = {"lotofacil": 1, "diadesorte": 2, "megasena": 3}
 
 
-def populate(model, data=0, lottery=0, id=0):
-    from functools import reduce
-    games = model.objects.all().order_by('id')
-    #model.objects.create(lottery_id=LOTTERY_CHOICES[lottery], arrayNumbers=data, id=id)
+def populate_game_code():
+    games = Game.objects.all().order_by('id')
     for game in games:
-        #numbers = list(game.arrayNumbers)
-        #numbers.reverse()
-        #game.subtract = reduce(lambda a,b: a-b, numbers)
-        #game.save(update_fields=['subtract'])
         game.gameCode = reverseMapping(game.arrayNumbers)
         game.save(update_fields=['gameCode'])
+
+
+def populate_games():
+    jogos = pd.read_pickle("megaFiltered.csv")
+    print(jogos.head())
+    print(len(jogos))
+    for index, jogo in jogos.iterrows():
+        numbers = jogo[:6].to_list()
+        isOdd = jogo["isOdd"]
+        nPrime = jogo["nPrime"]
+        maxGap = jogo["maxGap"]
+        maxSeq = jogo["maxSeq"]
+        minSeq = jogo["minSeq"]
+        gamecode = reverseMapping(numbers)
+        Game.objects.create(
+            lottery_id=3,
+            id=5898361 +index,
+            arrayNumbers=numbers,
+            max_seq=maxSeq,
+            min_seq=minSeq,
+            max_gap=maxGap,
+            n_primes=nPrime,
+            is_odd=isOdd,
+            sum=sum(numbers),
+            gameCode=gamecode
+        )
+
+
+
+
 
 def generator2():
     inicio = 0b111111111111111
@@ -54,9 +78,8 @@ def binaryMapping(jogos):
     return jogosMapped
 
 
-
 def reverseMapping(jogo):
-    jogo0 = [0 for i in range(25)]
+    jogo0 = [0 for i in range(60)]
     for number in jogo:
         jogo0[number-1] = 1
     number = 0
@@ -65,11 +88,66 @@ def reverseMapping(jogo):
     return number
 
 
+def isOdd(jogo):
+    """Checa se um jogo é majoritariamente par ou ímpar
+
+    :param jogo: Jogo único
+    :return: Retorna True se o jogo é predominantemente ímpar. Caso contráriio, retorna False
+    """
+
+    bolArray = map(lambda x: x % 2, jogo)
+    if len(jogo) % 2 != 0:
+        return True if sum(bolArray) > np.floor(len(jogo) / 2) else False
+    else:
+        return True if sum(bolArray) > (len(jogo) / 2) else False
+
+
+def gap(jogo):
+    """Checa os espaçamentos entre números consecutivos(extremos inclusive)
+
+    :return: Array com os espaçamentos
+    """
+    gaps = []
+    for i in range(0, len(jogo) - 1):
+        gaps.append(jogo[i + 1] - jogo[i])
+    return gaps
+
+
+def sequences(jogo):
+    """Checa as sequências ininterruptas presentes
+
+    :return: Quantia de números em cada sequência
+    """
+    gaps = gap(jogo)
+    s = 1
+    seq = []
+    for i in range(0, len(gaps)):
+        if gaps[i] == 1:
+            s += 1
+        else:
+            seq.append(s)
+            s = 1
+    else:
+        seq.append(s)
+    return seq
+
+
+def nPrimeNumbers(jogo):
+    """Checa a quantia de números primos presentes no jogo
+
+    :param jogo: Jogo a ser analisado
+    :return: Número de primos presente
+    """
+    primeNumbers = []
+    for i in jogo:
+        s = 0
+        for j in range(1, int(i) + 1):
+            if i % j == 0:
+                s += 1
+        if s == 2:
+            primeNumbers.append(i)
+    return np.intersect1d(primeNumbers, jogo).size
 
 
 if __name__ == "__main__":
-    """jogos = pd.read_csv("todosjogosloto.csv", index_col=None, header=None)
-    for index, jogo in jogos.iterrows():
-        jogo = jogo.to_list()
-        populate(Game, jogo, "lotofacil", id=index)"""
-    populate(Game)
+    populate_games()

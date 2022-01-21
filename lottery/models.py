@@ -74,6 +74,11 @@ class Game(models.Model):
     )
     sum = models.IntegerField(default=0)
     gameCode = models.BigIntegerField(default=0)
+    max_seq = models.IntegerField(default=-1)
+    min_seq = models.IntegerField(default=-1)
+    max_gap = models.IntegerField(default=-1)
+    n_primes = models.IntegerField(default=-1)
+    is_odd = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['lottery']

@@ -24,7 +24,7 @@
   <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       {% for draw in lastDraws %}
-      {% with 'assets/img/loterias/logos/'|add:draw.lottery.name|add:'.png' as lotteryLogo %}
+      {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
       {% if forloop.counter == 1 %}
       <div class="carousel-item active">
       {% else %}
@@ -34,10 +34,10 @@
           <div class="card-body p-3">
             <div class="col">
               <div class="d-flex flex-row justify-content-evenly align-items-center">
-                <img src="{% static lotteryLogo %}" alt="Logo da {{draw.lottery.name}}"
+                <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
                          class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
                          data-bs-placement="top"
-                         title="Logo da {{draw.lottery.name}}" data-container="body" data-animation="true">
+                         title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
                 <span class="text-sm mb-0 text-capitalize font-weight-bold mr-3">
                   Concurso {{draw.number}} - {{draw.date|date:"d/m/Y"}}
                 </span>
@@ -48,7 +48,7 @@
                   </span>
                   {% endfor %}
                 </div>
-                <a href="{% url 'lottery:concurso-detail' draw.lottery.name draw.number %}">
+                <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
                     <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                   </a>
               </div>
@@ -184,16 +184,16 @@
               </thead>
               <tbody>
               {% for draw in draws %}
-              {% with 'assets/img/loterias/logos/'|add:draw.lottery.name|add:'.png' as lotteryLogo %}
+              {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
               <tr>
                 <td>
                   <div class="d-flex px-2 py-1">
-                    <img src="{% static lotteryLogo %}" alt="Logo da {{draw.lottery.name}}"
+                    <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
                          class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
                          data-bs-placement="top"
-                         title="Logo da {{draw.lottery.name}}" data-container="body" data-animation="true">
+                         title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
                   </div>
-                  <p hidden>{{draw.lottery.name}}</p>
+                  <p hidden>{{draw.loto_name}}</p>
                 </td>
                 <td>
                   <p class="text-center text-xs font-weight-bold mb-0">{{draw.number}}</p>
@@ -221,7 +221,7 @@
                   {% endif %}
                 </td>
                 <td class="text-center text-center">
-                  <a href="{% url 'lottery:concurso-detail' draw.lottery.name draw.number %}">
+                  <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
                     <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                   </a>
                 </td>
