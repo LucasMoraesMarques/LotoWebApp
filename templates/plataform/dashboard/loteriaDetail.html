@@ -1,0 +1,522 @@
+<!--
+=========================================================
+* Soft UI Dashboard - v1.0.3
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
+* Copyright 2021 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+
+{% extends 'plataform/dashboard/base.html' %}
+{% load static %}
+{% load numbers %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
+
+<div class="container-fluid py-4">
+  <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for draw in lastDraws %}
+      {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
+      {% if forloop.counter == 1 %}
+      <div class="carousel-item active">
+      {% else %}
+       <div class="carousel-item">
+      {% endif %}
+        <div class="card w-90 m-auto">
+          <div class="card-body p-3">
+            <div class="col">
+              <div class="d-flex flex-row justify-content-evenly align-items-center">
+                <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
+                         class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                         data-bs-placement="top"
+                         title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
+                <span class="text-sm mb-0 text-capitalize font-weight-bold mr-3">
+                  Concurso {{draw.number}} - {{draw.date|date:"d/m/Y"}}
+                </span>
+                <div class="numbers d-inline">
+                  {% for number in draw.result %}
+                  <span class="badge badge-sm bg-gradient-primary">
+                    {{number}}
+                  </span>
+                  {% endfor %}
+                </div>
+                <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
+                    <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                  </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+    <button class="carousel-control-prev mx-0" style='opacity:1; width:auto;' type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"  aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" style='opacity:1; width:auto;' data-bs-target="#carouselExampleControls" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+
+   <div class="nav-wrapper position-relative end-0 my-3">
+    <!-- Tabs Nav -->
+    <ul class="nav nav-pills nav-fill p-1" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#concursos-tab" data-bs-target="#concursos-tab"
+           role="tab" aria-controls="preview" aria-selected="true">
+          <i class="fas fa-tools"></i> Concursos
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#filtros-tab" data-bs-target="#filtros-tab" role="tab"
+           aria-controls="code" aria-selected="false">
+          <i class="fas fa-list-ol"></i> Ranking e Estatísticas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#combinacoes-tab" data-bs-target="#combinacoes-tab"
+           role="tab" aria-controls="code" aria-selected="false">
+          <i class="fas fa-tasks"></i> Combinações
+        </a>
+      </li>
+    </ul>
+    <!-- End Tabs Nav -->
+
+    <!-- Content Section -->
+    <div class="tab-content" id="nav-tabContent">
+      <!-- Generators Section -->
+      <div class="tab-pane fade show active" id="concursos-tab" role="tabpanel" aria-labelledby="nav-concursos-tab">
+        <!-- Info Section -->
+        <div class="row mt-4">
+          <div class="col-lg-7 mb-lg-0 mb-4">
+            <div class="card">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col-lg-6">
+                    <div class="d-flex flex-column h-100">
+                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
+                      <p>
+                        Oferecemos dois tipos de geradores de jogos randômicos:
+                      <ul>
+                        <li>Simples</li>
+                        <li>Inteligente</li>
+                      </ul>
+                      Escolha com sabedoria!
+                      </p>
+                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                        Leia sobre
+                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="overflow-hidden position-relative border-radius-lg h-100">
+                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
+                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
+                  <div class="d-flex flex-row w-100 p-3">
+
+                  </div>
+                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                    Leia sobre
+                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Info Section -->
+
+        <!-- Game Set Table Section -->
+
+  <div class="row my-4">
+    <div class="col">
+      <div class="card">
+        <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+          <div class="d-inline">
+            <h5 class="font-weight-bolder">Todos os Concursos</h5>
+            <p class="text-sm">Clique em info para ver detalhes de cada concurso da loteria escolhida</p>
+            <p class="text-sm">
+              <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+            </p>
+          </div>
+        </div>
+        <div class="card-body px-2 pt-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0 display" id="drawsTable">
+              <thead>
+              <tr>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Loteria</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                  Concurso
+                </th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">Data
+                </th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                  Números
+                </th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Prêmio
+                </th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                  Acumulou
+                </th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Info
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for draw in draws %}
+              {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
+              <tr>
+                <td>
+                  <div class="d-flex px-2 py-1">
+                    <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
+                         class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                         data-bs-placement="top"
+                         title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
+                  </div>
+                  <p hidden>{{draw.loto_name}}</p>
+                </td>
+                <td>
+                  <p class="text-center text-xs font-weight-bold mb-0">{{draw.number}}</p>
+                </td>
+                <td>
+                  <p class="text-center text-xs font-weight-bold mb-0">{{draw.date|date:"d/m/Y"}}</p>
+                </td>
+                <td class="text-sm text-center">
+                  {% for number in draw.result %}
+                  <span class="badge badge-sm bg-gradient-primary">
+                    {{number}}
+                  </span>
+                  {% endfor %}
+                </td>
+                <td>
+                  <span class="badge badge-sm bg-gradient-primary text-center align-middle">
+                    R$ {{ draw.maxPrize }}
+                </span>
+                </td>
+                <td class="text-center text-center">
+                  {% if draw.hasAccumulated %}
+                  <span class="badge badge-sm bg-gradient-success">SIM</span>
+                  {% else %}
+                  <span class="badge badge-sm bg-gradient-danger">NÃO</span>
+                  {% endif %}
+                </td>
+                <td class="text-center text-center">
+                  <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
+                    <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
+                  </a>
+                </td>
+              </tr>
+              {% endwith %}
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+        <!-- End Game Set Table Section -->
+      </div>
+      <div class="tab-pane fade" id="filtros-tab" role="tabpanel" aria-labelledby="nav-filtros-tab">
+        <!-- Info Section -->
+        <div class="row mt-4">
+          <div class="col-lg-7 mb-lg-0 mb-4">
+            <div class="card">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col-lg-6">
+                    <div class="d-flex flex-column h-100">
+                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
+                      <p>
+                        Oferecemos dois tipos de geradores de jogos randômicos:
+                      <ul>
+                        <li>Simples</li>
+                        <li>Inteligente</li>
+                      </ul>
+                      Escolha com sabedoria!
+                      </p>
+                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                        Leia sobre
+                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="overflow-hidden position-relative border-radius-lg h-100">
+                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
+                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
+                  <div class="d-flex flex-row w-100 p-3">
+
+                  </div>
+                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                    Leia sobre
+                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Info Section -->
+
+        <!-- Generator Section -->
+        <div class="row mt-4">
+          <div class="col-lg- mb-lg-0 mb-4">
+            <div class="card z-index-2">
+              <div class="card-body p-3">
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Generator Section -->
+
+        <!-- Game Set Table Section -->
+        <div class="row my-4">
+          <div class="col">
+            <div class="card">
+              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                <div class="d-inline">
+                  <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
+                  <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
+                  <p class="text-sm">
+                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="card-body px-2 pt-0 pb-2">
+                <div class="table-responsive p-0">
+                  <table class="table align-items-center mb-0 display" >
+                    <thead>
+                    <tr>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="card">
+              <div class="card-header pb-0">
+                <h5 class="font-weight-bolder">Histórico</h5>
+                <p class="text-sm">
+                  Últimos conjuntos criados
+                </p>
+              </div>
+              <div class="card-body p-3">
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Game Set Table Section -->
+      </div>
+      <div class="tab-pane fade" id="combinacoes-tab" role="tabpanel" aria-labelledby="nav-combinacoes-tab">
+        <!-- Info Section -->
+        <div class="row mt-4">
+          <div class="col-lg-7 mb-lg-0 mb-4">
+            <div class="card">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col-lg-6">
+                    <div class="d-flex flex-column h-100">
+                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
+                      <p>
+                        Oferecemos dois tipos de geradores de jogos randômicos:
+                      <ul>
+                        <li>Simples</li>
+                        <li>Inteligente</li>
+                      </ul>
+                      Escolha com sabedoria!
+                      </p>
+                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                        Leia sobre
+                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="overflow-hidden position-relative border-radius-lg h-100">
+                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
+                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
+                  <div class="d-flex flex-row w-100 p-3">
+
+                  </div>
+                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                    Leia sobre
+                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Info Section -->
+
+        <!-- Generator Section -->
+        <div class="row mt-4">
+          <div class="col-lg- mb-lg-0 mb-4">
+            <div class="card z-index-2">
+              <div class="card-body p-3">
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Generator Section -->
+
+        <!-- Game Set Table Section -->
+        <div class="row my-4">
+          <div class="col">
+            <div class="card">
+              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                <div class="d-inline">
+                  <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
+                  <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
+                  <p class="text-sm">
+                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="card-body px-2 pt-0 pb-2">
+                <div class="table-responsive p-0">
+                  <table class="table align-items-center mb-0 display" id="gameset-table">
+                    <thead>
+                    <tr>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="card">
+              <div class="card-header pb-0">
+                <h5 class="font-weight-bolder">Histórico</h5>
+                <p class="text-sm">
+                  Últimos conjuntos criados
+                </p>
+              </div>
+              <div class="card-body p-3">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+    $('#drawsTable').DataTable({
+      language: {
+            "lengthMenu": "Mostrar _MENU_ jogos por página",
+            "zeroRecords": "",
+            "info": "Página _PAGE_ de _PAGES_",
+            "infoEmpty": "Nenhum jogo encontrado",
+            "infoFiltered": "(Filtrados de _MAX_ jogos)",
+            "paginate": {
+              "previous": "←",
+              "next": "→"
+            },
+            "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+            "search": "Filtrar"
+
+        }
+    });
+
+    $('#collectionsTable_filter input[type="search"]').attr(
+      'placeholder', "Busque por loteria, nome ou nº de jogos"
+    )
+
+    $('.dataTables_filter input[type="search"]').css(
+     {'width':'300px','display':'inline-block'}
+  );
+} );
+
+
+</script>
+<script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+
+$("input[name='select-lottery']").change(function(){
+  var isChecked = $("input[name='select-lottery']:checked").val()
+  console.log(isChecked)
+  if( !isChecked ){
+    $("#redirect").addClass("disabled")
+  }
+  else{
+    $("#redirect").removeClass("disabled")
+  }
+})
+function redirect(){
+  window.location.href = "{% url 'lottery:loterias' %}" + $("input[name='select-lottery']:checked").val()
+
+}
+</script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.1/math.js"></script>
+{% endblock %}

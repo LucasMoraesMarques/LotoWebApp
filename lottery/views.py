@@ -33,8 +33,10 @@ from django.conf import settings
 import math
 # Create your views here.
 
-def reverseMapping(jogo):
-    jogo0 = np.zeros(25)
+def reverseMapping(jogo, loto):
+    lottery = Lottery.objects.get(name=loto)
+    print(lottery.numbersRangeLimit)
+    jogo0 = np.zeros(lottery.numbersRangeLimit)
     jogo = np.array(jogo)
     for number in jogo:
         jogo0[number-1] = 1
@@ -83,25 +85,33 @@ def dashboard(request):
 
 
 @login_required
-def loterias(request, name=''):
+def loterias(request):
     LOTTERY_CHOICES = [
         ("lotofacil", "Lotofácil"),
         ("diadesorte", "Dia de Sorte"),
         ("megasena", "Mega Sena"),
-        ('', 'Todas as loterias')
     ]
     draws = Draw.objects.all()
     draws = draws.annotate(loto_name=F("lottery__name"))
-    filtered_draws = draws
-    if name:
-        filtered_draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
+    ctx = {
+        'lototypes': LOTTERY_CHOICES,
+        'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3],
+    }
+    return render(request, "plataform/dashboard/loterias.html", ctx)
+
+
+@login_required
+def loteriasDetail(request, name=''):
+    draws = Draw.objects.all()
+    draws = draws.annotate(loto_name=F("lottery__name"))
+    filtered_draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
     ctx = {
         'draws': filtered_draws,
         'lototypes': LOTTERY_CHOICES,
         'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3],
-        'current_option': name
     }
-    return render(request, "plataform/dashboard/loterias.html", ctx)
+    return render(request, "plataform/dashboard/loteriaDetail.html", ctx)
+
 
 
 @login_required
@@ -153,21 +163,25 @@ def generator(request):
             generator = data["generator"][0]
             filters_keys = ["nPrimes", "maxSeq", "minSeq", "maxGap", "isOdd"]
             filters = {}
-            game_codes = []
+            games_ids = []
             ts = time()
             if generator == "simple":
                 nJogos = int(data['nJogos'][0])
                 jogos = generators.simple(loto, nPlayed, nJogos, nRemoved, nFixed)
                 print(jogos.head())
                 for index, jogo in jogos.iterrows():
-                    code = reverseMapping(jogo)
-                    game_codes.append(code)
+                    game = Game.objects.get(arrayNumbers=jogo.to_list())
+                    games_ids.append(game.id)
             else:
                 for key in filters_keys:
-                    if data.get(key)[0]:
-                        print(data.get(key)[0])
-                        filters[key] = data.get(key)[0]
-                if eval(data["calcCombs"][0]):
+                    try:
+                        filter_value = data.get(key)[0]
+                    except (KeyError, TypeError):
+                        pass
+                    else:
+                        if filter_value:
+                            filters[key] = filter_value
+                if eval(data.get("calcCombs")[0]):
                     n_combs = generators.calc_combs(loto, nRemoved, nFixed, filters).count()
                     print(n_combs)
                     return JsonResponse({"combs": n_combs}, status=200)
@@ -175,24 +189,21 @@ def generator(request):
                     nJogos = int(data['nJogos'][0])
                     jogos = generators.smart(loto, nJogos, nRemoved, nFixed, filters)
                     data = []
-                    print(jogos.head())
                     for index, jogo in jogos.iterrows():
-                        code = jogo["gameCode"]
-                        game_codes.append(code)
                         data.append(jogo["arrayNumbers"])
-                    print(data)
+                        games_ids.append(jogo["id"])
                     jogos = pd.DataFrame(data)
-
+            print(jogos.head())
+            print(games_ids)
             tf = time()
             print(tf - ts)
 
-            return JsonResponse({"jogos": jogos.to_json(orient="split"), "codes": game_codes}, status=200)
+            return JsonResponse({"jogos": jogos.to_json(orient="split"), "ids": games_ids}, status=200)
         else:
             print('error1')
             return JsonResponse({"error": form.errors}, status=400)
     print('error')
     return JsonResponse({"error": "Not found"}, status=400)
-
 
 
 @login_required
@@ -202,19 +213,18 @@ def save_games_batch(request):
         form = forms.Form(request.POST)
         print(request.POST)
         if form.is_valid():
-            codes = request.POST.getlist("game_code")
-            gameset = request.POST.get("gameset")
-            lottery = request.POST.get('lottery')
+            ids = request.POST.getlist("ids")
+            gameset = request.POST.get("gameset-name")
+            lottery = request.POST.get('lototype')
             instance = Gameset.objects.create(name=gameset, user=request.user,
                                               lottery=Lottery.objects.get(name=lottery))
             games_list = []
-            games = Game.objects.filter(lottery__name=lottery)
-            nPlayed = len(games[0].arrayNumbers)
             collection = request.POST.get('collection')
-            for code in codes:
-                game = games.get(gameCode=int(code))
+            nPlayed = 0
+            for id in ids:
+                game = Game.objects.get(pk=id)
                 games_list.append(game.id)
-
+                nPlayed = len(game.arrayNumbers)
             instance.games.set(games_list)
             instance.numberOfGames = len(games_list)
             instance.gameLength = nPlayed

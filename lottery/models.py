@@ -85,6 +85,7 @@ class Game(models.Model):
         db_table = 'games'
         verbose_name = 'Lottery Game'
         verbose_name_plural = 'Lottery Games'
+        indexes = [models.Index(fields=["arrayNumbers"])]
 
     def __str__(self):
         return str(self.id)

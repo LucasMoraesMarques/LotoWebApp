@@ -55,9 +55,11 @@ def smart(lototype, nJogos, removedNumbers, fixedNumbers, kwargs):
     :return: None. Cria n jogos pedidos pelo user dentro dos possíveis
     """
     games = calc_combs(lototype, removedNumbers, fixedNumbers, kwargs)
-    print(games.count())
-    games = games[:nJogos]
     games = pd.DataFrame(games.values())
+    index = list(games.index)
+    random.shuffle(index)
+    games = games.iloc[index, :]
+    games = games[:nJogos]
     return games
 
 
@@ -72,8 +74,11 @@ def calc_combs(lototype, numbersRemoved, numbersFixed, kwargs):
     """
     loto = Lottery.objects.get(name=lototype)
     games = Game.objects.filter(lottery=loto)
-    games = games.exclude(arrayNumbers__contains=numbersRemoved)
-    games = games.filter(arrayNumbers__contains=numbersFixed)
+    if numbersRemoved:
+        games = games.exclude(arrayNumbers__contains=numbersRemoved)
+    if numbersFixed:
+        games = games.filter(arrayNumbers__contains=numbersFixed)
+    print(games.count())
     print(kwargs)
     for k, v in kwargs.items():
         if k == "nPrimes":
