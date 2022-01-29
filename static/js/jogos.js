@@ -1,4 +1,21 @@
 // General Initialisation
+//import Swal from "sweetalert2"
+//const Swal = require("sweetalert2")
+
+var lotteryInfo = new Object({
+  lotofacil: {
+    nPlayedList: Array.from(new Array(6), (x, i) => i + 15),
+    nPossiblesList: Array.from(new Array(25), (x, i) => i + 1),
+  },
+  diadesorte: {
+    nPlayedList: Array.from(new Array(9), (x, i) => i + 7),
+    nPossiblesList: Array.from(new Array(31), (x, i) => i + 1),
+  },
+  megasena: {
+    nPlayedList: Array.from(new Array(10), (x, i) => i + 6),
+    nPossiblesList: Array.from(new Array(60), (x, i) => i + 1),
+  }
+})
 
 $(document).ready(function () {
   $("#menu").on('click', function () {
@@ -17,8 +34,8 @@ $(document).ready(function () {
     Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
   }
 
-  $('table.display').DataTable({
-    language: {
+  $('#gamesets-table').DataTable({
+    "language": {
       "lengthMenu": "Mostrar _MENU_ jogos por página",
       "zeroRecords": "",
       "info": "Página _PAGE_ de _PAGES_",
@@ -31,8 +48,223 @@ $(document).ready(function () {
       "searchPlaceholder": "Busque jogos por loteria, nome ou status",
       "search": "Filtrar"
 
-    }
+    },
+    "dom": "Brtip",
+    "buttons": [
+        {
+            "extend": "collection",
+            "text": "Exportar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "csv",
+                    "text": "CSV",
+                    "className": ""
+                },
+                {
+                    "extend": "excel",
+                    "text": "EXCEL",
+                    "className": ""
+                },
+                {
+                    "extend": "pdf",
+                    "text": "PDF",
+                    "className": ""
+                },
+                {
+                    "extend": "print",
+                    "text": "IMPRIMIR",
+                    "className": ""
+                }]
+            },
+            {
+            "extend": "collection",
+            "text": "Selecionar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "selectAll",
+                    "text": "Selecionar tudo",
+                    "className": ""
+                },
+                {
+                    "extend": "selectNone",
+                    "text": "Limpar seleção",
+                    "className": ""
+                },
+            ]
+            },
+    ],
+
+    "columnDefs": [ {
+            "orderable": false,
+            "className": 'select-checkbox',
+            "targets":   0
+        },
+         ],
+    "select": {
+        "style": "multi",
+        "selector": "td:first-child",
+    },
   });
+
+  $('#collections-table').DataTable({
+    "language": {
+      "lengthMenu": "Mostrar _MENU_ jogos por página",
+      "zeroRecords": "",
+      "info": "Página _PAGE_ de _PAGES_",
+      "infoEmpty": "Nenhum jogo encontrado",
+      "infoFiltered": "(Filtrados de _MAX_ jogos)",
+      "paginate": {
+        "previous": "←",
+        "next": "→"
+      },
+      "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+      "search": "Filtrar"
+
+    },
+    "dom": "Brtip",
+    "buttons": [
+        {
+            "extend": "collection",
+            "text": "Exportar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "csv",
+                    "text": "CSV",
+                    "className": ""
+                },
+                {
+                    "extend": "excel",
+                    "text": "EXCEL",
+                    "className": ""
+                },
+                {
+                    "extend": "pdf",
+                    "text": "PDF",
+                    "className": ""
+                },
+                {
+                    "extend": "print",
+                    "text": "IMPRIMIR",
+                    "className": ""
+                }]
+            },
+            {
+            "extend": "collection",
+            "text": "Selecionar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "selectAll",
+                    "text": "Selecionar tudo",
+                    "className": ""
+                },
+                {
+                    "extend": "selectNone",
+                    "text": "Limpar seleção",
+                    "className": ""
+                },
+            ]
+            },
+    ],
+
+    "columnDefs": [ {
+            "orderable": false,
+            "className": 'select-checkbox',
+            "targets":   0
+        },
+         ],
+    "select": {
+        "style": "multi",
+        "selector": "td:first-child",
+    },
+    "searchBuilder": true,
+  });
+
+  $('#results-table').DataTable({
+    "language": {
+      "lengthMenu": "Mostrar _MENU_ jogos por página",
+      "zeroRecords": "",
+      "info": "Página _PAGE_ de _PAGES_",
+      "infoEmpty": "Nenhum jogo encontrado",
+      "infoFiltered": "(Filtrados de _MAX_ jogos)",
+      "paginate": {
+        "previous": "←",
+        "next": "→"
+      },
+      "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+      "search": "Filtrar"
+
+    },
+    "dom": "Brtip",
+    "buttons": [
+        {
+            "extend": "collection",
+            "text": "Exportar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "csv",
+                    "text": "CSV",
+                    "className": ""
+                },
+                {
+                    "extend": "excel",
+                    "text": "EXCEL",
+                    "className": ""
+                },
+                {
+                    "extend": "pdf",
+                    "text": "PDF",
+                    "className": ""
+                },
+                {
+                    "extend": "print",
+                    "text": "IMPRIMIR",
+                    "className": ""
+                }]
+            },
+            {
+            "extend": "collection",
+            "text": "Selecionar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "selectAll",
+                    "text": "Selecionar tudo",
+                    "className": ""
+                },
+                {
+                    "extend": "selectNone",
+                    "text": "Limpar seleção",
+                    "className": ""
+                },
+            ]
+            },
+    ],
+
+    "columnDefs": [ {
+            "orderable": false,
+            "className": 'select-checkbox',
+            "targets":   0
+        },
+         ],
+    "select": {
+        "style": "multi",
+        "selector": "td:first-child",
+    },
+    "searchBuilder": true,
+  });
+
+
 
   $('#collectionsTable_filter input[type="search"]').attr(
     'placeholder', "Busque por loteria, nome ou nº de jogos"
@@ -41,89 +273,68 @@ $(document).ready(function () {
   $('.dataTables_filter input[type="search"]').css(
     { 'width': '300px', 'display': 'inline-block' }
   );
-
-  var lotteryInfo = new Object({
-    lotofacil: {
-      nPlayedList: Array.from(new Array(6), (x, i) => i + 15),
-      nPossiblesList: Array.from(new Array(25), (x, i) => i + 1),
-    },
-    diadesorte: {
-      nPlayedList: Array.from(new Array(9), (x, i) => i + 7),
-      nPossiblesList: Array.from(new Array(31), (x, i) => i + 1),
-    },
-    megasena: {
-      nPlayedList: Array.from(new Array(10), (x, i) => i + 6),
-      nPossiblesList: Array.from(new Array(60), (x, i) => i + 1),
-    }
-  })
 });
 
 
 // Generators Tab
 
-function mapNumbers(cellId, op) {
-  console.log(op)
+function mapNumbers(cellId, op) { // Update grid of fixed and removed numbers
+  console.log(op, cellId)
   switch (op) {
     case "removed":
-      cellId = cellId.replace(op, 'fixed');
-      console.log(cellId);
-      $("#label-".concat(cellId)).toggleClass('disabled');
+      counterFixedId = cellId.replace(op, 'fixed');
+      $("#label-".concat(counterFixedId)).toggleClass('disabled');
       break;
 
     case "fixed":
-      cellId = cellId.replace(op, 'removed');
-      console.log(cellId);
-      $("#label-".concat(cellId)).toggleClass('disabled')
+      counterRemovedId = cellId.replace(op, 'removed');
+      $("#label-".concat(counterRemovedId)).toggleClass('disabled')
       break;
   }
 
 }
 
-function handleLotteryParams(lottery) {
+function handleLotteryParams(lottery) { // Handle change in lottery type, updating nPlayed, grid fixed/removed and collections
   $("#check-nPlayed .reset-placeholder").hide()
   $("#grid-fixed .reset-placeholder").removeClass("d-flex")
   $("#grid-removed .reset-placeholder").removeClass("d-flex")
   $("#grid-removed .numbers").empty()
   $("#grid-fixed .numbers").empty()
   $("#check-nPlayed .numbers").empty()
+  updateCollectionsSelect(lottery)
+  updateNPlayedRadio(lottery)
+  resetFixedAndRemovedGrids(lottery)
+  updateFixedAndRemovedGrids()
+  handleGeneratorSelect($("input[name=generator]:checked").get(0))
+}
 
-  $("#collection-gen-select").children().map((ind, el) => {
-    console.log($(el).attr("loto-name"), lottery)
-    if ($(el).attr("loto-name") == lottery) {
-      $(el).show()
-    }
-    else {
-      $(el).hide()
-    }
-  })
-
-  for (value of lotteryInfo[lottery].nPlayedList) {
+function updateNPlayedRadio(lottery){ // Update nPlayed options
+  for (value of lotteryInfo[lottery].nPlayedList) { 
     $("#check-nPlayed .numbers").append(
       `<div class="form-check" id="check-n-{{value}}}">
-           <input class="form-check-input mx-2" type="radio" id="check-played-${value}" name="nPlayed"
+          <input class="form-check-input mx-2" type="radio" id="check-played-${value}" name="nPlayed"
               value="${value}" required>
-           <label class="custom-control-label fs-6" for="check-played-${value}">${value}</label>
-           </div>
-           `
+          <label class="custom-control-label fs-6" for="check-played-${value}">${value}</label>
+      </div>
+      `
     )
   }
+}
 
-  $('#check-nPlayed .numbers').change(function () {
-    $("input[name='nFixed']").map((ind, el) => {
-      $("label[for='" + el.id + "']").removeClass('disabled');
-    })
-
-    $("input[name='nRemoved']").map((ind, el) => {
-      $("label[for='" + el.id + "']").removeClass('disabled');
-    })
-    $('#check-nPlayed').off()
-    $('#check-nPlayed').change(function () {
-      //checkSumOfChecksLTnPlayed()
-    })
+function updateCollectionsSelect(lottery){
+  $("#collection-gen-select").children().map((ind, option) => { // Update collections
+    if ($(option).attr("loto-name") == lottery) {
+      $(option).show()
+    }
+    else {
+      $(option).hide()
+    }
   })
+}
 
-
-  for (value of lotteryInfo[lottery].nPossiblesList) {
+function resetFixedAndRemovedGrids(lottery){ // Reset fixed and removed numbers grids
+  let nPossiblesList = lotteryInfo[lottery].nPossiblesList
+  for (value of nPossiblesList) { 
     $("#grid-fixed .numbers").append(
       `<div class="col">
           <input type="checkbox" class="btn-check" id="check-fixed-${value}"
@@ -136,8 +347,7 @@ function handleLotteryParams(lottery) {
     )
   }
 
-
-  for (value of lotteryInfo[lottery].nPossiblesList) {
+  for (value of nPossiblesList) {
     $("#grid-removed .numbers").append(
       `<div class="col">
           <input type="checkbox" class="btn-check" id="check-removed-${value}"
@@ -149,26 +359,59 @@ function handleLotteryParams(lottery) {
       </div>`
     )
   }
-  handleGeneratorSelect($("input[name=generator]:checked").get(0))
+
 }
 
-function handleGeneratorSelect(radio) {
-  console.log(radio.id)
+function updateFixedAndRemovedGrids(){ // Callback to reset grids on nPlayed value change
+  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nPlayedChosen = parseInt($("input[name=nPlayed]:checked").val())
+  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let lottery = $("input[name='lototype']:checked").val()
+  let nPossiblesList = lotteryInfo[lottery].nPossiblesList
+  let sum = nFixed.length + nRemoved.length
+  if (sum == nPlayedChosen) {
+    nPossiblesList.map((ind, el) => {
+      let value = parseInt(el) + 1 
+      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+        console.log("equal", value)
+        $("label[for='check-fixed-" + value + "']").addClass('disabled');
+        $("label[for='check-removed-" + value + "']").addClass('disabled');
+      }
+    })
+  }
+  else if (sum > nPlayedChosen){
+    $("#calc-combs-btn").addClass("disabled")
+  }
+  else {
+    nPossiblesList.map((ind, el) => {
+      let value = parseInt(el) + 1 
+      console.log(nFixed.includes(value), nRemoved.includes(value))
+      if(!(nFixed.includes(value) || nRemoved.includes(value)) && (nPlayedChosen)){
+        console.log("diff", value)
+        $("label[for='check-fixed-" + value + "']").removeClass('disabled');
+        $("label[for='check-removed-" + value + "']").removeClass('disabled');
+      }
+    })
+  }
+}
+
+
+function handleGeneratorSelect(radio) { // Handle generator type selection
   var nPlayedRadios = $("#check-nPlayed input[type=radio]")
-  var np = nPlayedRadios.filter((index, element) => { return index != 0 })
+  var nonDefaultValues = nPlayedRadios.filter((index, element) => { return index != 0 })
 
   if (radio.id == "smart") {
     $("#smart-gen-options").show()
-    np.map((index, element) => { $('#'.concat(element.id)).hide(); $('label[for='.concat(element.id, ']')).hide() })
+    nonDefaultValues.map((index, element) => { $('#'.concat(element.id)).hide(); $('label[for='.concat(element.id, ']')).hide() })
   }
   else {
     $("#smart-gen-options").hide()
-    np.map((index, element) => { $('#'.concat(element.id)).show(); $('label[for='.concat(element.id, ']')).show() })
+    nonDefaultValues.map((index, element) => { $('#'.concat(element.id)).show(); $('label[for='.concat(element.id, ']')).show() })
 
   }
 }
 
-function handleActionButtons(state) {
+function handleActionButtons(state) { // Handle which buttons appears in a given state
   var calcCombsBtn = $("#calc-combs-btn")
   var submitGeneratorForm = $("#submit-generator")
   var resetGeneratorForm = $("#reset-generator-form")
@@ -199,11 +442,14 @@ function handleActionButtons(state) {
       submitGeneratorForm.hide();
       seeGameSet.hide();
       resetGeneratorForm.show();
+      handleGeneratorSelect($("input[name=generator]:checked").get(0))
       break;
   }
 }
 
-function calcNumberOfCombinations() {
+function calcNumberOfCombinations() { // Calculate the number of combinations in the given generator form data
+  spinner = createSpinnerLoading("Calculando combinações...")
+  $("#actions-buttons").append(spinner)
   var nCombs = 0
   var generator = $("input[name='generator']:checked").val()
   var willCalcCombs = $("input[name='calcCombs']")
@@ -217,16 +463,8 @@ function calcNumberOfCombinations() {
     let m = lotteryInfo[lottery].nPossiblesList.length - nFixed.length - nRemoved.length
     let n = nPlayed - nFixed.length
     nCombs = math.combinations(m, n)
-    $("#nJogos-input-div").show()
-    $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
-    if (nCombs != 0) {
-      handleActionButtons("submit")
-      $("#nCombs").val(nCombs)
-      $("input[name='calcCombs']").val("False")
-    }
-    else {
-      handleActionButtons("reset")
-    }
+    showCombsInput(nCombs)
+    $("#spinner").remove()
   }
   else {
     willCalcCombs.val("True")
@@ -237,16 +475,8 @@ function calcNumberOfCombinations() {
       data: serializedData,
       success: function (response, nCombs) {
         nCombs = response["combs"]
-        $("#nJogos-input-div").show()
-        $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
-        if (nCombs != 0) {
-          handleActionButtons("submit")
-          $("#nCombs").val(nCombs)
-          $("input[name='calcCombs']").val("False")
-        }
-        else {
-          handleActionButtons("reset")
-        }
+        showCombsInput(nCombs)
+        $("#spinner").remove()
       },
       error: function (response) {
         console.log(response)
@@ -256,60 +486,49 @@ function calcNumberOfCombinations() {
   }
 }
 
-
-function checkSumOfChecksLTnPlayed() {
-  let nFixedChosen = Array.from($("input[name='nFixed']:checked"))
-  let nPlayedChosen = parseInt(document.forms['gerador-form']['nPlayed'].value)
-  let nRemovedChosen = Array.from($("input[name='nRemoved']:checked"))
-  let sum = nFixedChosen.length + nRemovedChosen.length
-  console.log(sum)
-  if (sum == nPlayedChosen) {
-    $("input[name='nFixed']").map((ind, el) => {
-      $("label[for='" + el.id + "']").addClass('disabled');
-    })
-    $("input[name='nRemoved']").map((ind, el) => {
-      $("label[for='" + el.id + "']").addClass('disabled');
-    })
+function showCombsInput(nCombs){ // Show a number input to get nJogos
+  $("#nJogos-input-div").show()
+  $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
+  if (nCombs != 0) {
+    handleActionButtons("submit")
+    $("#nCombs").val(nCombs)
+    $("input[name='calcCombs']").val("False")
   }
   else {
-    $("input[name='nFixed']").map((ind, el) => {
-      $("label[for='" + el.id + "']").removeClass('disabled');
-    })
-    $("input[name='nRemoved']").map((ind, el) => {
-      $("label[for='" + el.id + "']").removeClass('disabled');
-    })
+    handleActionButtons("reset")
   }
 }
 
+// jQuery callbacks and ajax
 
-$("#submit-generator").click(function () {
+$('#check-nPlayed .numbers').change(function () { // Listen to changes in nPlayed
+  updateFixedAndRemovedGrids()
+})
+
+$('#grid-fixed-removed').change(function () { // Listen to changes in nFixed or nRemoved
+  updateFixedAndRemovedGrids()
+})
+
+$("#submit-generator").click(function () { // Handle if form submition is valid
   var nJogos = parseInt($("#nJogos-input").val())
   var nCombs = parseInt($("#nCombs").val())
-  console.log(nCombs, nJogos)
   if (nJogos <= 0 | !nJogos) {
-    $("#messages").show()
-    $("#messages span.alert-text").text("O número de jogos pedidos deve ser maior que zero e diferente de vazio. Tente novamente!")
-    $("#messages").removeClass("alert-success")
-    $("#messages").addClass("alert-danger")
+    showAlertMessage("O número de jogos pedidos deve ser maior que zero e diferente de vazio. Tente novamente!", "danger")
   }
   else if (nJogos > nCombs) {
-    $("#messages").show()
-    $("#messages span.alert-text").text("O número de jogos pedidos é maior que o número de combinação possíveis. Tente novamente!")
-    $("#messages").removeClass("alert-success")
-    $("#messages").addClass("alert-danger")
+    showAlertMessage("O número de jogos pedidos é maior que o número de combinação possíveis. Tente novamente!", "danger")
   }
   else {
     $("#gerador-form").submit()
   }
 
 })
-$("#gerador-form").submit(function (e) {
+
+$("#gerador-form").submit(function (e) { // POST form and get generated jogos as response
+  spinner = createSpinnerLoading("Gerando o conjunto de jogos ...")
+  $("#actions-buttons").append(spinner)
   e.preventDefault()
   var serializedData = $(this).serialize()
-  var data = $(this).get(0)
-  var collection = data["collection-gen-select"].value
-  var gameset = data["gameset-name"].value
-  var lottery = data["lototype"].value
   $.ajax({
     type: "POST",
     url: "jogos/generator",
@@ -317,18 +536,14 @@ $("#gerador-form").submit(function (e) {
     success: function (response) {
       $("#modal-content-gameset .modal-body").empty()
       $("#modal-content-gameset .modal-body").append(
-        `
-      <table id="table-jogos">
+        `<table id="table-jogos">
           <thead>
           </thead>
           <tbody>
           </tbody>
-      </table>
-      `
-      )
+        </table>`)
       var cells = "<tr>"
       var data = JSON.parse(response["jogos"]);
-      console.log(response)
       var ids = response["ids"]
       for (let i = 1; i < data.columns.length + 1; i++) {
         cells += `<th class="mx-3">Bola ${i}</th>`
@@ -350,6 +565,7 @@ $("#gerador-form").submit(function (e) {
       $("#gerador-form").append(cells)
       $("#table-jogos").DataTable()
       handleActionButtons("see")
+      $("#spinner").remove()
     },
     error: function (response) {
       console.log(response)
@@ -358,10 +574,9 @@ $("#gerador-form").submit(function (e) {
   })
 })
 
-$("#reset-generator-form").click(function () {
+$("#reset-generator-form").click(function () { // Reset generator form completely
   $("#gerador-form").trigger("reset")
   $("input[name='ids']").remove()
-  checkSumOfChecksLTnPlayed()
   handleActionButtons("calc")
   $("#nJogos-input-div").hide()
   $("#table-jogos").remove()
@@ -373,11 +588,14 @@ $("#reset-generator-form").click(function () {
   $("#check-nPlayed .numbers").empty()
 })
 
-$("#gerador-form").change(function () {
+$("#gerador-form").change(function () { // Listen to changes on generator form and handle calc-combs-btn display
   var generator = $("input[name='generator']:checked").val()
   var lottery = $("input[name='lototype']:checked").val()
-  var nPlayed = $("input[name='nPlayed']:checked").val()
-  if (generator && lottery && nPlayed) {
+  let nPlayed = parseInt($("input[name=nPlayed]:checked").val())
+  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let sum = nFixed.length + nRemoved.length
+  if (generator && lottery && nPlayed && sum <= nPlayed) {
     $("#calc-combs-btn").removeClass("disabled")
   }
   else {
@@ -385,18 +603,13 @@ $("#gerador-form").change(function () {
   }
 })
 
-$("#save-gameset").click(function () {
-  $("#modal-content-gameset .modal-footer .saving").append(`
-  <div class="spinner-border text-primary mx-3" role="status">
-</div>
-  <p>Salvando o jogo, não saia da página!</p>
-  `)
-  $("#modal-content-gameset .modal-footer .saving").addClass("d-flex", "flex-row")
-  $("#modal-content-gameset .modal-footer .saving").show()
-
-  $("#modal-content-gameset .modal-footer .buttons").toggleClass("d-flex")
-  $("#modal-content-gameset .modal-footer .buttons").hide()
-  $("#modal-content-gameset .modal-footer").addClass("justify-content-center")
+$("#save-gameset").click(function () { // Submit generator form again to save generated games
+  let spinner = createSpinnerLoading("Salvando o jogo, não saia da página!")
+  let modalFooterSaving = $(".modal-footer .saving")
+  let modalFooterButtons = $(".modal-footer .buttons")
+  modalFooterSaving.append(spinner).show()
+  modalFooterButtons.toggleClass("d-flex").hide()
+  modalFooterSaving.parent().addClass("justify-content-center")
   $("#gerador-form").attr("action", "/save-games-batch")
   $("#gerador-form").attr("method", "post")
   $("#gerador-form").off("submit")
@@ -407,10 +620,9 @@ $("#save-gameset").click(function () {
 // Collections Tab
 
 
-$("#add-collection-form").submit(function (e) {
+$("#add-collection-form").submit(function (e) { // Add new collections 
   e.preventDefault()
   var serializedData = $(this).serialize()
-  console.log(serializedData)
   $.ajax({
     type: "POST",
     url: "jogos/colecoes/create-collection",
@@ -422,9 +634,7 @@ $("#add-collection-form").submit(function (e) {
       $("#collection-gen-select").prepend(
         `<option value="${response.id}" loto-name="${response.lottery}">${response.name}</option>`
       )
-      $("#messages").show()
-      $("#messages span.alert-text").text(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`)
-
+      showAlertMessage(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`, "success")
 
     },
     error: function (response) {
@@ -435,7 +645,7 @@ $("#add-collection-form").submit(function (e) {
   })
 })
 
-$("#collection-file-form").submit(function (e) {
+$("#collection-file-form").submit(function (e) { // Handle file input to create collections
   e.preventDefault()
   var data = new FormData($(this).get(0));
   console.log(data)
@@ -454,8 +664,6 @@ $("#collection-file-form").submit(function (e) {
       )
       $("#messages").show()
       $("#messages span.alert-text").text(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`)
-
-
     },
     error: function (response) {
       console.log(response)
@@ -468,7 +676,7 @@ $("#collection-file-form").submit(function (e) {
 
 // Draws Tab
 
-$("input[name=lototype2]").on("click", function () {
+$("input[name=lototype2]").on("click", function () { // Get current lottery draws numbers
   $.ajax({
     type: "GET",
     url: `get-draw?lottery=${this.value}`,
@@ -501,7 +709,7 @@ $("input[name=lototype2]").on("click", function () {
 })
 
 
-$("#get-results-form").submit(function (e) {
+$("#get-results-form").submit(function (e) { // Submit collection to check in a given draw and receive a file with points by game
   e.preventDefault()
   var serializedData = $(this).serialize()
   console.log(serializedData)
@@ -538,3 +746,21 @@ $("#get-results-form").submit(function (e) {
 
   })
 })
+
+// Aux. Functions
+
+function createSpinnerLoading(message){
+  return `<div class="d-flex flex-row" id="spinner">
+    <div class="spinner-border text-primary mx-3" role="status">
+    </div>
+    <p>${message}</p>
+  </div>
+  `
+}
+
+function showAlertMessage(message, type="info"){
+  $("#messages span.alert-text").text(message)
+  $("#messages").removeClass()
+  $("#messages").addClass(`alert alert-${type} alert-dismissible fade show float-right`)
+  $("#messages").show()
+}

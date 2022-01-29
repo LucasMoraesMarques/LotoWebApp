@@ -7,7 +7,7 @@ from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collec
 from django import forms
 from django.core import serializers
 from django.http import JsonResponse
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q, Case, When
 import pandas as pd
 import numpy as np
 import random
@@ -125,6 +125,39 @@ def jogos(request):
     collectionForm = CreateCollectionForm()
     uploadCollectionForm = UploadCollectionForm()
 
+    if request.POST:
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            action = request.POST.get("action")
+            gamesets_ids = request.POST.getlist("gamesets")
+            gamesets_ids = [int(i) for i in gamesets_ids]
+            collections_ids = request.POST.getlist("collections")
+            collections_ids = [int(i) for i in collections_ids]
+            print(request.POST)
+            action_name = "MODIFICADOS"
+            if gamesets_ids:
+                for gameset in userGamesets.filter(id__in=gamesets_ids):
+                    print(gameset.id, action)
+                    if action == "ATIVAR":
+                        action_name = "ATIVADOS"
+                        gameset.isActive = True
+                        gameset.save()
+                    elif action == "DESATIVAR":
+                        action_name = "DESATIVADOS"
+                        gameset.isActive = False
+                        gameset.save()
+                    elif action == "DELETAR":
+                        action_name = "DELETADOS"
+                        gameset.delete()
+                messages.success(request, f"Conjuntos {action_name} com sucesso!")
+            if collections_ids:
+                for collection in userCollections.filter(id__in=collections_ids):
+                    print(collection.id, action)
+                    if action == "DELETAR":
+                        action_name = "DELETADOS"
+                        collection.delete()
+                messages.success(request, f"Coleções {action_name} com sucesso!")
+            return redirect('lottery:jogos')
     gamesetsData = {
         'gamesets': userGamesets,
         'lastGamesets': lastGamesets,
@@ -219,7 +252,7 @@ def save_games_batch(request):
             instance = Gameset.objects.create(name=gameset, user=request.user,
                                               lottery=Lottery.objects.get(name=lottery))
             games_list = []
-            collection = request.POST.get('collection')
+            collections_list = request.POST.getlist('collection')
             nPlayed = 0
             for id in ids:
                 game = Game.objects.get(pk=id)
@@ -228,9 +261,9 @@ def save_games_batch(request):
             instance.games.set(games_list)
             instance.numberOfGames = len(games_list)
             instance.gameLength = nPlayed
-            instance.collections.set([collection])
+            instance.collections.set(collections_list)
             instance.save()
-            collections = Collection.objects.filter(id__in=collection)
+            collections = Collection.objects.filter(id__in=collections_list)
             for instance in collections:
                 instance.numberOfGames += len(games_list)
                 instance.numberOfGamesets += 1
@@ -241,11 +274,37 @@ def save_games_batch(request):
         return HttpResponseRedirect('jogos')
 
 
-
-
 @login_required
 def conjuntosDetail(request, gameset_id):
     gameset = Gameset.objects.get(id=gameset_id)
+    #gameset.numberOfGames = gameset.games.all().count()
+    if request.POST:
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            action = request.POST.get("action")
+            games_ids = request.POST.getlist("games")
+            print(request.POST)
+            if games_ids:
+                for game_id in games_ids:
+                    gameset.games.remove(int(game_id))
+                print(len(games_ids))
+                gameset.numberOfGames -= len(games_ids)
+                messages.success(request, f"Jogos REMOVIDOS com sucesso!")
+                gameset.save()
+            if action == "ATIVAR":
+                gameset.isActive = True
+                gameset.save()
+                messages.success(request, f"Conjunto {gameset.name} ATIVADO com sucesso!")
+            elif action == "DESATIVAR":
+                gameset.isActive = False
+                gameset.save()
+                messages.success(request, f"Conjunto {gameset.name} DESATIVADO com sucesso!")
+            elif action == "DELETAR":
+                gameset.delete()
+                messages.success(request, f"Conjunto {gameset.name} DELETADO com sucesso!")
+                return redirect('lottery:jogos')
+            return redirect('lottery:conjunto-detail', gameset_id=gameset_id)
+
     ctx = {
         'gameset': gameset
     }
@@ -254,11 +313,45 @@ def conjuntosDetail(request, gameset_id):
 
 @login_required
 def colecoesDetail(request, collection_id):
-    collection = Collection.objects.filter(id=collection_id)[0]
+    collection = Collection.objects.get(id=collection_id)
+    gamesets = Gameset.objects.filter(lottery=collection.lottery)
+    gamesets = gamesets.prefetch_related("collections")
+    print(gamesets.count())
+    gamesets = gamesets.annotate(include=F("isActive"))
+    for gameset in gamesets:
+        if collection in gameset.collections.all():
+            gameset.include = True
+        else:
+            gameset.include = False
+    if request.POST:
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            action = request.POST.get("action")
+            if action == "DELETAR":
+                messages.success(request, f"Conjunto {collection.name} DELETADO com sucesso!")
+                collection.delete()
+                return redirect('lottery:jogos')
+            elif action == "ADICIONAR":
+                gamesets_ids = request.POST.getlist("gamesets")
+                gamesets_ids = [int(i) for i in gamesets_ids]
+                print(gamesets_ids)
+                print(gamesets)
+                collection.numberOfGamesets = 0
+                collection.numberOfGames = 0
+                for gameset in gamesets:
+                    if gameset.id in gamesets_ids:
+                        collection.gamesets.add(gameset.id)
+                        collection.numberOfGamesets += 1
+                        collection.numberOfGames += gameset.numberOfGames
+                    else:
+                        collection.gamesets.remove(gameset.id)
+                messages.success(request, f"Coleção {collection.name.capitalize()} ATUALIZADA com sucesso!")
+                collection.save()
+                return redirect('lottery:colecao-detail', collection_id=collection_id)
     ctx = {
-        'collection': collection
+        'collection': collection,
+        'gamesets': gamesets,
     }
-
     return render(request, "plataform/dashboard/colecoesDetail.html", ctx)
 
 
@@ -380,7 +473,6 @@ def check_collection_in_draw(data):
     }
     data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
     return data
-
 
 
 def check_results(draw, lottery, collection):

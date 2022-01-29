@@ -2,10 +2,59 @@
 {% load static %}
 
 {% block css %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/r-2.2.9/b-2.2.2/sl-1.3.4/sb-1.3.1/datatables.min.css"/>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
+<style>
+  .my-actions { margin: 0 2em; }
+.order-1 { order: 1; }
+.order-2 { order: 2; }
+
+.right-gap {
+  margin-right: auto;
+}
+
+.colored-toast.swal2-icon-success {
+  background-color: #a5dc86 !important;
+}
+
+.colored-toast.swal2-icon-error {
+  background-color: #f27474 !important;
+}
+
+.colored-toast.swal2-icon-warning {
+  background-color: #f8bb86 !important;
+}
+
+.colored-toast.swal2-icon-info {
+  background-color: #3fc3ee !important;
+}
+
+.colored-toast.swal2-icon-question {
+  background-color: #87adbd !important;
+}
+
+.colored-toast .swal2-title {
+  color: white;
+}
+
+.colored-toast .swal2-close {
+  color: white;
+}
+
+.colored-toast .swal2-html-container {
+  color: white;
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div class="messages d-none">
+  {% if messages %}
+  {% for message in messages %}
+    <p>{{message}}</p>
+  {% endfor %}
+  {% endif %}
+</div>
 <div class="container-fluid py-4 w-100">
   <div class="row">
     <div class="card h-100 mb-4">
@@ -163,13 +212,26 @@
             {{gameset.numberOfGames}} jogos encontrados
           </p>
         </div>
+        <div class="buttons">
+          <form action="{% url 'lottery:conjunto-detail' gameset.pk %}" method="POST" id="edit-gameset">
+            {% csrf_token %}
+            <button type="button" class="btn btn-secondary" id="remove-games">Remover</button>
+            {% if gameset.isActive %}
+             <button type="button" class="btn btn-secondary" id="disable-gameset">Desativar</button>
+          {% else %}
+             <button type="button" class="btn btn-success" id="enable-gameset">Ativar</button>
+          {% endif %}
+             <button type="button" class="btn btn-danger" id="delete-gameset">Deletar</button>
+            <input type="hidden" name="action" value="">
+          </form>
+        </div>
       </div>
       <div class="card-body px-2 pt-0 pb-2">
         <div class="table-responsive p-0">
-          <table class="table align-items-center mb-0 display" id="gamesTable">
+          <table class="table align-items-center mb-0 display" id="games-table">
             <thead>
             <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jogo Nº</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Selecionar</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Números</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Soma</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Max Seq</th>
@@ -185,7 +247,7 @@
             {% for game in gameset.games.all %}
             <tr>
               <td class="text-sm text-center">
-                {{forloop.counter}}
+                <input type="hidden" name="games" value="{{game.id}}">
               </td>
               <td class="text-sm">
               {% for number in game.arrayNumbers %}
@@ -193,22 +255,22 @@
               {% endfor %}
                </td>
               <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">{{game.sum}}</span>
+                <span class="badge badge-sm bg-gradient-dark">{{game.sum}}</span>
               </td>
               <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">{{game.max_seq}}</span>
+                <span class="badge badge-sm bg-gradient-dark">{{game.max_seq}}</span>
               </td>
               <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">{{game.min_seq}}</span>
+                <span class="badge badge-sm bg-gradient-dark">{{game.min_seq}}</span>
               </td>
               <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">{{game.max_gap}}</span>
+                <span class="badge badge-sm bg-gradient-dark">{{game.max_gap}}</span>
               </td>
               <td class="text-sm">
-                <span class="badge badge-sm bg-gradient-primary">{{game.n_primes}}</span>
+                <span class="badge badge-sm bg-gradient-dark">{{game.n_primes}}</span>
               </td>
               <td class="text-sm">
-                {% if game.isOdd %}
+                {% if game.is_odd %}
                 <span class="badge badge-sm bg-gradient-info">ÍMPAR</span>
                 {% else %}
                 <span class="badge badge-sm bg-gradient-secondary">PAR</span>
@@ -233,34 +295,178 @@
 
 {% block script %}
 <script>
+    const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-right',
+    iconColor: 'white',
+    customClass: {
+      popup: 'colored-toast'
+    },
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true
+  })
+
 
 $(document).ready(function() {
-    $('table.display').DataTable({
-      language: {
-            "lengthMenu": "Mostrar _MENU_ jogos por página",
-            "zeroRecords": "",
-            "info": "Página _PAGE_ de _PAGES_",
-            "infoEmpty": "Nenhum jogo encontrado",
-            "infoFiltered": "(Filtrados de _MAX_ jogos)",
-            "paginate": {
-              "previous": "←",
-              "next": "→"
+    $('#games-table').DataTable({
+    "language": {
+      "lengthMenu": "Mostrar _MENU_ jogos por página",
+      "zeroRecords": "",
+      "info": "Página _PAGE_ de _PAGES_",
+      "infoEmpty": "Nenhum jogo encontrado",
+      "infoFiltered": "(Filtrados de _MAX_ jogos)",
+      "paginate": {
+        "previous": "←",
+        "next": "→"
+      },
+      "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+      "search": "Filtrar"
+
+    },
+    "dom": "BQrtip",
+    "buttons": [
+        {
+            "extend": "collection",
+            "text": "Exportar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "csv",
+                    "text": "CSV",
+                    "className": ""
+                },
+                {
+                    "extend": "excel",
+                    "text": "EXCEL",
+                    "className": ""
+                },
+                {
+                    "extend": "pdf",
+                    "text": "PDF",
+                    "className": ""
+                },
+                {
+                    "extend": "print",
+                    "text": "IMPRIMIR",
+                    "className": ""
+                }]
             },
-            "searchPlaceholder": "Busque jogos por loteria, nome ou status",
-            "search": "Filtrar"
+            {
+            "extend": "collection",
+            "text": "Selecionar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "selectAll",
+                    "text": "Selecionar tudo",
+                    "className": ""
+                },
+                {
+                    "extend": "selectNone",
+                    "text": "Limpar seleção",
+                    "className": ""
+                },
+            ]
+            },
+    ],
 
-        }
-    });
+    "columnDefs": [ {
+            "orderable": false,
+            "className": 'select-checkbox',
+            "targets":   0
+        },
+        /*{
+            "orderable": false,
+            "targets":   1,
+            "type": "array",
+            "render": function(data){
+             var numbers = data.match(/(?<=>)\d?\d(?=<)/g)
+             numbers = numbers.map((el, ind, arr)=>{return parseInt(el)})
+            console.log(numbers)
+              return numbers
+            }
+        }*/
+         ],
+    "select": {
+        "style": "multi",
+        "selector": "td:first-child",
+    },
 
-    $('#collectionsTable_filter input[type="search"]').attr(
-      'placeholder', "Busque por loteria, nome ou nº de jogos"
-    )
-
-    $('.dataTables_filter input[type="search"]').css(
-     {'width':'300px','display':'inline-block'}
-  );
+  });
+  $(".messages p").each((ind, el) => {
+  console.log(el)
+    Toast.fire({
+    icon: 'success',
+    title: el.innerText
+})
+  })
 } );
+
+$("#enable-gameset, #disable-gameset, #delete-gameset").click(function(){
+  var action = this.innerText
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja ${this.innerText} esse conjunto de jogos?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+      $("#edit-gameset input[name=action]").val(action)
+      $("#edit-gameset").submit()
+    }
+    else if (answer.isDenied){
+
+    }
+  })
+})
+
+$("#remove-games").click(function(){
+  var action = this.innerText
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja ${this.innerText} os jogos selecionados?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    confirmButtonColor: "green",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+    var table = $("#games-table").DataTable()
+    var rows = table.rows({"selected": true})
+    var form = $("#edit-gameset")
+    for(row of rows[0]){
+      var tr = table.row(row).node()
+      var input = $(tr).find("td:first-child input")
+      form.append(input)
+    }
+      $("#edit-gameset input[name=action]").val(action)
+      form.submit()
+    }
+    else if (answer.isDenied){
+
+    }
+  })
+})
 </script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.11.4/b-2.2.2/b-html5-2.2.2/b-print-2.2.2/date-1.1.1/r-2.2.9/sb-1.3.1/sp-1.4.0/sl-1.3.4/datatables.min.js"></script>
 {% endblock %}

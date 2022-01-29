@@ -3,9 +3,57 @@
 
 {% block css %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
+<style>
+  .my-actions { margin: 0 2em; }
+.order-1 { order: 1; }
+.order-2 { order: 2; }
+
+.right-gap {
+  margin-right: auto;
+}
+
+.colored-toast.swal2-icon-success {
+  background-color: #a5dc86 !important;
+}
+
+.colored-toast.swal2-icon-error {
+  background-color: #f27474 !important;
+}
+
+.colored-toast.swal2-icon-warning {
+  background-color: #f8bb86 !important;
+}
+
+.colored-toast.swal2-icon-info {
+  background-color: #3fc3ee !important;
+}
+
+.colored-toast.swal2-icon-question {
+  background-color: #87adbd !important;
+}
+
+.colored-toast .swal2-title {
+  color: white;
+}
+
+.colored-toast .swal2-close {
+  color: white;
+}
+
+.colored-toast .swal2-html-container {
+  color: white;
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div class="messages d-none">
+  {% if messages %}
+  {% for message in messages %}
+    <p>{{message}}</p>
+  {% endfor %}
+  {% endif %}
+</div>
 <div class="container-fluid py-4 w-100">
   <div class="row">
     <div class="card h-100 mb-4">
@@ -115,6 +163,45 @@
           {{collection.numberOfGamesets}} conjuntos encontrados
           </p>
         </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-success" id="edit-gamesets">EDITAR CONJUNTOS</button>
+          <button type="button" class="btn btn-danger" id="delete-collection">DELETAR</button>
+          <div id="gameset-form" style="display:none">
+            <form action="{% url 'lottery:colecao-detail' collection.pk %}" method="POST" id="modify-collection">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="">
+              <table class="table mb-0 mx-auto" style="max-width: 150px !important;" id="table-gamesets">
+                <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Editar</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nome</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nº de
+                    Jogos
+                  </th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ativo</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for gameset in gamesets %}
+                <tr>
+                  <td class="align-middle text-center"><input type="checkbox" name="gamesets" id="{{gameset.id}}"
+                                                              value="{{gameset.id}}" {% if gameset.include %}checked{% endif %}></td>
+                  <td class="align-middle text-center"><label for="{{gameset.id}}">{{gameset.name}}</label></td>
+                  <td class="align-middle text-center">{{gameset.numberOfGames}}</td>
+                  <td class="align-middle text-center">
+                    {% if gameset.isActive %}
+                    <span class="badge badge-sm bg-gradient-success">SIM</span>
+                    {% else %}
+                    <span class="badge badge-sm bg-gradient-danger">NÃO</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </form>
+          </div>
+        </div>
       </div>
       <div class="card-body px-2 pt-0 pb-2">
         <div class="table-responsive p-0">
@@ -185,7 +272,18 @@
 
 {% block script %}
 <script>
-
+var html = $("#gameset-form").html()
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-right',
+    iconColor: 'white',
+    customClass: {
+      popup: 'colored-toast'
+    },
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true
+  })
 $(document).ready(function() {
     $('table.display').DataTable({
       language: {
@@ -213,6 +311,61 @@ $(document).ready(function() {
   );
 } );
 
+$("#delete-collection").click(function(){
+  var action = this.innerText
+  Swal.fire({
+    title: `Você realmente deseja ${this.innerText} essa coleção de conjuntos de jogos?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+      $("#modify-collection input[name=action]").val(action)
+      $("#modify-collection").submit()
+    }
+    else if (answer.isDenied){
+    }
+  })
+})
+
+
+
+$("#edit-gamesets").click(function(){
+$("#gameset-form").remove()
+Swal.fire({
+  title: "Escolha os conjuntos",
+  html: html,
+  showDenyButton: true,
+  confirmButtonText: "SALVAR",
+  denyButtonText: "CANCELAR",
+  confirmButtonColor: 'green',
+  focusConfirm: false,
+  didRender: () => {
+    $("#table-gamesets").DataTable({
+      searching: false,
+      ordering: true,
+      paging: false,
+    })
+  }
+}).then((result) => {
+  if(result.isConfirmed){
+  $("#modify-collection input[name=action]").val("ADICIONAR")
+    $("#modify-collection").submit()
+  }
+})
+})
+
+$(".messages p").each((ind, el) => {
+    Toast.fire({
+    icon: 'success',
+    title: el.innerText
+})
+  })
 </script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
