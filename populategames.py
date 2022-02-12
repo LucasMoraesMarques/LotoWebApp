@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LotoWebApp.settings")
 django.setup()
-from lottery.models import Game, Draw
+from lottery.models import Game, Draw, GameParity
 
 LOTTERY_CHOICES = {"lotofacil": 1, "diadesorte": 2, "megasena": 3}
 
@@ -44,7 +44,34 @@ def populate_games():
         )
 
 
+def populate_games_filters():
+    games = Game.objects.filter(lottery_id=3, parity="neutral")
+    print(games.count())
+    for game in games:
+        game.parity = parity(game.arrayNumbers)
+        game.save(update_fields=["parity"])
+    print(f"{games.count()} jogos atualizados")
 
+
+
+def populate_draws_filters():
+    draws = Draw.objects.all()
+    for lottery, id in LOTTERY_CHOICES.items():
+        print(f"\nCadastrando filtros para os concursos da loteria {lottery}")
+        filtered_draws = draws.filter(lottery_id=id)
+        n = draws.count()
+        for draw in filtered_draws:
+            numbers = draw.result
+            draw.parity = parity(numbers)
+            draw.n_primes = nPrimeNumbers(numbers)
+            gaps = gap(numbers)
+            seqs = sequences(numbers)
+            draw.max_gap = max(gaps)
+            draw.max_seq = max(seqs)
+            draw.min_seq = min(seqs)
+            draw.sum = sum(numbers)
+            draw.save()
+        print(f"{n} concursos atualizados")
 
 
 def generator2():
@@ -88,18 +115,20 @@ def reverseMapping(jogo):
     return number
 
 
-def isOdd(jogo):
-    """Checa se um jogo é majoritariamente par ou ímpar
-
-    :param jogo: Jogo único
-    :return: Retorna True se o jogo é predominantemente ímpar. Caso contráriio, retorna False
-    """
-
-    bolArray = map(lambda x: x % 2, jogo)
+def parity(jogo):
+    bol_array = map(lambda x: x % 2, jogo)
     if len(jogo) % 2 != 0:
-        return True if sum(bolArray) > np.floor(len(jogo) / 2) else False
+        if sum(bol_array) > np.floor(len(jogo) / 2):
+            return GameParity.ODD
+        else:
+            return GameParity.EVEN
     else:
-        return True if sum(bolArray) > (len(jogo) / 2) else False
+        if sum(bol_array) == len(jogo) / 2:
+            return GameParity.NEUTRAL
+        elif sum(bol_array) > len(jogo) / 2:
+            return GameParity.ODD
+        else:
+            return GameParity.EVEN
 
 
 def gap(jogo):
@@ -150,4 +179,4 @@ def nPrimeNumbers(jogo):
 
 
 if __name__ == "__main__":
-    populate_games()
+    populate_draws_filters()

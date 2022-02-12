@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 import requests
 from lottery.models import Draw, Lottery
-
+from lottery.backend.functions import stats
 LOTTERY_CHOICES = {"lotofacil": 1, "diadesorte": 2, "megasena": 3}
 
 
@@ -27,8 +27,6 @@ class Command(BaseCommand):
             else:
                 draw = self.get_last(loto)
                 self.save_last_draw(draw, loto)
-
-
 
     @staticmethod
     def get_draws(loto):
@@ -108,6 +106,15 @@ class Command(BaseCommand):
                 for index, i in enumerate(loto.possiblesPointsToEarn):
                     rateio[0][f"Rateio {i} acertos"] = faixas[index]["valorPremio"]
             print(faixas)
+            numbers = draw.result
+            parity = stats.parity(numbers)
+            n_primes = stats.nPrimeNumbers(numbers)
+            gaps = stats.gap(numbers)
+            seqs = stats.sequences(numbers)
+            max_gap = max(gaps)
+            max_seq = max(seqs)
+            min_seq = min(seqs)
+            draw_sum = sum(numbers)
             draw = Draw.objects.create(
                 number=draw["numero"],
                 date=datetime.strptime(draw["dataApuracao"], "%d/%m/%Y"),
@@ -120,7 +127,14 @@ class Command(BaseCommand):
                 lottery=loto,
                 maxPrize=rateio[0][f'Rateio {loto.possiblesPointsToEarn[-1]} acertos'],
                 metadata=metadata,
-                extraResultField=draw["nomeTimeCoracaoMesSorte"].strip() if loto.name == 'diadesorte' else 0
+                extraResultField=draw["nomeTimeCoracaoMesSorte"].strip() if loto.name == 'diadesorte' else 0,
+                max_gap=max_gap,
+                max_seq=max_seq,
+                min_seq=min_seq,
+                n_primes=n_primes,
+                sum=draw_sum,
+                parity=parity
+
             )
             draw.save()
         else:
@@ -163,7 +177,7 @@ class Command(BaseCommand):
 
     def check_has_draw(self, loto, df):
         if loto.name == 'megasena':
-            for index, row in df.iterrows():
+            for index, row in df[df.index > loto.last_draw_number].iterrows():
                 if not loto.draws.all().filter(number=index).exists():
                     metadata = ([{f'Faixa {i - 3}':
                         {
@@ -177,6 +191,16 @@ class Command(BaseCommand):
                     index, row['Data do Sorteio'], loto.name.capitalize())))
                     rateio = [row['Rateio 6 acertos':'Rateio 4 acertos'].to_dict()]
 
+                    numbers = row['Bola 1': 'Bola 6'].to_list()
+                    parity = stats.parity(numbers)
+                    n_primes = stats.nPrimeNumbers(numbers)
+                    gaps = stats.gap(numbers)
+                    seqs = stats.sequences(numbers)
+                    max_gap = max(gaps)
+                    max_seq = max(seqs)
+                    min_seq = min(seqs)
+                    draw_sum = sum(numbers)
+
                     Draw.objects.create(
                         number=index,
                         date=datetime.strptime(row['Data do Sorteio'], "%d/%m/%Y"),
@@ -189,11 +213,17 @@ class Command(BaseCommand):
                         lottery=loto,
                         maxPrize=row['Rateio 6 acertos'],
                         metadata=metadata,
+                        max_gap=max_gap,
+                        max_seq=max_seq,
+                        min_seq=min_seq,
+                        n_primes=n_primes,
+                        sum=draw_sum,
+                        parity=parity
                     )
                 else:
                     break
         elif loto.name == "diadesorte":
-            for index, row in df.iterrows():
+            for index, row in df[df.index > loto.last_draw_number].iterrows():
                 if not loto.draws.all().filter(number=index).exists():
                     metadata = ([{f'Faixa {i - 3}':
                         {
@@ -207,6 +237,16 @@ class Command(BaseCommand):
                     index, row['Data do Sorteio'], loto.name.capitalize())))
                     rateio = [row['Rateio 7 acertos':'Rateio 4 acertos'].to_dict()]
 
+                    numbers = row['Bola 1': 'Bola 7'].to_list()
+                    parity = stats.parity(numbers)
+                    n_primes = stats.nPrimeNumbers(numbers)
+                    gaps = stats.gap(numbers)
+                    seqs = stats.sequences(numbers)
+                    max_gap = max(gaps)
+                    max_seq = max(seqs)
+                    min_seq = min(seqs)
+                    draw_sum = sum(numbers)
+
                     Draw.objects.create(
                         number=index,
                         date=datetime.strptime(row['Data do Sorteio'], "%d/%m/%Y"),
@@ -219,13 +259,19 @@ class Command(BaseCommand):
                         lottery=loto,
                         metadata=metadata,
                         maxPrize=row['Rateio 7 acertos'],
-                        extraResultField=row["Mês da Sorte"]
+                        extraResultField=row["Mês da Sorte"],
+                        max_gap=max_gap,
+                        max_seq=max_seq,
+                        min_seq=min_seq,
+                        n_primes=n_primes,
+                        sum=draw_sum,
+                        parity=parity
                     )
                 else:
                     break
 
         elif loto.name == "lotofacil":
-            for index, row in df.iterrows():
+            for index, row in df[df.index > loto.last_draw_number].iterrows():
                 if not loto.draws.all().filter(number=index).exists():
                     metadata = ([{f'Faixa {i - 10}':
                         {
@@ -239,6 +285,16 @@ class Command(BaseCommand):
                         index, row['Data do Sorteio'], loto.name.capitalize())))
                     rateio = [row['Rateio 15 acertos':'Rateio 11 acertos'].to_dict()]
 
+                    numbers = row['Bola 1': 'Bola 15'].to_list()
+                    parity = stats.parity(numbers)
+                    n_primes = stats.nPrimeNumbers(numbers)
+                    gaps = stats.gap(numbers)
+                    seqs = stats.sequences(numbers)
+                    max_gap = max(gaps)
+                    max_seq = max(seqs)
+                    min_seq = min(seqs)
+                    draw_sum = sum(numbers)
+
                     Draw.objects.create(
                         number=index,
                         date=datetime.strptime(row['Data do Sorteio'], "%d/%m/%Y"),
@@ -250,6 +306,15 @@ class Command(BaseCommand):
                         hasAccumulated=True if row[f"Ganhadores 15 acertos"] == 0 else False,
                         lottery=loto,
                         maxPrize=row['Rateio 15 acertos'],
-                        metadata=metadata)
+                        metadata=metadata,
+                        max_gap=max_gap,
+                        max_seq=max_seq,
+                        min_seq=min_seq,
+                        n_primes=n_primes,
+                        sum=draw_sum,
+                        parity=parity
+
+                    )
+
                 else:
                     break

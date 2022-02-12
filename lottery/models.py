@@ -1,3 +1,5 @@
+import math
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.conf import settings
@@ -10,6 +12,12 @@ LOTTERY_CHOICES = [
     ("diadesorte", "Dia de Sorte"),
     ("megasena", "Mega Sena"),
 ]
+
+
+class GameParity(models.TextChoices):
+    ODD = "odd", "Ímpar"
+    EVEN = "even", "Par"
+    NEUTRAL = "neutral", "Neutro"
 
 
 class EmailBackend(ModelBackend):
@@ -33,12 +41,26 @@ class Lottery(models.Model):
     possiblesPricesRange = ArrayField(models.FloatField())
     urlHistoricResultAPI = models.URLField(max_length=500)
     urlDailyResultAPI = models.URLField(max_length=500)
+    combs_sizes = ArrayField(models.IntegerField(), default=[])
+    last_draw_number = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'lottery'
 
     def __str__(self):
         return self.name
+
+    @property
+    def choices_description(self):
+        return f"{self.possiblesChoicesRange[0]} a {self.possiblesChoicesRange[-1]}"
+
+    @property
+    def points_description(self):
+        return f"{self.possiblesPointsToEarn[0]} a {self.possiblesPointsToEarn[-1]}"
+
+    @property
+    def probability_of_earn(self):
+        return math.comb(self.numbersRangeLimit, self.possiblesChoicesRange[0])
 
 
 class Draw(models.Model):
@@ -54,6 +76,12 @@ class Draw(models.Model):
     nextDrawEstimatedPrize = models.FloatField('Prize estimated for next draw')
     nextDrawAccumulatedPrize = models.FloatField('Prize accumulated for next draw')
     hasAccumulated = models.BooleanField('Draw had winners?')
+    sum = models.IntegerField(default=0)
+    max_seq = models.IntegerField(default=-1)
+    min_seq = models.IntegerField(default=-1)
+    max_gap = models.IntegerField(default=-1)
+    n_primes = models.IntegerField(default=-1)
+    parity = models.CharField(choices=GameParity.choices, default=GameParity.NEUTRAL, max_length=128)
 
     class Meta:
         ordering = ['number']
@@ -78,7 +106,7 @@ class Game(models.Model):
     min_seq = models.IntegerField(default=-1)
     max_gap = models.IntegerField(default=-1)
     n_primes = models.IntegerField(default=-1)
-    is_odd = models.BooleanField(default=False)
+    parity = models.CharField(choices=GameParity.choices, default=GameParity.NEUTRAL, max_length=128)
 
     class Meta:
         ordering = ['lottery']
@@ -156,3 +184,24 @@ class Collection(models.Model):
         db_table = 'collections'
         verbose_name = 'Gameset Collection'
         verbose_name_plural = 'Gameset Collections'
+
+
+class Combinations(models.Model):
+    lottery = models.ForeignKey(
+        Lottery,
+        on_delete=models.CASCADE,
+        related_name="combinations",
+        verbose_name="N-uplas Combinations"
+    )
+    n = models.IntegerField(default=0)
+    repetitions = models.IntegerField(default=0)
+    numbers = ArrayField(models.IntegerField())
+
+    class Meta:
+        ordering = ['n']
+        db_table = 'combinations'
+        verbose_name = 'N-uplas combinations'
+        verbose_name_plural = 'N-uplas combinations'
+        indexes = [models.Index(fields=["n", "numbers"])]
+
+

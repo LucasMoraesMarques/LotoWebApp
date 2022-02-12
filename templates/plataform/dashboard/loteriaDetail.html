@@ -18,6 +18,8 @@
 {% load static %}
 {% load numbers %}
 {% block content %}
+<link rel="stylesheet" type="text/css"
+      href="https://cdn.datatables.net/v/dt/r-2.2.9/b-2.2.2/sl-1.3.4/sb-1.3.1/datatables.min.css"/>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
 
 <div class="container-fluid py-4">
@@ -27,444 +29,726 @@
       {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
       {% if forloop.counter == 1 %}
       <div class="carousel-item active">
-      {% else %}
-       <div class="carousel-item">
-      {% endif %}
-        <div class="card w-90 m-auto">
-          <div class="card-body p-3">
-            <div class="col">
-              <div class="d-flex flex-row justify-content-evenly align-items-center">
-                <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
-                         class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                         data-bs-placement="top"
-                         title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
-                <span class="text-sm mb-0 text-capitalize font-weight-bold mr-3">
+        {% else %}
+        <div class="carousel-item">
+          {% endif %}
+          <div class="card w-90 m-auto">
+            <div class="card-body p-3">
+              <div class="col">
+                <div class="d-flex flex-row justify-content-evenly align-items-center">
+                  <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
+                       class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
+                  <span class="text-sm mb-0 text-capitalize font-weight-bold mr-3">
                   Concurso {{draw.number}} - {{draw.date|date:"d/m/Y"}}
                 </span>
-                <div class="numbers d-inline">
-                  {% for number in draw.result %}
-                  <span class="badge badge-sm bg-gradient-primary">
+                  <div class="numbers d-inline">
+                    {% for number in draw.result %}
+                    <span class="badge badge-sm bg-gradient-primary">
                     {{number}}
                   </span>
-                  {% endfor %}
-                </div>
-                <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
-                    <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                  </a>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endwith %}
-      {% endfor %}
-    </div>
-    <button class="carousel-control-prev mx-0" style='opacity:1; width:auto;' type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"  aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" style='opacity:1; width:auto;' data-bs-target="#carouselExampleControls" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-
-   <div class="nav-wrapper position-relative end-0 my-3">
-    <!-- Tabs Nav -->
-    <ul class="nav nav-pills nav-fill p-1" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#concursos-tab" data-bs-target="#concursos-tab"
-           role="tab" aria-controls="preview" aria-selected="true">
-          <i class="fas fa-tools"></i> Concursos
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#filtros-tab" data-bs-target="#filtros-tab" role="tab"
-           aria-controls="code" aria-selected="false">
-          <i class="fas fa-list-ol"></i> Ranking e Estatísticas
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#combinacoes-tab" data-bs-target="#combinacoes-tab"
-           role="tab" aria-controls="code" aria-selected="false">
-          <i class="fas fa-tasks"></i> Combinações
-        </a>
-      </li>
-    </ul>
-    <!-- End Tabs Nav -->
-
-    <!-- Content Section -->
-    <div class="tab-content" id="nav-tabContent">
-      <!-- Generators Section -->
-      <div class="tab-pane fade show active" id="concursos-tab" role="tabpanel" aria-labelledby="nav-concursos-tab">
-        <!-- Info Section -->
-        <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="d-flex flex-column h-100">
-                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
-                      <p>
-                        Oferecemos dois tipos de geradores de jogos randômicos:
-                      <ul>
-                        <li>Simples</li>
-                        <li>Inteligente</li>
-                      </ul>
-                      Escolha com sabedoria!
-                      </p>
-                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                        Leia sobre
-                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                      </a>
-                    </div>
+                    {% endfor %}
                   </div>
-                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="card h-100">
-              <div class="overflow-hidden position-relative border-radius-lg h-100">
-                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
-                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
-                  <div class="d-flex flex-row w-100 p-3">
-
-                  </div>
-                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                    Leia sobre
-                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Info Section -->
-
-        <!-- Game Set Table Section -->
-
-  <div class="row my-4">
-    <div class="col">
-      <div class="card">
-        <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-          <div class="d-inline">
-            <h5 class="font-weight-bolder">Todos os Concursos</h5>
-            <p class="text-sm">Clique em info para ver detalhes de cada concurso da loteria escolhida</p>
-            <p class="text-sm">
-              <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
-            </p>
-          </div>
-        </div>
-        <div class="card-body px-2 pt-0 pb-2">
-          <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0 display" id="drawsTable">
-              <thead>
-              <tr>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Loteria</th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
-                  Concurso
-                </th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">Data
-                </th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
-                  Números
-                </th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Prêmio
-                </th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
-                  Acumulou
-                </th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Info
-                </th>
-              </tr>
-              </thead>
-              <tbody>
-              {% for draw in draws %}
-              {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
-              <tr>
-                <td>
-                  <div class="d-flex px-2 py-1">
-                    <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
-                         class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                         data-bs-placement="top"
-                         title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
-                  </div>
-                  <p hidden>{{draw.loto_name}}</p>
-                </td>
-                <td>
-                  <p class="text-center text-xs font-weight-bold mb-0">{{draw.number}}</p>
-                </td>
-                <td>
-                  <p class="text-center text-xs font-weight-bold mb-0">{{draw.date|date:"d/m/Y"}}</p>
-                </td>
-                <td class="text-sm text-center">
-                  {% for number in draw.result %}
-                  <span class="badge badge-sm bg-gradient-primary">
-                    {{number}}
-                  </span>
-                  {% endfor %}
-                </td>
-                <td>
-                  <span class="badge badge-sm bg-gradient-primary text-center align-middle">
-                    R$ {{ draw.maxPrize }}
-                </span>
-                </td>
-                <td class="text-center text-center">
-                  {% if draw.hasAccumulated %}
-                  <span class="badge badge-sm bg-gradient-success">SIM</span>
-                  {% else %}
-                  <span class="badge badge-sm bg-gradient-danger">NÃO</span>
-                  {% endif %}
-                </td>
-                <td class="text-center text-center">
                   <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
                     <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                   </a>
-                </td>
-              </tr>
-              {% endwith %}
-              {% endfor %}
-              </tbody>
-            </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev mx-0" style='opacity:1; width:auto;' type="button"
+              data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" style='opacity:1; width:auto;'
+              data-bs-target="#carouselExampleControls" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+    <div class="nav-wrapper position-relative end-0 my-3">
+      <!-- Tabs Nav -->
+      <ul class="nav nav-pills nav-fill p-1" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#concursos-tab"
+             data-bs-target="#concursos-tab"
+             role="tab" aria-controls="preview" aria-selected="true">
+            <i class="fas fa-tools"></i> Concursos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#filtros-tab" data-bs-target="#filtros-tab"
+             role="tab"
+             aria-controls="code" aria-selected="false">
+            <i class="fas fa-list-ol"></i> Ranking e Estatísticas
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#combinacoes-tab"
+             data-bs-target="#combinacoes-tab"
+             role="tab" aria-controls="code" aria-selected="false">
+            <i class="fas fa-tasks"></i> Combinações
+          </a>
+        </li>
+      </ul>
+      <!-- End Tabs Nav -->
+
+      <!-- Content Section -->
+      <div class="tab-content" id="nav-tabContent">
+        <!-- Generators Section -->
+        <div class="tab-pane fade show active" id="concursos-tab" role="tabpanel" aria-labelledby="nav-concursos-tab">
+          <!-- Info Section -->
+          <div class="row mt-4">
+            <div class="col-lg-7 mb-lg-0 mb-4">
+              <div class="card">
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="d-flex flex-column h-100">
+                        <h5 class="font-weight-bolder">Histórico de concursos</h5>
+                        <p>
+                          Acompanhe os concursos de sua loteria preferida e veja o histórico de
+                          todos os sorteios realizados. Filtre, analise, exporte ou imprima. O controle
+                          está em suas mãos.
+                        </p>
+                        <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                          Leia sobre
+                          <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+                      <div class="border-radius-lg h-100">
+                        <img src="{% static 'assets/img/shapes/waves-white.svg' %}"
+                             class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
+                        <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                          <img class="w-100 position-relative z-index-2 pt-4"
+                               src="{% static 'assets/img/spreadsheet.svg' %}" alt="Pessoa escolhendo entre opções">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card h-100">
+                <div class="overflow-hidden position-relative border-radius-lg h-100">
+                  <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                    <h5 class="font-weight-bolder">A {{current.1}}</h5>
+                    <p class="text-body">Modalidade recente da loteria federal que trabalha com os dias e os meses do
+                      ano</p>
+                    <div class="d-flex flex-row w-100 p-1 align-items-center">
+                      <img src="{% static 'assets/img/loterias/logos/'|add:current.0|add:'.png' %}"
+                           alt="Logo da {{current.0}}"
+                           class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                           title="{{ current.0 }}" data-container="body" data-animation="true"
+                           style="width:50px; height:50px;">
+                      <div class="d-flex flex-column">
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Concursos:</h6>
+                          {{draws.count}}
+                        </div>
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Números:</h6>
+                          1 a {{lottery.numbersRangeLimit}}
+                        </div>
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Probabilidade:</h6>
+                          {{lottery.probability_of_earn|decimal}}
+                        </div>
+                      </div>
+                    </div>
+                    <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                      Leia sobre
+                      <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <!-- End Info Section -->
+
+            <!-- Game Set Table Section -->
+
+            <div class="row my-4">
+              <div class="col">
+                <div class="card">
+                  <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                    <div class="d-inline">
+                      <h5 class="font-weight-bolder">Todos os Concursos</h5>
+                      <p class="text-sm">Clique em info para ver detalhes de cada concurso da loteria escolhida</p>
+                      <p class="text-sm">
+                        <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="card-body px-2 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                      <table class="table align-items-center mb-0 display" id="drawsTable">
+                        <thead>
+                        <tr>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                            Loteria
+                          </th>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                            Concurso
+                          </th>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                            Data
+                          </th>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                            Números
+                          </th>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                            Prêmio
+                          </th>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                            Acumulou
+                          </th>
+                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                            Info
+                          </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for draw in draws %}
+                        {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
+                        <tr>
+                          <td>
+                            <div class="d-flex px-2 py-1">
+                              <img src="{% static lotteryLogo %}" alt="Logo da {{draw.loto_name}}"
+                                   class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Logo da {{draw.loto_name}}" data-container="body" data-animation="true">
+                            </div>
+                            <p hidden>{{draw.loto_name}}</p>
+                          </td>
+                          <td>
+                            <p class="text-center text-xs font-weight-bold mb-0">{{draw.number}}</p>
+                          </td>
+                          <td>
+                            <p class="text-center text-xs font-weight-bold mb-0">{{draw.date|date:"d/m/Y"}}</p>
+                          </td>
+                          <td class="text-sm text-center">
+                            {% for number in draw.result %}
+                            <span class="badge badge-sm bg-gradient-primary">
+                    {{number}}
+                  </span>
+                            {% endfor %}
+                          </td>
+                          <td>
+                  <span class="badge badge-sm bg-gradient-primary text-center align-middle">
+                    {{ draw.maxPrize|currency }}
+                </span>
+                          </td>
+                          <td class="text-center text-center">
+                            {% if draw.hasAccumulated %}
+                            <span class="badge badge-sm bg-gradient-success">SIM</span>
+                            {% else %}
+                            <span class="badge badge-sm bg-gradient-danger">NÃO</span>
+                            {% endif %}
+                          </td>
+                          <td class="text-center text-center">
+                            <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
+                              <span class="btn-inner--icon"><i class="fa fa-info-circle"
+                                                               style="font-size:20px"></i></span>
+                            </a>
+                          </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Game Set Table Section -->
+          </div>
+        </div>
+        <div class="tab-pane fade" id="filtros-tab" role="tabpanel" aria-labelledby="nav-filtros-tab">
+          <!-- Info Section -->
+          <div class="row mt-4">
+            <div class="col-lg-7 mb-lg-0 mb-4">
+              <div class="card">
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="d-flex flex-column h-100">
+                        <h5 class="font-weight-bolder">Estatísticas dos Concursos</h5>
+                        <p>
+                          Aqui você pode conferir o ranking de números e as estatísticas gerais dos concursos, como
+                          quantos foram pares ou ímpares, a diferença entre dois números consecutivos, etc...
+                        </p>
+                        <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto"
+                           href="javascript:;">
+                          Leia sobre
+                          <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="col-lg-5 text-center my-auto">
+                      <img src="{% static 'assets/img/ranking.svg' %}"
+                           alt="Estatísticas e gráficos"
+                           class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                           title="Estatísticas e gráficos" data-container="body" data-animation="true"
+                           style="max-width:210px; max-height:210px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card h-100">
+                <div class="overflow-hidden position-relative border-radius-lg h-100">
+                  <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                    <h5 class="font-weight-bolder">A {{current.1}}</h5>
+                    <p class="text-body">Essa modalidade tem o intervalo de números de 1
+                      a {{lottery.numbersRangeLimit}}. Escolha de {{lottery.choices_description}} números por cartão,
+                      mais
+                      o mês de sorte e quem sabe talvez seja o seu Dia de Sorte.
+                    </p>
+                    <div class="d-flex flex-row w-100 p-1 align-items-center">
+                      <img src="{% static 'assets/img/loterias/logos/'|add:current.0|add:'.png' %}"
+                           alt="Logo da {{current.0}}"
+                           class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                           title="{{ current.0 }}" data-container="body" data-animation="true"
+                           style="width:50px; height:50px;">
+                      <div class="d-flex flex-column">
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Marcações:</h6>
+                          {{lottery.choices_description}}
+                        </div>
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Prêmios:</h6>
+                          {{lottery.points_description}}
+                        </div>
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Aposta Mínima:</h6>
+                          {{lottery.possiblesPricesRange.0|currency}}
+                        </div>
+                      </div>
+                    </div>
+                    <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                      Leia sobre
+                      <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End Info Section -->
+
+          <!-- Generator Section -->
+          <div class="row mt-4">
+            <div class="col">
+              <div class="card">
+                <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                  <div class="d-inline">
+                    <h5 class="font-weight-bolder">Metadados dos Concursos</h5>
+                    <p class="text-sm">Veja informações matemáticas sobre todos os concursos</p>
+                    <p class="text-sm">
+                      <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                    </p>
+                  </div>
+                </div>
+                <div class="nav-wrapper position-relative end-0 my-3">
+                  <!-- Tabs Nav -->
+                  <ul class="nav nav-pills nav-fill p-1" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#ranking-tab"
+                         data-bs-target="#ranking-tab"
+                         role="tab" aria-controls="preview" aria-selected="true">
+                        <i class="fas fa-tools"></i> Ranking de Números
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#sequencias-intervalos-tab"
+                         data-bs-target="#sequencias-intervalos-tab"
+                         role="tab" aria-controls="code" aria-selected="false">
+                        <i class="fas fa-tools"></i> Sequências e Intervalos
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#math-tab"
+                         data-bs-target="#math-tab"
+                         role="tab" aria-controls="code" aria-selected="false">
+                        <i class="fas fa-tasks"></i> Primos e Agregados
+                      </a>
+                    </li>
+                  </ul>
+                  <!-- End Tabs Nav -->
+
+                  <!-- Content Section -->
+                  <div class="tab-content" id="nav-tabContent-2">
+                    <!-- Generators Section -->
+                    <div class="tab-pane fade show active" id="ranking-tab" role="tabpanel"
+                         aria-labelledby="nav-ranking-tab">
+                      <div class="row mt-4">
+                        <div class="col-lg-5 mb-lg-0 mb-4">
+                          <div class="card z-index-2">
+                            <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                              <div class="d-inline">
+                                <h5 class="font-weight-bolder">Ranking dos Números</h5>
+                                <p class="text-sm">Veja a distribuição total dos números nos concursos.</p>
+                                <p class="text-sm">
+                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="card-body p-3">
+
+                              <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0 display" id="ranking-table">
+                                  <thead>
+                                  <tr>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                                      Número
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                                      Repetições
+                                    </th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  {% for number,value in ranking.items %}
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                  </td>
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                  </td>
+                                  </tr>
+                                  {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="sequencias-intervalos-tab" role="tabpanel"
+                         aria-labelledby="nav-sequencias-intervalos-tab">
+                      <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                              <div class="d-inline">
+                                <h5 class="font-weight-bolder">Sequências dos Números</h5>
+                                <p class="text-sm">Veja a quantidade de números em sequências ininterruptas que mais saíram e quais não são tão populares assim.</p>
+                                <p class="text-sm">
+                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                </p>
+                              </div>
+                            </div>
+                      <div class="row mt-4">
+                        <div class="col mb-lg-0 mb-4">
+                          <div class="card z-index-2">
+                            <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                              <div class="d-inline">
+                                <h5 class="font-weight-bolder">Sequências dos Números</h5>
+                                <p class="text-sm">Veja a quantidade de números em sequências ininterruptas que mais saíram e quais não são tão populares assim.</p>
+                                <p class="text-sm">
+                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="card-body p-3">
+
+                              <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0 display" id="max-seq-table">
+                                  <thead>
+                                  <tr>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                                      Tamanho da Sequência
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                                      Repetições
+                                    </th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  {% for number,value in metadata.max_seq.items %}
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                  </td>
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                  </td>
+                                  </tr>
+                                  {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col mb-lg-0 mb-4">
+                          <div class="card z-index-2">
+                            <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                              <div class="d-inline">
+                                <h5 class="font-weight-bolder">Sequências dos Números</h5>
+                                <p class="text-sm">Veja a quantidade de números em sequências ininterruptas que mais saíram e quais não são tão populares assim.</p>
+                                <p class="text-sm">
+                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="card-body p-3">
+
+                              <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0 display" id="max-gap-table">
+                                  <thead>
+                                  <tr>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                                      Tamanho do Intervalo
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                                      Repetições
+                                    </th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  {% for number,value in metadata.max_gap.items %}
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                  </td>
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                  </td>
+                                  </tr>
+                                  {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="math-tab" role="tabpanel"
+                         aria-labelledby="nav-math-tab">
+                      <div class="row mt-4">
+                        <div class="col mb-lg-0 mb-4">
+                          <div class="card z-index-2">
+                            <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                              <div class="d-inline">
+                                <h5 class="font-weight-bolder">Ranking dos Números</h5>
+                                <p class="text-sm">Veja a distribuição total dos números nos concursos.</p>
+                                <p class="text-sm">
+                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="card-body p-3">
+
+                              <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0 display" id="n-primes-table">
+                                  <thead>
+                                  <tr>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                                      Número de Primos
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                                      Repetições
+                                    </th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  {% for number,value in metadata.n_primes.items %}
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                  </td>
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                  </td>
+                                  </tr>
+                                  {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col mb-lg-0 mb-4">
+                          <div class="card z-index-2">
+                            <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                              <div class="d-inline">
+                                <h5 class="font-weight-bolder">Ranking dos Números</h5>
+                                <p class="text-sm">Veja a distribuição total dos números nos concursos.</p>
+                                <p class="text-sm">
+                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="card-body p-3">
+
+                              <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0 display" id="sum-table">
+                                  <thead>
+                                  <tr>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                                      Soma dos Números
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                                      Repetições
+                                    </th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  {% for number,value in metadata.sum.items %}
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                  </td>
+                                  <td>
+                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                  </td>
+                                  </tr>
+                                  {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End Generator Section -->
+        </div>
+        <div class="tab-pane fade" id="combinacoes-tab" role="tabpanel" aria-labelledby="nav-combinacoes-tab">
+          <!-- Info Section -->
+          <div class="row mt-4">
+            <div class="col-lg-7 mb-lg-0 mb-4">
+              <div class="card">
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="d-flex flex-column h-100">
+                        <h5 class="font-weight-bolder">Análise de Combinações</h5>
+                        <p>
+                          Já se perguntou quais números saem em juntos com maior frequência? Se sim, aqui é
+                          o seu lugar. Confira duplas, trios, quadras, etc ...
+                        </p>
+                        <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto"
+                           href="javascript:;">
+                          Leia sobre
+                          <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="col-lg-5 text-center my-auto">
+                      <img src="{% static 'assets/img/combs.svg' %}"
+                           alt="Estatísticas e gráficos"
+                           class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                           title="Estatísticas e gráficos" data-container="body" data-animation="true"
+                           style="max-width:210px; max-height:210px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card h-100">
+                <div class="overflow-hidden position-relative border-radius-lg h-100">
+                  <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                    <h5 class="font-weight-bolder">A {{current.1}}</h5>
+                    <p class="text-body">
+                      Com os números de 1 a {{lottery.numbersRangeLimit}} é possível combiná-los de
+                      diversas maneiras, como duplas ou trios, facilitando a análise dos resultados
+                      históricos.
+                    </p>
+                    <div class="d-flex flex-row w-100 p-1 align-items-center">
+                      <img src="{% static 'assets/img/loterias/logos/'|add:current.0|add:'.png' %}"
+                           alt="Logo da {{current.0}}"
+                           class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                           title="{{ current.0 }}" data-container="body" data-animation="true"
+                           style="width:50px; height:50px;">
+                      <div class="d-flex flex-column">
+                        <div class="d-flex flex-row">
+                          <h6 class="font-weight-bolder me-2">Números:</h6>
+                          1 a {{lottery.numbersRangeLimit}}
+                        </div>
+                      </div>
+                    </div>
+                    <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                      Leia sobre
+                      <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End Info Section -->
+
+          <!-- Game Set Table Section -->
+          <div class="row my-4">
+            <div class="col">
+              <div class="card">
+                <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                  <div class="d-inline">
+                    <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
+                    <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
+                    <p class="text-sm">
+                      <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                    </p>
+                  </div>
+                </div>
+                <div class="card-body px-2 pt-0 pb-2">
+                  <div class="table-responsive p-0">
+                    <table class="table align-items-center mb-0 display" id="gameset-table">
+                      <thead>
+                      <tr>
+
+                      </tr>
+                      </thead>
+                      <tbody>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+              <div class="card">
+                <div class="card-header pb-0">
+                  <h5 class="font-weight-bolder">Histórico</h5>
+                  <p class="text-sm">
+                    Últimos conjuntos criados
+                  </p>
+                </div>
+                <div class="card-body p-3">
+
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-        <!-- End Game Set Table Section -->
-      </div>
-      <div class="tab-pane fade" id="filtros-tab" role="tabpanel" aria-labelledby="nav-filtros-tab">
-        <!-- Info Section -->
-        <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="d-flex flex-column h-100">
-                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
-                      <p>
-                        Oferecemos dois tipos de geradores de jogos randômicos:
-                      <ul>
-                        <li>Simples</li>
-                        <li>Inteligente</li>
-                      </ul>
-                      Escolha com sabedoria!
-                      </p>
-                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                        Leia sobre
-                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
 
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="card h-100">
-              <div class="overflow-hidden position-relative border-radius-lg h-100">
-                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
-                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
-                  <div class="d-flex flex-row w-100 p-3">
-
-                  </div>
-                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                    Leia sobre
-                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Info Section -->
-
-        <!-- Generator Section -->
-        <div class="row mt-4">
-          <div class="col-lg- mb-lg-0 mb-4">
-            <div class="card z-index-2">
-              <div class="card-body p-3">
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Generator Section -->
-
-        <!-- Game Set Table Section -->
-        <div class="row my-4">
-          <div class="col">
-            <div class="card">
-              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-                <div class="d-inline">
-                  <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
-                  <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
-                  <p class="text-sm">
-                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
-                  </p>
-                </div>
-              </div>
-              <div class="card-body px-2 pt-0 pb-2">
-                <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display" >
-                    <thead>
-                    <tr>
-
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6">
-            <div class="card">
-              <div class="card-header pb-0">
-                <h5 class="font-weight-bolder">Histórico</h5>
-                <p class="text-sm">
-                  Últimos conjuntos criados
-                </p>
-              </div>
-              <div class="card-body p-3">
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Game Set Table Section -->
-      </div>
-      <div class="tab-pane fade" id="combinacoes-tab" role="tabpanel" aria-labelledby="nav-combinacoes-tab">
-        <!-- Info Section -->
-        <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="d-flex flex-column h-100">
-                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
-                      <p>
-                        Oferecemos dois tipos de geradores de jogos randômicos:
-                      <ul>
-                        <li>Simples</li>
-                        <li>Inteligente</li>
-                      </ul>
-                      Escolha com sabedoria!
-                      </p>
-                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                        Leia sobre
-                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="card h-100">
-              <div class="overflow-hidden position-relative border-radius-lg h-100">
-                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
-                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
-                  <div class="d-flex flex-row w-100 p-3">
-
-                  </div>
-                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                    Leia sobre
-                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Info Section -->
-
-        <!-- Generator Section -->
-        <div class="row mt-4">
-          <div class="col-lg- mb-lg-0 mb-4">
-            <div class="card z-index-2">
-              <div class="card-body p-3">
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Generator Section -->
-
-        <!-- Game Set Table Section -->
-        <div class="row my-4">
-          <div class="col">
-            <div class="card">
-              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-                <div class="d-inline">
-                  <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
-                  <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
-                  <p class="text-sm">
-                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
-                  </p>
-                </div>
-              </div>
-              <div class="card-body px-2 pt-0 pb-2">
-                <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display" id="gameset-table">
-                    <thead>
-                    <tr>
-
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6">
-            <div class="card">
-              <div class="card-header pb-0">
-                <h5 class="font-weight-bolder">Histórico</h5>
-                <p class="text-sm">
-                  Últimos conjuntos criados
-                </p>
-              </div>
-              <div class="card-body p-3">
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-   </div>
-  </div>
-</div>
-{% endblock %}
+  {% endblock %}
 
 {% block script %}
 <script>
     $(document).ready(function() {
-    $('#drawsTable').DataTable({
+    $('.table').DataTable({
       language: {
             "lengthMenu": "Mostrar _MENU_ jogos por página",
             "zeroRecords": "",
@@ -477,8 +761,55 @@
             },
             "searchPlaceholder": "Busque jogos por loteria, nome ou status",
             "search": "Filtrar"
-
-        }
+        },
+        "dom": "Bfrtip",
+        "buttons": [
+        {
+            "extend": "collection",
+            "text": "Exportar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "csv",
+                    "text": "CSV",
+                    "className": ""
+                },
+                {
+                    "extend": "excel",
+                    "text": "EXCEL",
+                    "className": ""
+                },
+                {
+                    "extend": "pdf",
+                    "text": "PDF",
+                    "className": ""
+                },
+                {
+                    "extend": "print",
+                    "text": "IMPRIMIR",
+                    "className": ""
+                }]
+            },
+            {
+            "extend": "collection",
+            "text": "Selecionar",
+            "autoClose": true,
+            "className": "",
+            "buttons":[
+                {
+                    "extend": "selectAll",
+                    "text": "Selecionar tudo",
+                    "className": ""
+                },
+                {
+                    "extend": "selectNone",
+                    "text": "Limpar seleção",
+                    "className": ""
+                },
+            ]
+            },
+    ],
     });
 
     $('#collectionsTable_filter input[type="search"]').attr(
@@ -519,4 +850,8 @@ function redirect(){
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.1/math.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.11.4/b-2.2.2/b-html5-2.2.2/b-print-2.2.2/date-1.1.1/r-2.2.9/sb-1.3.1/sp-1.4.0/sl-1.3.4/datatables.min.js"></script>
+
 {% endblock %}

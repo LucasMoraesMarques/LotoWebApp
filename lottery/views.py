@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import random
 from lottery.backend.Jogos import generators
+from lottery.backend.Loterias import stats
 from lottery.backend.Librarie import funcs
 from lottery.forms import CustomUserCreationForm, LoginForm
 from django.forms.models import model_to_dict
@@ -104,11 +105,20 @@ def loterias(request):
 def loteriasDetail(request, name=''):
     draws = Draw.objects.all()
     draws = draws.annotate(loto_name=F("lottery__name"))
-    filtered_draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
+    last_draws = draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3]
+    draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
+    lottery = draws[0].lottery
+    ranking = stats.numbers_ranking(draws)
+    metadata = stats.numbers_metadata(draws)
+    print(metadata)
     ctx = {
-        'draws': filtered_draws,
+        'draws': draws,
         'lototypes': LOTTERY_CHOICES,
-        'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3],
+        'lastDraws': last_draws,
+        "current": list(filter(lambda x: x[0] == name, LOTTERY_CHOICES))[0],
+        "lottery": lottery,
+        "ranking": ranking,
+        "metadata": metadata,
     }
     return render(request, "plataform/dashboard/loteriaDetail.html", ctx)
 
