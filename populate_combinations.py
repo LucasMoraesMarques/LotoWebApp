@@ -6,8 +6,9 @@ from math import comb
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LotoWebApp.settings")
 django.setup()
 from lottery.models import Draw, Lottery, Combinations
-
+from django.db.models import F
 LOTTERY_CHOICES = {"lotofacil": 1, "diadesorte": 2, "megasena": 3}
+
 
 def makeCombinations(n, nRange):
     """ Cria todas as combinações dos números de nRange tomados n a n.
@@ -108,25 +109,13 @@ def get_draws(lottery):
     return draws
 
 
-def main():
-    lottery = Lottery.objects.get(id=3)
-    draws = get_draws(lottery)
-    draws = pd.DataFrame(draws.values_list("result"))
-    draws_list = []
-    n = 3
-    for index, row in draws.iterrows():
-        draws_list.append(row[0])
-    draws = pd.DataFrame(draws_list)
-    print(len(draws))
+def create_combs(draws, lottery, n):
     nTotal = comb(lottery.numbersRangeLimit, n)
     print(f"O número de combinações de {lottery.numbersRangeLimit} tomadas {n} a {n} é {nTotal}")
     print("\nEsse processo pode demorar muito dependendo do total de combinações")
     print(f"\nCalculando ...")
     combs = makeCombinationsCartesian(n, lottery.numbersRangeLimit)
-    print(len(combs))
-    # combs = binaryMapping(combs)
     ranking = checkCombinations(combs, draws)
-    print(ranking)
     for numbers, repetitions in ranking.items():
         Combinations.objects.create(
             lottery=lottery,
@@ -136,5 +125,26 @@ def main():
         )
 
 
+def update_combs(draws, lottery):
+    combinations = Combinations.objects.filter(lottery=lottery)
+    combinations.update(repetitions=0)
+    for draw in draws:
+        filtered_combs = combinations.filter(numbers__contained_by=draw.result)
+        filtered_combs.update(repetitions=F("repetitions") + 1)
+
+
+def main():
+    lottery = Lottery.objects.get(id=3)
+    draws = get_draws(lottery)
+    update_combs(draws, lottery)
+    print(len(draws))
+    """
+    n = 2
+    draws = pd.DataFrame(draws.values_list("result"))
+    draws_list = []
+    for index, row in draws.iterrows():
+        draws_list.append(row[0])
+    draws = pd.DataFrame(draws_list)
+    create_combs(draws, lottery, n)"""
 
 main()

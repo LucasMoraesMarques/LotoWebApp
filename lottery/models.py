@@ -205,3 +205,35 @@ class Combinations(models.Model):
         indexes = [models.Index(fields=["n", "numbers"])]
 
 
+class Result(models.Model):
+    lottery = models.ForeignKey(
+        Lottery,
+        on_delete=models.CASCADE,
+        related_name="generated_results",
+        verbose_name="Generated Results"
+    )
+    collection = models.ForeignKey(
+        Collection,
+        on_delete=models.CASCADE,
+        related_name="results",
+        verbose_name="Collection results"
+    )
+    number_of_game_sets = models.IntegerField(default=0)
+    number_of_games = models.IntegerField(default=0)
+    draw = models.ForeignKey(
+        Draw,
+        on_delete=models.CASCADE,
+        related_name="collections_results",
+        verbose_name="Collection result in draw"
+    )
+    points_info = ArrayField(models.JSONField(null=True), null=True)
+    price = models.FloatField(default=0)
+    prizes = models.FloatField(default=0)
+    balance = models.FloatField(default=0)
+    abridged = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'results'
+        verbose_name = 'Collections Result'
+        verbose_name_plural = 'Collections Results'
+

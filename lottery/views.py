@@ -13,7 +13,7 @@ import numpy as np
 import random
 from lottery.backend.Jogos import generators
 from lottery.backend.Loterias import stats
-from lottery.backend.Librarie import funcs
+from lottery.backend.functions import stats
 from lottery.forms import CustomUserCreationForm, LoginForm
 from django.forms.models import model_to_dict
 from django.contrib import messages
@@ -387,9 +387,9 @@ def concursosDetail(request, name, number):
         for value in current_draw.result:
             if value in draw.result:
                 totalFreq[value] += 1
-    seq = funcs.sequences(current_draw.result)
-    gaps = funcs.gap(current_draw.result)
-    primes = funcs.nPrimeNumbers(current_draw.result)
+    seq = stats.sequences(current_draw.result)
+    gaps = stats.gap(current_draw.result)
+    primes = stats.nPrimeNumbers(current_draw.result)
 
 
     metadata = {
