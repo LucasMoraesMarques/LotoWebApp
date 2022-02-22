@@ -188,6 +188,7 @@
                       <p class="text-sm">Clique em info para ver detalhes de cada concurso da loteria escolhida</p>
                       <p class="text-sm">
                         <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                        {{draws.count}} concursos encontrados!
                       </p>
                     </div>
                   </div>
@@ -359,8 +360,9 @@
                     <h5 class="font-weight-bolder">Metadados dos Concursos</h5>
                     <p class="text-sm">Veja informações matemáticas sobre todos os concursos</p>
                     <p class="text-sm">
-                      <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
-                    </p>
+                        <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                      {{draws.count}} concursos encontrados!
+                      </p>
                   </div>
                 </div>
                 <div class="nav-wrapper position-relative end-0 my-3">
@@ -396,19 +398,18 @@
                     <div class="tab-pane fade show active" id="ranking-tab" role="tabpanel"
                          aria-labelledby="nav-ranking-tab">
                       <div class="row mt-4">
-                        <div class="col-lg-5 mb-lg-0 mb-4">
+                        <div class="col">
                           <div class="card z-index-2">
                             <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
                               <div class="d-inline">
                                 <h5 class="font-weight-bolder">Ranking dos Números</h5>
-                                <p class="text-sm">Veja a distribuição total dos números nos concursos.</p>
                                 <p class="text-sm">
-                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                  Veja a distribuição total dos números nos concursos. Confira os que mais saíram
+                                 ou os menos frequentes.
                                 </p>
                               </div>
                             </div>
                             <div class="card-body p-3">
-
                               <div class="table-responsive p-0">
                                 <table class="table align-items-center mb-0 display" id="ranking-table">
                                   <thead>
@@ -423,12 +424,13 @@
                                   </thead>
                                   <tbody>
                                   {% for number,value in ranking.items %}
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
-                                  </td>
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
-                                  </td>
+                                  <tr>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                    </td>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                    </td>
                                   </tr>
                                   {% endfor %}
                                   </tbody>
@@ -441,31 +443,51 @@
                     </div>
                     <div class="tab-pane fade" id="sequencias-intervalos-tab" role="tabpanel"
                          aria-labelledby="nav-sequencias-intervalos-tab">
-                      <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-                              <div class="d-inline">
-                                <h5 class="font-weight-bolder">Sequências dos Números</h5>
-                                <p class="text-sm">Veja a quantidade de números em sequências ininterruptas que mais saíram e quais não são tão populares assim.</p>
-                                <p class="text-sm">
-                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
-                                </p>
-                              </div>
-                            </div>
                       <div class="row mt-4">
                         <div class="col mb-lg-0 mb-4">
                           <div class="card z-index-2">
                             <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
                               <div class="d-inline">
                                 <h5 class="font-weight-bolder">Sequências dos Números</h5>
-                                <p class="text-sm">Veja a quantidade de números em sequências ininterruptas que mais saíram e quais não são tão populares assim.</p>
                                 <p class="text-sm">
-                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                  Veja o tamanho de sequências ininterruptas mais frequentes e quais não são tão populares assim.
                                 </p>
+                                <h6 class="font-weight-bolder">Exemplo</h6>
+                                <p class="text-center">
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  1
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  2
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  6
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  8
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  9
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  10
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  11
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  15
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  17
+                                </span>
+                                </p>
+                                <p class="text-sm text-center"> A maior sequência ininterrupta, destacada em verde, possui 4 números </p>
                               </div>
                             </div>
                             <div class="card-body p-3">
-
                               <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0 display" id="max-seq-table">
+                                <table class="table align-items-center mb-0 display" id="max-seq-table" data-order='[[1, "desc" ]]'>
                                   <thead>
                                   <tr>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
@@ -478,12 +500,13 @@
                                   </thead>
                                   <tbody>
                                   {% for number,value in metadata.max_seq.items %}
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
-                                  </td>
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
-                                  </td>
+                                  <tr>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                    </td>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                    </td>
                                   </tr>
                                   {% endfor %}
                                   </tbody>
@@ -496,17 +519,43 @@
                           <div class="card z-index-2">
                             <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
                               <div class="d-inline">
-                                <h5 class="font-weight-bolder">Sequências dos Números</h5>
-                                <p class="text-sm">Veja a quantidade de números em sequências ininterruptas que mais saíram e quais não são tão populares assim.</p>
+                                <h5 class="font-weight-bolder">Intervalos dos Números</h5>
                                 <p class="text-sm">
-                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                  Veja o ranking dos saltos entre dois números seguidos nos concurso.
                                 </p>
+                                <h6 class="font-weight-bolder">Exemplo</h6>
+                                <p class="text-center">
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  1
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  2
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  3
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-danger">
+                                  4
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-danger">
+                                  7
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  8
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  9
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  11
+                                </span>
+                                </p>
+                                <p class="text-sm text-center"> A maior diferença entre dois números, destacada em vermelho, é um salto de 3. </p>
                               </div>
                             </div>
                             <div class="card-body p-3">
-
                               <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0 display" id="max-gap-table">
+                                <table class="table align-items-center mb-0 display" id="max-gap-table" data-order='[[1, "desc" ]]'>
                                   <thead>
                                   <tr>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
@@ -519,12 +568,13 @@
                                   </thead>
                                   <tbody>
                                   {% for number,value in metadata.max_gap.items %}
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
-                                  </td>
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
-                                  </td>
+                                  <tr>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                    </td>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                    </td>
                                   </tr>
                                   {% endfor %}
                                   </tbody>
@@ -542,17 +592,42 @@
                           <div class="card z-index-2">
                             <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
                               <div class="d-inline">
-                                <h5 class="font-weight-bolder">Ranking dos Números</h5>
-                                <p class="text-sm">Veja a distribuição total dos números nos concursos.</p>
-                                <p class="text-sm">
-                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                <h5 class="font-weight-bolder">Ranking dos Números Primos</h5>
+                                <p class="text-sm">Veja o ranking da quantidade de números primos por concurso.</p>
+                                <h6 class="font-weight-bolder">Exemplo</h6>
+                                <p class="text-center">
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  1
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  2
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  3
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  4
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  7
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  8
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  9
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  11
+                                </span>
                                 </p>
+                                <p class="text-sm text-center"> Nesse exemplo, a quantidade de números primos, destacados em verde, é 4. </p>
                               </div>
                             </div>
                             <div class="card-body p-3">
 
                               <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0 display" id="n-primes-table">
+                                <table class="table align-items-center mb-0 display" id="n-primes-table" data-order='[[1, "desc" ]]'>
                                   <thead>
                                   <tr>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
@@ -565,12 +640,13 @@
                                   </thead>
                                   <tbody>
                                   {% for number,value in metadata.n_primes.items %}
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
-                                  </td>
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
-                                  </td>
+                                  <tr>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                    </td>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                    </td>
                                   </tr>
                                   {% endfor %}
                                   </tbody>
@@ -583,17 +659,36 @@
                           <div class="card z-index-2">
                             <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
                               <div class="d-inline">
-                                <h5 class="font-weight-bolder">Ranking dos Números</h5>
-                                <p class="text-sm">Veja a distribuição total dos números nos concursos.</p>
-                                <p class="text-sm">
-                                  <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                                <h5 class="font-weight-bolder">Ranking da Soma</h5>
+                                <p class="text-sm">Veja a distribuição da soma dos números dos concursos</p>
+                                <h6 class="font-weight-bolder">Exemplo</h6>
+                                <p class="text-center">
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  1
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  2
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  3
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  4
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  7
+                                </span>
+                                  <span class="badge badge-sm bg-gradient-success">
+                                  = 17
+                                </span>
                                 </p>
+                                <p class="text-sm text-center"> Nesse exemplo, a soma dos números do concurso é igual a 17. </p>
                               </div>
                             </div>
                             <div class="card-body p-3">
 
                               <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0 display" id="sum-table">
+                                <table class="table align-items-center mb-0 display" id="sum-table" data-order='[[1, "desc" ]]'>
                                   <thead>
                                   <tr>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
@@ -606,12 +701,13 @@
                                   </thead>
                                   <tbody>
                                   {% for number,value in metadata.sum.items %}
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
-                                  </td>
-                                  <td>
-                                    <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
-                                  </td>
+                                  <tr>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{number}}</p>
+                                    </td>
+                                    <td>
+                                      <p class="text-center text-xs font-weight-bold mb-0">{{value}}</p>
+                                    </td>
                                   </tr>
                                   {% endfor %}
                                   </tbody>
@@ -697,23 +793,117 @@
 
           <!-- Game Set Table Section -->
           <div class="row my-4">
+            <div class="col col-md-6">
+              <div class="card">
+                <div class="card-header pb-0">
+                  <h5 class="font-weight-bolder">Busque por combinações</h5>
+                  <p class="text-sm">
+                    Escolha o tamanho para as combinações e clique em buscar para obter o ranking dessas combinações.
+                  </p>
+                </div>
+                <div class="card-body p-3">
+                  <form id="get-combinations-form">
+                  {% csrf_token %}
+                  <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                  {% for n in lottery.combs_sizes %}
+                  <input type="radio" class="btn-check" name="combs-size" id="combs-size-{{n}}" value="{{n}}"
+                         autocomplete="off" required>
+                  <label class="btn btn-outline-primary" for="combs-size-{{n}}"> Grupo de {{n}}</label>
+                  {% endfor %}
+                </div>
+                    <input type="hidden" name="lottery" value="{{lottery.id}}">
+                <button type="submit" class="btn btn-primary">Buscar combinações</button>
+                </form>
+                </div>
+              </div>
+            </div>
+            <div class="col col-md-6">
+              <div class="card h-100">
+                <div class="card-header pb-0">
+                </div>
+                <div class="card-body p-3">
+                  <h5 class="font-weight-bolder">Exemplo</h5>
+                  <p class="text-center">
+                                  <span class="badge badge-sm bg-gradient-primary">
+                                  1
+                                </span>
+                    <span class="badge badge-sm bg-gradient-primary">
+                                  2
+                                </span>
+                    <span class="badge badge-sm bg-gradient-primary">
+                                  3
+                                </span>
+                    <span class="badge badge-sm bg-gradient-primary">
+                                  4
+                                </span>
+                    <span class="badge badge-sm bg-gradient-primary">
+                                  7
+                                </span>
+                  </p>
+                  <p class="text-sm text-center"> Nesse exemplo, a quantidade de combinações de 3 números independente da ordem é 10. Algumas
+                    combinações são
+                    (1, 2, 3), (1, 2, 4) e (2, 4, 7).</p>
+                  <div class="d-flex flew-row justify-content-evenly">
+                    <div>
+                    <span class="badge badge-sm bg-gradient-success">
+                                  1
+                                </span>
+                      <span class="badge badge-sm bg-gradient-success">
+                                  2
+                                </span>
+                      <span class="badge badge-sm bg-gradient-success">
+                                  3
+                                </span>
+                    </div>
+                    <div>
+                    <span class="badge badge-sm bg-gradient-success">
+                                  1
+                                </span>
+                      <span class="badge badge-sm bg-gradient-success">
+                                  2
+                                </span>
+                      <span class="badge badge-sm bg-gradient-success">
+                                  4
+                                </span>
+                    </div>
+                    <div>
+                    <span class="badge badge-sm bg-gradient-success">
+                                  2
+                                </span>
+                      <span class="badge badge-sm bg-gradient-success">
+                                  4
+                                </span>
+                      <span class="badge badge-sm bg-gradient-success">
+                                  7
+                                </span>
+                    </div>
+                  </div>
+
+
+                </div>
+              </div>
+            </div>
+            </div>
+          <div class="row my-4">
             <div class="col">
               <div class="card">
                 <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
                   <div class="d-inline">
-                    <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
-                    <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
+                    <h5 class="font-weight-bolder">Combinações dos Concursos</h5>
+                    <p class="text-sm">Confira quais as combinações de números que mais saíram na {{lottery.name}}</p>
                     <p class="text-sm">
                       <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                      Nenhuma combinação encontrada!
                     </p>
                   </div>
                 </div>
                 <div class="card-body px-2 pt-0 pb-2">
                   <div class="table-responsive p-0">
-                    <table class="table align-items-center mb-0 display" id="gameset-table">
+                    <table class="table align-items-center mb-0 display" id="combs-table">
                       <thead>
                       <tr>
-
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Números</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">Repetições</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -724,129 +914,16 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-3 col-md-6">
-              <div class="card">
-                <div class="card-header pb-0">
-                  <h5 class="font-weight-bolder">Histórico</h5>
-                  <p class="text-sm">
-                    Últimos conjuntos criados
-                  </p>
-                </div>
-                <div class="card-body p-3">
-
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
   {% endblock %}
 
 {% block script %}
-<script>
-    $(document).ready(function() {
-    $('.table').DataTable({
-      language: {
-            "lengthMenu": "Mostrar _MENU_ jogos por página",
-            "zeroRecords": "",
-            "info": "Página _PAGE_ de _PAGES_",
-            "infoEmpty": "Nenhum jogo encontrado",
-            "infoFiltered": "(Filtrados de _MAX_ jogos)",
-            "paginate": {
-              "previous": "←",
-              "next": "→"
-            },
-            "searchPlaceholder": "Busque jogos por loteria, nome ou status",
-            "search": "Filtrar"
-        },
-        "dom": "Bfrtip",
-        "buttons": [
-        {
-            "extend": "collection",
-            "text": "Exportar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "csv",
-                    "text": "CSV",
-                    "className": ""
-                },
-                {
-                    "extend": "excel",
-                    "text": "EXCEL",
-                    "className": ""
-                },
-                {
-                    "extend": "pdf",
-                    "text": "PDF",
-                    "className": ""
-                },
-                {
-                    "extend": "print",
-                    "text": "IMPRIMIR",
-                    "className": ""
-                }]
-            },
-            {
-            "extend": "collection",
-            "text": "Selecionar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "selectAll",
-                    "text": "Selecionar tudo",
-                    "className": ""
-                },
-                {
-                    "extend": "selectNone",
-                    "text": "Limpar seleção",
-                    "className": ""
-                },
-            ]
-            },
-    ],
-    });
-
-    $('#collectionsTable_filter input[type="search"]').attr(
-      'placeholder', "Busque por loteria, nome ou nº de jogos"
-    )
-
-    $('.dataTables_filter input[type="search"]').css(
-     {'width':'300px','display':'inline-block'}
-  );
-} );
-
-
-</script>
-<script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
-      }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
-
-$("input[name='select-lottery']").change(function(){
-  var isChecked = $("input[name='select-lottery']:checked").val()
-  console.log(isChecked)
-  if( !isChecked ){
-    $("#redirect").addClass("disabled")
-  }
-  else{
-    $("#redirect").removeClass("disabled")
-  }
-})
-function redirect(){
-  window.location.href = "{% url 'lottery:loterias' %}" + $("input[name='select-lottery']:checked").val()
-
-}
-</script>
+<script src="{% static 'js/loterias.js' %}"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.1/math.js"></script>

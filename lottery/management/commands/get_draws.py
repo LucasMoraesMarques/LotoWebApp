@@ -33,9 +33,10 @@ class Command(BaseCommand):
         try:
             resp = requests.get(loto.urlHistoricResultAPI)
             if resp.status_code != 200:
+                print(resp.status_code, resp)
                 raise requests.exceptions.RequestException
         except requests.exceptions.RequestException:
-            raise CommandError("Error in requisition! '%s'" % resp.status_code)
+            raise CommandError("Error in requisition!" )
         else:
             df = pd.read_html(resp.text, decimal=',', thousands='.')[0]
             return df

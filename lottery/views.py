@@ -3,7 +3,7 @@ from functools import reduce
 
 from django.shortcuts import render, redirect
 from lottery.forms import CreateCollectionForm, UploadCollectionForm
-from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection
+from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection, Combinations
 from django import forms
 from django.core import serializers
 from django.http import JsonResponse
@@ -12,7 +12,6 @@ import pandas as pd
 import numpy as np
 import random
 from lottery.backend.Jogos import generators
-from lottery.backend.Loterias import stats
 from lottery.backend.functions import stats
 from lottery.forms import CustomUserCreationForm, LoginForm
 from django.forms.models import model_to_dict
@@ -108,7 +107,7 @@ def loteriasDetail(request, name=''):
     last_draws = draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3]
     draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
     lottery = draws[0].lottery
-    ranking = stats.numbers_ranking(draws)
+    ranking = stats.numbers_ranking(draws.values_list('result'), lottery)
     metadata = stats.numbers_metadata(draws)
     print(metadata)
     ctx = {
@@ -542,3 +541,16 @@ def acertos(result, games, interval):
         if score in interval:
             scores[f'Total {score}'] += 1
     return scores
+
+
+@login_required
+def get_combinations(request):
+    print(request.GET)
+    combs_size = request.GET.get("combs-size")
+    lottery = request.GET.get("lottery")
+    combs = Combinations.objects.filter(lottery=lottery, n=combs_size)
+    combs = combs.order_by("-repetitions")
+    data = {
+        "combs": list(combs.values("numbers", "repetitions"))
+    }
+    return JsonResponse(data, status=200)

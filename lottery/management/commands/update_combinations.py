@@ -35,4 +35,6 @@ class Command(BaseCommand):
             filtered_combs = combinations.filter(numbers__contained_by=draw.result)
             print(f"\nUpdating {len(filtered_combs)} combinations that are contained by the draw")
             filtered_combs.update(repetitions=F("repetitions") + 1)
+            lottery.last_draw_number = draw.number
+        lottery.save()
 

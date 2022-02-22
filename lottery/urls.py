@@ -36,6 +36,7 @@ urlpatterns = [
     path("cadastro", views.register, name="register"),
     path("billing", views.billing, name="billing"),
     path("get-draw", views.get_selected_draw, name="get-draw"),
+    path("get-combinations", views.get_combinations, name="get-combinations"),
     path("save-games-batch", views.save_games_batch, name="save-games-batch")
 
 ]
