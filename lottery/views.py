@@ -550,7 +550,10 @@ def get_combinations(request):
     lottery = request.GET.get("lottery")
     combs = Combinations.objects.filter(lottery=lottery, n=combs_size)
     combs = combs.order_by("-repetitions")
+    combs_filtered = combs.exclude(repetitions=0)[:5000]
     data = {
-        "combs": list(combs.values("numbers", "repetitions"))
+        "combs": list(combs_filtered.values("numbers", "repetitions")),
+        "total": combs.count()
     }
+    print(combs_filtered.count())
     return JsonResponse(data, status=200)

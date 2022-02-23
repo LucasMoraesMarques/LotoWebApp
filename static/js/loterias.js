@@ -9,56 +9,45 @@ dt_options = {
               "previous": "←",
               "next": "→"
             },
+            "pagingType": "simple",
             "searchPlaceholder": "Busque jogos por loteria, nome ou status",
             "search": "Filtrar"
         },
         "dom": "Bfrtip",
         "buttons": [
         {
-            "extend": "collection",
+        "extend": "collection",
             "text": "Exportar",
             "autoClose": true,
-            "className": "",
+            "className": "btn btn-primary",
             "buttons":[
                 {
-                    "extend": "csv",
-                    "text": "CSV",
-                    "className": ""
-                },
-                {
-                    "extend": "excel",
-                    "text": "EXCEL",
-                    "className": ""
-                },
-                {
-                    "extend": "pdf",
-                    "text": "PDF",
-                    "className": ""
-                },
-                {
-                    "extend": "print",
-                    "text": "IMPRIMIR",
-                    "className": ""
-                }]
+                extend:    'excelHtml5',
+                text:      '<i class="fa fa-file-excel fs-5"></i>',
+                titleAttr: 'Exportar como Excel',
+                className: "btn btn-secondary fs-5 px-3 py-2"
             },
             {
-            "extend": "collection",
-            "text": "Selecionar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "selectAll",
-                    "text": "Selecionar tudo",
-                    "className": ""
-                },
-                {
-                    "extend": "selectNone",
-                    "text": "Limpar seleção",
-                    "className": ""
-                },
+                extend:    'csvHtml5',
+                text:      '<i class="fa fa-file-text fs-5"></i>',
+                titleAttr: 'Exportar como CSV',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            },
+            {
+                extend:    'pdfHtml5',
+                text:      '<i class="fa fa-file-pdf fs-5"></i>',
+                titleAttr: 'Exportar como PDF',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            },
+            {
+                extend:    'print',
+                text:      '<i class="fa fa-print fs-5"></i>',
+                titleAttr: 'Imprimir tabela',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            }
             ]
             },
+
     ],
     }
 
@@ -72,6 +61,10 @@ $(document).ready(function() {
     $('.dataTables_filter input[type="search"]').css(
      {'width':'300px','display':'inline-block'}
   );
+    $(".buttons-collection").click(function(){
+        $("div[role=menu]").addClass("mt-4")
+    })
+
 } );
 
     var win = navigator.platform.indexOf('Win') > -1;
@@ -101,7 +94,9 @@ function redirect(){
 $("#get-combinations-form").submit(function (e) { // Get a ranking of combinations with size n
   e.preventDefault()
   var serializedData = $(this).serialize()
-  console.log(serializedData)
+  spinner = createSpinnerLoading("Gerando combinações ...")
+  $("#submit-combs-form-btn").hide()
+  $("#div-combs-form").append(spinner)
   $.ajax({
     type: "GET",
     url: "/get-combinations",
@@ -111,6 +106,7 @@ $("#get-combinations-form").submit(function (e) { // Get a ranking of combinatio
       console.log(response["combs"])
       var combs_table = $("#combs-table")
       var combs = response["combs"]
+      var total = response["total"]
       combs_table.DataTable().destroy()
       combs_table.find("tbody").empty()
       for( comb of combs){
@@ -137,6 +133,14 @@ $("#get-combinations-form").submit(function (e) { // Get a ranking of combinatio
     $('.dataTables_filter input[type="search"]').css(
      {'width':'300px','display':'inline-block'}
   );
+  message = total + " combinações encontradas e as " + combs.length + " mais frequentes estão listadas abaixo."
+  $("#n-combs-text").html(message)
+  $("#spinner").remove()
+  $("#submit-combs-form-btn").show()
+  Toast.fire({
+    icon: 'success',
+    title: "Combinações geradas com sucesso!"
+})
     },
     error: function (response) {
       console.log(response)

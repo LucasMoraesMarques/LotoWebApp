@@ -52,47 +52,52 @@ $(document).ready(function () {
     "dom": "Brtip",
     "buttons": [
         {
-            "extend": "collection",
+        "extend": "collection",
             "text": "Exportar",
             "autoClose": true,
-            "className": "",
+            "className": "btn btn-primary",
             "buttons":[
                 {
-                    "extend": "csv",
-                    "text": "CSV",
-                    "className": ""
-                },
-                {
-                    "extend": "excel",
-                    "text": "EXCEL",
-                    "className": ""
-                },
-                {
-                    "extend": "pdf",
-                    "text": "PDF",
-                    "className": ""
-                },
-                {
-                    "extend": "print",
-                    "text": "IMPRIMIR",
-                    "className": ""
-                }]
+                extend:    'excelHtml5',
+                text:      '<i class="fa fa-file-excel fs-5"></i>',
+                titleAttr: 'Exportar como Excel',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            },
+            {
+                extend:    'csvHtml5',
+                text:      '<i class="fa fa-file-text fs-5"></i>',
+                titleAttr: 'Exportar como CSV',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            },
+            {
+                extend:    'pdfHtml5',
+                text:      '<i class="fa fa-file-pdf fs-5"></i>',
+                titleAttr: 'Exportar como PDF',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            },
+            {
+                extend:    'print',
+                text:      '<i class="fa fa-print fs-5"></i>',
+                titleAttr: 'Imprimir tabela',
+                className: "btn btn-secondary fs-5 px-3 py-2"
+            }
+            ]
             },
             {
             "extend": "collection",
             "text": "Selecionar",
             "autoClose": true,
-            "className": "",
+            "className": "btn btn-primary",
             "buttons":[
                 {
                     "extend": "selectAll",
                     "text": "Selecionar tudo",
-                    "className": ""
+                    "className": "btn btn-secondary px-3 py-2"
                 },
                 {
                     "extend": "selectNone",
                     "text": "Limpar seleção",
-                    "className": ""
+                    "className": "btn btn-secondary px-3 py-2"
                 },
             ]
             },
@@ -747,20 +752,3 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
   })
 })
 
-// Aux. Functions
-
-function createSpinnerLoading(message){
-  return `<div class="d-flex flex-row" id="spinner">
-    <div class="spinner-border text-primary mx-3" role="status">
-    </div>
-    <p>${message}</p>
-  </div>
-  `
-}
-
-function showAlertMessage(message, type="info"){
-  $("#messages span.alert-text").text(message)
-  $("#messages").removeClass()
-  $("#messages").addClass(`alert alert-${type} alert-dismissible fade show float-right`)
-  $("#messages").show()
-}
