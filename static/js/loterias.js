@@ -87,7 +87,7 @@ $("input[name='select-lottery']").change(function(){
 })
 
 function redirect(){
-  window.location.href = "{% url 'lottery:loterias' %}" + $("input[name='select-lottery']:checked").val()
+  window.location.href = "{% url 'lottery:lotteries' %}" + $("input[name='select-lottery']:checked").val()
 
 }
 

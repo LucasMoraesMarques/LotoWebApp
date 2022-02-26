@@ -1,9 +1,7 @@
-{% extends 'plataform/dashboard/base.html' %}
+{% extends 'platform/dashboard/base.html' %}
 {% load static %}
 
 {% block css %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
-
 {% endblock %}
 
 {% block content %}
@@ -127,7 +125,7 @@
           <button type="button" class="btn btn-success" id="edit-gamesets">EDITAR CONJUNTOS</button>
           <button type="button" class="btn btn-danger" id="delete-collection">DELETAR</button>
           <div id="gameset-form" style="display:none">
-            <form action="{% url 'lottery:colecao-detail' collection.pk %}" method="POST" id="modify-collection">
+            <form action="{% url 'lottery:collection-detail' collection.pk %}" method="POST" id="modify-collection">
             {% csrf_token %}
             <input type="hidden" name="action" value="">
               <table class="table mb-0 mx-auto" style="max-width: 150px !important;" id="table-gamesets">
@@ -213,7 +211,7 @@
                 {% endif %}
               </td>
               <td class="align-middle text-center">
-               <a href="{% url 'lottery:conjunto-detail' gameset.id  %}">
+               <a href="{% url 'lottery:game-set-detail' gameset.id  %}">
                           <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                         </a>
               </td>

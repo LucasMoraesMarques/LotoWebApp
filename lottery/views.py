@@ -1,53 +1,26 @@
-import os.path
-from functools import reduce
-
 from django.shortcuts import render, redirect
 from lottery.forms import CreateCollectionForm, UploadCollectionForm
 from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection, Combinations
 from django import forms
-from django.core import serializers
 from django.http import JsonResponse
 from django.db.models import Sum, F, Q, Case, When
 import pandas as pd
-import numpy as np
-import random
-from lottery.backend.Jogos import generators
+from lottery.backend.games import generators, gamesets, collections
 from lottery.backend.functions import stats
 from lottery.forms import CustomUserCreationForm, LoginForm
 from django.forms.models import model_to_dict
 from django.contrib import messages
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import User
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseRedirect, HttpResponse
 from time import time
 from babel.dates import format_date
-import json
-import io
 from django.core.files.storage import default_storage
-from django.core.files import File
 from django.core.files.base import ContentFile
-from django.conf import settings
-import math
-# Create your views here.
-
-def reverseMapping(jogo, loto):
-    lottery = Lottery.objects.get(name=loto)
-    print(lottery.numbersRangeLimit)
-    jogo0 = np.zeros(lottery.numbersRangeLimit)
-    jogo = np.array(jogo)
-    for number in jogo:
-        jogo0[number-1] = 1
-    number = 0
-    for pos,value in enumerate(jogo0):
-        number += value*math.pow(2,pos)
-    return number
 
 
 @login_required
-def createCollection(request):
+def create_collection(request):
     print(request.POST)
     if request.FILES:
         form = UploadCollectionForm(request.POST, request.FILES)
@@ -73,37 +46,33 @@ def createCollection(request):
         return JsonResponse(data={'error': "Um erro inesperado impediu a criação da coleção. Tente novamente."}, status=400)
 
 
-
 def landing(request):
     return render(request, "landing/pages/about-us.html")
 
 
 @login_required
 def dashboard(request):
-    return render(request, "plataform/dashboard/dashboard.html")
-
+    return render(request, "platform/dashboard/dashboard.html")
 
 
 @login_required
-def loterias(request):
-    LOTTERY_CHOICES = [
-        ("lotofacil", "Lotofácil"),
-        ("diadesorte", "Dia de Sorte"),
-        ("megasena", "Mega Sena"),
-    ]
+def lotteries(request):
+    lotteries_objs = Lottery.objects.all()
     draws = Draw.objects.all()
-    draws = draws.annotate(loto_name=F("lottery__name"))
+    draws = draws.annotate(lottery_name=F("lottery__name"))
+    ordered_draws = draws.order_by('lottery_id', '-date')
+    last_draws = ordered_draws.distinct('lottery_id')[:3]
     ctx = {
-        'lototypes': LOTTERY_CHOICES,
-        'lastDraws': draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3],
+        'lotteries': lotteries_objs,
+        'lastDraws': last_draws,
     }
-    return render(request, "plataform/dashboard/loterias.html", ctx)
+    return render(request, "platform/dashboard/lotteries.html", ctx)
 
 
 @login_required
-def loteriasDetail(request, name=''):
+def lottery_detail(request, name=''):
     draws = Draw.objects.all()
-    draws = draws.annotate(loto_name=F("lottery__name"))
+    draws = draws.annotate(lottery_name=F("lottery__name"))
     last_draws = draws.order_by('lottery_id', '-date').distinct('lottery_id')[:3]
     draws = draws.order_by('lottery_id', 'number').filter(lottery__name=name)
     lottery = draws[0].lottery
@@ -119,253 +88,164 @@ def loteriasDetail(request, name=''):
         "ranking": ranking,
         "metadata": metadata,
     }
-    return render(request, "plataform/dashboard/loteriaDetail.html", ctx)
-
+    return render(request, "platform/dashboard/lottery_detail.html", ctx)
 
 
 @login_required
-def jogos(request):
-    user = request.user
-    userGamesets = user.gamesets.all().order_by('-createdAt')
-    lastGamesets = userGamesets[:5]
-    userCollections = user.collections.all().order_by('-createdAt')
-    userCollections = userCollections.annotate(loto_name=F("lottery__name"))
-    lastCollections = userCollections[:5]
-    collectionForm = CreateCollectionForm()
-    uploadCollectionForm = UploadCollectionForm()
-
+def games(request):
+    lotteries_objs = Lottery.objects.all()
+    user_games_sets = gamesets.all(request.user)
+    last_games_sets = gamesets.historic(request.user)
+    user_collections = collections.all(request.user)
+    last_collections = collections.historic(request.user)
+    collection_creation_form = CreateCollectionForm()
+    upload_collection_file_form = UploadCollectionForm()
     if request.POST:
         form = forms.Form(request.POST)
         if form.is_valid():
             action = request.POST.get("action")
-            gamesets_ids = request.POST.getlist("gamesets")
-            gamesets_ids = [int(i) for i in gamesets_ids]
-            collections_ids = request.POST.getlist("collections")
-            collections_ids = [int(i) for i in collections_ids]
+            games_sets_ids = [int(i) for i in request.POST.getlist("gamesets")]
+            collections_ids = [int(i) for i in request.POST.getlist("collections")]
             print(request.POST)
-            action_name = "MODIFICADOS"
-            if gamesets_ids:
-                for gameset in userGamesets.filter(id__in=gamesets_ids):
-                    print(gameset.id, action)
-                    if action == "ATIVAR":
-                        action_name = "ATIVADOS"
-                        gameset.isActive = True
-                        gameset.save()
-                    elif action == "DESATIVAR":
-                        action_name = "DESATIVADOS"
-                        gameset.isActive = False
-                        gameset.save()
-                    elif action == "DELETAR":
-                        action_name = "DELETADOS"
-                        gameset.delete()
+            if games_sets_ids and action:
+                action_name = gamesets.apply_action(games_sets_ids, [], action, request.user)
                 messages.success(request, f"Conjuntos {action_name} com sucesso!")
-            if collections_ids:
-                for collection in userCollections.filter(id__in=collections_ids):
-                    print(collection.id, action)
-                    if action == "DELETAR":
-                        action_name = "DELETADOS"
-                        collection.delete()
+            if collections_ids and action:
+                action_name = collections.apply_action(collections_ids, [], [], action, request.user)
                 messages.success(request, f"Coleções {action_name} com sucesso!")
-            return redirect('lottery:jogos')
-    gamesetsData = {
-        'gamesets': userGamesets,
-        'lastGamesets': lastGamesets,
+            return redirect('lottery:games')
+    games_sets_data = {
+        'gamesets': user_games_sets,
+        'lastGamesets': last_games_sets,
     }
 
-    collectionsData = {
-        'collections': userCollections,
-        'lastCollections': lastCollections,
-        'totalGamesets': userGamesets.count(),
-        'totalCollections': userCollections.count(),
-        'totalGames': userGamesets.aggregate(sum=Sum('numberOfGames'))
+    collections_data = {
+        'collections': user_collections,
+        'lastCollections': last_collections,
+        'totalGamesets': user_games_sets.count(),
+        'totalCollections': user_collections.count(),
+        'totalGames': user_games_sets.aggregate(sum=Sum('numberOfGames'))
     }
 
-    ctx={
-        'lototypes': LOTTERY_CHOICES,
-        'gamesetsData': gamesetsData,
-        'collectionsData': collectionsData,
-        'collectionForm': collectionForm,
-        'uploadCollectionForm': uploadCollectionForm,
+    ctx = {
+        'lotteries': lotteries_objs,
+        'gamesetsData': games_sets_data,
+        'collectionsData': collections_data,
+        'collectionForm': collection_creation_form,
+        'uploadCollectionForm': upload_collection_file_form,
     }
-    print(ctx)
-    return render(request, "plataform/dashboard/jogos.html", ctx)
+    return render(request, "platform/dashboard/games.html", ctx)
 
 
 @login_required
-def generator(request):
+def games_generators(request):
     if request.is_ajax and request.method == "POST":
         form = forms.Form(request.POST)
         print(request.POST)
         if form.is_valid():
-            data = dict(form.data)
-            nRemoved = [int(i) for i in data.get('nRemoved', [])]
-            nFixed = [int(i) for i in data.get('nFixed', [])]
-            nPlayed = int(data['nPlayed'][0])
-            loto = data['lototype'][0]
-            generator = data["generator"][0]
-            filters_keys = ["nPrimes", "maxSeq", "minSeq", "maxGap", "isOdd"]
-            filters = {}
-            games_ids = []
+            data = request.POST
+            lottery = Lottery.objects.get(name=data.get('lottery_name'))
+            generator_name = data.get("generator")
+            game_length = int(data.get('nPlayed'))
+            removed_numbers, fixed_numbers = generators.parse_fixed_removed(data)
+            filters = generators.parse_kwargs_filters(data)
             ts = time()
-            if generator == "simple":
-                nJogos = int(data['nJogos'][0])
-                jogos = generators.simple(loto, nPlayed, nJogos, nRemoved, nFixed)
-                print(jogos.head())
-                for index, jogo in jogos.iterrows():
-                    game = Game.objects.get(arrayNumbers=jogo.to_list())
-                    games_ids.append(game.id)
-            else:
-                for key in filters_keys:
-                    try:
-                        filter_value = data.get(key)[0]
-                    except (KeyError, TypeError):
-                        pass
-                    else:
-                        if filter_value:
-                            filters[key] = filter_value
-                if eval(data.get("calcCombs")[0]):
-                    n_combs = generators.calc_combs(loto, nRemoved, nFixed, filters).count()
-                    print(n_combs)
-                    return JsonResponse({"combs": n_combs}, status=200)
+            games_generated, games_ids = [], []
+            if generator_name == "simple":
+                number_of_games = int(data.get("nJogos"))
+                games_generated = generators.simple(lottery, game_length, number_of_games, removed_numbers,
+                                                    fixed_numbers)
+                games_ids = generators.get_or_create_by_dataframe(games_generated, lottery)
+            elif generator_name == "smart":
+                if eval(data.get("calcCombs")):
+                    number_of_combs = generators.calc_combs(lottery, removed_numbers, fixed_numbers, filters)
+                    return JsonResponse({"combs": number_of_combs}, status=200)
                 else:
-                    nJogos = int(data['nJogos'][0])
-                    jogos = generators.smart(loto, nJogos, nRemoved, nFixed, filters)
-                    data = []
-                    for index, jogo in jogos.iterrows():
-                        data.append(jogo["arrayNumbers"])
-                        games_ids.append(jogo["id"])
-                    jogos = pd.DataFrame(data)
-            print(jogos.head())
-            print(games_ids)
+                    number_of_games = int(data.get("nJogos"))
+                    games_generated, games_ids = generators.smart(lottery, number_of_games, removed_numbers,
+                                                                  fixed_numbers, filters)
+            else:
+                pass
             tf = time()
             print(tf - ts)
-
-            return JsonResponse({"jogos": jogos.to_json(orient="split"), "ids": games_ids}, status=200)
+            return JsonResponse({"jogos": games_generated.to_json(orient="split"), "ids": games_ids}, status=200)
         else:
-            print('error1')
             return JsonResponse({"error": form.errors}, status=400)
-    print('error')
     return JsonResponse({"error": "Not found"}, status=400)
 
 
 @login_required
 def save_games_batch(request):
     if request.method == "POST":
-        ts = time()
         form = forms.Form(request.POST)
         print(request.POST)
         if form.is_valid():
-            ids = request.POST.getlist("ids")
-            gameset = request.POST.get("gameset-name")
-            lottery = request.POST.get('lototype')
-            instance = Gameset.objects.create(name=gameset, user=request.user,
+            games_ids = request.POST.getlist("ids")
+            games_set_name = request.POST.get("gameset-name")
+            lottery = request.POST.get('lottery_name')
+            instance = Gameset.objects.create(name=games_set_name, user=request.user,
                                               lottery=Lottery.objects.get(name=lottery))
-            games_list = []
             collections_list = request.POST.getlist('collection')
-            nPlayed = 0
-            for id in ids:
-                game = Game.objects.get(pk=id)
-                games_list.append(game.id)
-                nPlayed = len(game.arrayNumbers)
-            instance.games.set(games_list)
-            instance.numberOfGames = len(games_list)
-            instance.gameLength = nPlayed
-            instance.collections.set(collections_list)
-            instance.save()
-            collections = Collection.objects.filter(id__in=collections_list)
-            for instance in collections:
-                instance.numberOfGames += len(games_list)
-                instance.numberOfGamesets += 1
-                instance.save()
-            tf = time()
-            print(tf - ts)
-            messages.success(request, f"Conjunto {gameset} salvo com sucesso!")
+            game_length = int(request.POST.get('nPlayed'))
+            gamesets.update_quantifiers(instance, games_ids, collections_list, game_length)
+            instances = collections.all(request.user).filter(id__in=collections_list)
+            collections.update_quantifiers(instances, games_ids)
+            messages.success(request, f"Conjunto {games_set_name} salvo com sucesso!")
         return HttpResponseRedirect('jogos')
 
 
 @login_required
-def conjuntosDetail(request, gameset_id):
-    gameset = Gameset.objects.get(id=gameset_id)
-    #gameset.numberOfGames = gameset.games.all().count()
+def game_set_detail(request, game_set_id):
+    games_set = Gameset.objects.get(id=game_set_id)
     if request.POST:
         form = forms.Form(request.POST)
         if form.is_valid():
             action = request.POST.get("action")
             games_ids = request.POST.getlist("games")
-            print(request.POST)
-            if games_ids:
-                for game_id in games_ids:
-                    gameset.games.remove(int(game_id))
-                print(len(games_ids))
-                gameset.numberOfGames -= len(games_ids)
-                messages.success(request, f"Jogos REMOVIDOS com sucesso!")
-                gameset.save()
-            if action == "ATIVAR":
-                gameset.isActive = True
-                gameset.save()
-                messages.success(request, f"Conjunto {gameset.name} ATIVADO com sucesso!")
-            elif action == "DESATIVAR":
-                gameset.isActive = False
-                gameset.save()
-                messages.success(request, f"Conjunto {gameset.name} DESATIVADO com sucesso!")
-            elif action == "DELETAR":
-                gameset.delete()
-                messages.success(request, f"Conjunto {gameset.name} DELETADO com sucesso!")
-                return redirect('lottery:jogos')
-            return redirect('lottery:conjunto-detail', gameset_id=gameset_id)
+            action_name = gamesets.apply_action([game_set_id], games_ids, action, request.user)
+            if action == "REMOVER":
+                messages.success(request, f"Jogos {action_name} com sucesso!")
+            else:
+                messages.success(request, f"Conjunto {games_set.name} {action_name} com sucesso!")
+            if action == "DELETAR":
+                return redirect('lottery:games')
+            return redirect('lottery:game-set-detail', game_set_id=game_set_id)
 
     ctx = {
-        'gameset': gameset
+        'gameset': games_set
     }
-    return render(request, "plataform/dashboard/conjuntosDetail.html", ctx)
+    return render(request, "platform/dashboard/game_set_detail.html", ctx)
 
 
 @login_required
-def colecoesDetail(request, collection_id):
+def collection_detail(request, collection_id):
     collection = Collection.objects.get(id=collection_id)
-    gamesets = Gameset.objects.filter(lottery=collection.lottery)
-    gamesets = gamesets.prefetch_related("collections")
-    print(gamesets.count())
-    gamesets = gamesets.annotate(include=F("isActive"))
-    for gameset in gamesets:
-        if collection in gameset.collections.all():
-            gameset.include = True
-        else:
-            gameset.include = False
+    user_games_sets = gamesets.all(request.user)
+    user_games_sets = user_games_sets.filter(lottery=collection.lottery)
+    user_games_sets = gamesets.check_in_collection(user_games_sets, collection)
     if request.POST:
         form = forms.Form(request.POST)
         if form.is_valid():
             action = request.POST.get("action")
+            games_sets_ids = [int(i) for i in request.POST.getlist("gamesets")]
+            action_name = collections.apply_action([collection_id], games_sets_ids, user_games_sets, action, request.user)
             if action == "DELETAR":
-                messages.success(request, f"Conjunto {collection.name} DELETADO com sucesso!")
-                collection.delete()
-                return redirect('lottery:jogos')
+                messages.success(request, f"Coleção {collection.name} DELETADA com sucesso!")
+                return redirect('lottery:games')
             elif action == "ADICIONAR":
-                gamesets_ids = request.POST.getlist("gamesets")
-                gamesets_ids = [int(i) for i in gamesets_ids]
-                print(gamesets_ids)
-                print(gamesets)
-                collection.numberOfGamesets = 0
-                collection.numberOfGames = 0
-                for gameset in gamesets:
-                    if gameset.id in gamesets_ids:
-                        collection.gamesets.add(gameset.id)
-                        collection.numberOfGamesets += 1
-                        collection.numberOfGames += gameset.numberOfGames
-                    else:
-                        collection.gamesets.remove(gameset.id)
                 messages.success(request, f"Coleção {collection.name.capitalize()} ATUALIZADA com sucesso!")
-                collection.save()
-                return redirect('lottery:colecao-detail', collection_id=collection_id)
+            else:
+                messages.success(request, f"Coleção {collection.name} {action_name} com sucesso!")
+            return redirect('lottery:collection-detail', collection_id=collection_id)
     ctx = {
         'collection': collection,
-        'gamesets': gamesets,
+        'gamesets': user_games_sets,
     }
-    return render(request, "plataform/dashboard/colecoesDetail.html", ctx)
+    return render(request, "platform/dashboard/collection_detail.html", ctx)
 
 
 @login_required
-def concursosDetail(request, name, number):
+def draw_detail(request, name, number):
     draws = Draw.objects.filter(lottery__name=name)
     current_draw = draws.get(number=number)
     even = odd = 0
@@ -410,25 +290,25 @@ def concursosDetail(request, name, number):
         'metadata': metadata,
         'totalFreq': totalFreq
     }
-    return render(request, "plataform/dashboard/concursosDetail.html", ctx)
+    return render(request, "platform/dashboard/draw_detail.html", ctx)
 
 
 @login_required
-def relatorios(request):
-    return render(request, "plataform/dashboard/relatorios.html")
+def results(request):
+    return render(request, "platform/dashboard/results.html")
 
 
 @login_required
 def profile(request):
-    return render(request, "plataform/dashboard/profile.html")
+    return render(request, "platform/dashboard/profile.html")
 
 
 class CustomLoginView(auth_views.LoginView):
-    template_name = "plataform/auth/login.html"
+    template_name = "platform/auth/login.html"
 
 
 class CustomLogoutView(auth_views.LogoutView):
-    template_name = "plataform/auth/login.html"
+    template_name = "platform/auth/login.html"
 
 
 def register(request):
@@ -440,12 +320,13 @@ def register(request):
             messages.success(request, "Usuário cadastrado com sucesso!")
             return redirect('lottery:dashboard')
     ctx = {"form": form}
-    return render(request, "plataform/auth/register.html", ctx)
+    return render(request, "platform/auth/register.html", ctx)
 
 
 @login_required
 def billing(request):
-    return render(request, "plataform/dashboard/billing.html")
+    return render(request, "platform/dashboard/billing.html")
+
 
 @login_required
 def get_selected_draw(request):
@@ -470,7 +351,7 @@ def get_selected_draw(request):
 def check_collection_in_draw(data):
     col_is_active = data.get("active")
     collection = Collection.objects.get(id=data.get("collection_id"))
-    lottery = data.get("lototype2")
+    lottery = data.get("lottery_id_results")
     draw = Draw.objects.get(number=data.get("draw"), lottery__name=lottery)
     lottery = Lottery.objects.get(name=lottery)
     file_url, total_balance = check_results(draw, lottery, collection)

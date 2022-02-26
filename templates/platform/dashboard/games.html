@@ -14,51 +14,11 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 
-{% extends 'plataform/dashboard/base.html' %}
+{% extends 'platform/dashboard/base.html' %}
 {% load static %}
 
 {% block css %}
-<style>
-  .my-actions { margin: 0 2em; }
-.order-1 { order: 1; }
-.order-2 { order: 2; }
 
-.right-gap {
-  margin-right: auto;
-}
-
-.colored-toast.swal2-icon-success {
-  background-color: #a5dc86 !important;
-}
-
-.colored-toast.swal2-icon-error {
-  background-color: #f27474 !important;
-}
-
-.colored-toast.swal2-icon-warning {
-  background-color: #f8bb86 !important;
-}
-
-.colored-toast.swal2-icon-info {
-  background-color: #3fc3ee !important;
-}
-
-.colored-toast.swal2-icon-question {
-  background-color: #87adbd !important;
-}
-
-.colored-toast .swal2-title {
-  color: white;
-}
-
-.colored-toast .swal2-close {
-  color: white;
-}
-
-.colored-toast .swal2-html-container {
-  color: white;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -151,10 +111,10 @@
                   <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
                   <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
                   <div class="d-flex flex-row w-100 p-3">
-                    {% for type in lototypes %}
-                    <img src="{% static 'assets/img/loterias/logos/'|add:type.0|add:'.png' %}" alt="Logo da {{type.1}}"
+                    {% for lottery in lotteries %}
+                    <img src="{% static 'assets/img/loterias/logos/'|add:lottery.name|add:'.png' %}" alt="Logo da {{lottery.name|capfirst}}"
                          class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
-                         title="{{ type.1 }}" data-container="body" data-animation="true"
+                         title="{{ lottery.name|capfirst }}" data-container="body" data-animation="true"
                          style="width:50px; height:50px;">
                     {% endfor %}
                   </div>
@@ -196,12 +156,12 @@
                         </div>
                         <h6 class="font-weight-bolder">Modalidade</h6>
                         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                          {% for type in lototypes %}
-                          <input type="radio" class="btn-check" name="lototype" id="modalidade-{{type.0}}"
-                                 value="{{type.0}}"
+                          {% for lottery in lotteries %}
+                          <input type="radio" class="btn-check" name="lottery_name" id="lottery-{{lottery.name}}"
+                                 value="{{lottery.name}}"
                                  autocomplete="off" required
-                                  onclick="handleLotteryParams(this.value)">
-                          <label class="btn btn-outline-primary" for="modalidade-{{type.0}}">{{type.1}}</label>
+                                  onclick="handleLotteryParams('{{lottery.name}}')">
+                          <label class="btn btn-outline-primary" for="lottery-{{lottery.name}}">{{lottery.name|capfirst}}</label>
                           {% endfor %}
                         </div>
 
@@ -301,12 +261,16 @@
                           <h6 class="font-weight-bolder mt-2">Par ou Ímpar</h6>
                           <div class="d-flex flex-row h-100">
                             <div class="form-check mb-3">
-                              <input class="form-check-input" type="radio" name="isOdd" value="False" id="even">
+                              <input class="form-check-input" type="radio" name="parity" value="even" id="even">
                               <label class="custom-control-label" for="even">Par</label>
                             </div>
                             <div class="form-check ms-5">
-                              <input class="form-check-input" type="radio" name="isOdd" value="True" id="odd">
+                              <input class="form-check-input" type="radio" name="parity" value="odd" id="odd">
                               <label class="custom-control-label" for="odd">Ímpar</label>
+                            </div>
+                            <div class="form-check ms-5">
+                              <input class="form-check-input" type="radio" name="parity" value="odd" id="neutral">
+                              <label class="custom-control-label" for="odd">Neutro</label>
                             </div>
                           </div>
                         </div>
@@ -361,7 +325,7 @@
                     {{collectionsData.totalGamesets}} conjuntos encontrados
                   </p>
                 </div>
-                <form action="{% url 'lottery:jogos' %}" id="modify-gameset" method="POST">
+                <form action="{% url 'lottery:games' %}" id="modify-gameset" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="">
                  </form>
@@ -436,7 +400,7 @@
                         {% endif %}
                       </td>
                       <td class="align-middle text-center">
-                        <a href="{% url 'lottery:conjunto-detail' gameset.id  %}">
+                        <a href="{% url 'lottery:game-set-detail' gameset.id  %}">
                           <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                         </a>
                       </td>
@@ -472,7 +436,7 @@
                         </div>
                         <p hidden>{{gameset.lottery.name}}</p>
                   </span>
-                    <a href="{% url 'lottery:conjunto-detail' gameset.id %}" data-bs-toggle="tooltip"
+                    <a href="{% url 'lottery:game-set-detail' gameset.id %}" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Ver detalhes" data-container="body" data-animation="true">
                           <div class="timeline-content">
@@ -635,7 +599,7 @@
                   <h5 class="font-weight-bolder">Suas Coleções</h5>
                   <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
                 </div>
-                <form action="{% url 'lottery:jogos' %}" id="edit-collection" method="POST">
+                <form action="{% url 'lottery:games' %}" id="edit-collection" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="">
                  </form>
@@ -687,7 +651,7 @@
                         <span class="badge badge-sm bg-gradient-primary">{{collection.numberOfGames|capfirst}}</span>
                       </td>
                       <td class="align-middle text-center">
-                        <a href="{% url 'lottery:colecao-detail' collection.id %}">
+                        <a href="{% url 'lottery:collection-detail' collection.id %}">
                           <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                         </a>
                       </td>
@@ -722,7 +686,7 @@
                         </div>
                         <p hidden>{{collection.lottery.name}}</p>
                   </span>
-                    <a href="{% url 'lottery:colecao-detail' collection.id %}" data-bs-toggle="tooltip"
+                    <a href="{% url 'lottery:collection-detail' collection.id %}" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Ver detalhes" data-container="body" data-animation="true">
                           <div class="timeline-content">
@@ -813,10 +777,10 @@
                 <form id="get-results-form">
                   {% csrf_token %}
                   <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                  {% for type in lototypes %}
-                  <input type="radio" class="btn-check" name="lototype2" id="results-{{type.0}}" value="{{type.0}}"
+                  {% for lottery in lotteries %}
+                  <input type="radio" class="btn-check" name="lottery_id" id="results-{{lottery.name}}" value="{{lottery.id}}"
                          autocomplete="off" required>
-                  <label class="btn btn-outline-primary" for="results-{{type.0}}">{{type.1}}</label>
+                  <label class="btn btn-outline-primary" for="results-{{lottery.name}}">{{type.1}}</label>
                   {% endfor %}
                 </div>
                 <div class="form-group">
@@ -1260,18 +1224,6 @@
 {% block script %}
 <script src="{% static 'js/jogos.js' %}"></script>
 <script>
-      const Toast = Swal.mixin({
-    toast: true,
-    position: 'top-right',
-    iconColor: 'white',
-    customClass: {
-      popup: 'colored-toast'
-    },
-    showConfirmButton: false,
-    timer: 1500,
-    timerProgressBar: true
-  })
-
 
 $(document).ready(function() {
   $(".messages p").each((ind, el) => {

@@ -33,7 +33,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="loterias" href="{% url 'lottery:loterias' %}">
+        <a class="nav-link" id="loterias" href="{% url 'lottery:lotteries' %}">
           <div
               class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1"
@@ -57,7 +57,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="jogos" href="{% url 'lottery:jogos' %}">
+        <a class="nav-link" id="jogos" href="{% url 'lottery:games' %}">
           <div
               class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1"
@@ -83,7 +83,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="relatorios" href="{% url 'lottery:relatorios' %}">
+        <a class="nav-link" id="resultados" href="{% url 'lottery:results' %}">
           <div
               class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             <svg width="12px" height="12px" viewBox="0 0 40 40" version="1.1"
@@ -105,7 +105,7 @@
               </g>
             </svg>
           </div>
-          <span class="nav-link-text ms-1">Relatórios</span>
+          <span class="nav-link-text ms-1">Resultados</span>
         </a>
       </li>
       <li class="nav-item">
@@ -134,16 +134,11 @@
       </li>
     </ul>
   </div>
-  <div class="sidenav-footer mx-3 ">
+  <div class="sidenav-footer mx-3">
     <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
       <div class="full-background"
            style="background-image: {% static 'assets/img/curved-images/white-curved.jpeg' %}"></div>
       <div class="card-body text-start p-3 w-100">
-        <div
-            class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
-          <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true"
-             id="sidenavCardIcon"></i>
-        </div>
         <div class="docs-info">
           <h6 class="text-white up mb-0">Precisa de ajuda?</h6>
           <p class="text-xs font-weight-bold">Confira o tutorial da plataforma</p>

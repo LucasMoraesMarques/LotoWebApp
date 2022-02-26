@@ -32,6 +32,7 @@ class Command(BaseCommand):
     def get_draws(loto):
         try:
             resp = requests.get(loto.urlHistoricResultAPI)
+            print(resp, resp.status_code)
             if resp.status_code != 200:
                 print(resp.status_code, resp)
                 raise requests.exceptions.RequestException
@@ -39,6 +40,7 @@ class Command(BaseCommand):
             raise CommandError("Error in requisition!" )
         else:
             df = pd.read_html(resp.text, decimal=',', thousands='.')[0]
+            print(df)
             return df
 
     @staticmethod

@@ -14,7 +14,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 
-{% extends 'plataform/dashboard/base.html' %}
+{% extends 'platform/dashboard/base.html' %}
 {% load static %}
 {% load numbers %}
 {% block content %}
@@ -24,7 +24,7 @@
   <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       {% for draw in lastDraws %}
-      {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
+      {% with 'assets/img/loterias/logos/'|add:draw.lottery_name|add:'.png' as lotteryLogo %}
       {% if forloop.counter == 1 %}
       <div class="carousel-item active">
       {% else %}
@@ -48,7 +48,7 @@
                   </span>
                   {% endfor %}
                 </div>
-                <a href="{% url 'lottery:concurso-detail' draw.loto_name draw.number %}">
+                <a href="{% url 'lottery:draw-detail' draw.lottery_name draw.number %}">
                     <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
                   </a>
               </div>
@@ -118,13 +118,11 @@
                 <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
                 <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
                 <div class="d-flex flex-row w-100 p-3">
-                  {% for type in lototypes %}
-                  {% if type.0 %}
-                  <img src="{% static 'assets/img/loterias/logos/'|add:type.0|add:'.png' %}" alt="Logo da {{type.1}}"
+                  {% for lottery in lotteries %}
+                  <img src="{% static 'assets/img/loterias/logos/'|add:lottery.name|add:'.png' %}" alt="Logo da {{lottery.name|capfirst}}"
                        class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
-                       title="{{ type.1 }}" data-container="body" data-animation="true"
+                       title="{{ lottery.name }}" data-container="body" data-animation="true"
                        style="width:50px; height:50px;">
-                  {% endif %}
                   {% endfor %}
                 </div>
                 <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
@@ -147,11 +145,11 @@
             <div class="d-flex flex-column w-100">
                   <h6 class="font-weight-bolder">Modalidades</h6>
                 <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                  {% for type in lototypes %}
-                  <input type="radio" class="btn-check" name="select-lottery" id="modalidade-{{type.0}}"
-                         value="{{type.0}}"
+                  {% for lottery in lotteries %}
+                  <input type="radio" class="btn-check" name="select-lottery" id="modalidade-{{lottery.name}}"
+                         value="{% url 'lottery:lottery-detail' lottery.name %}"
                          autocomplete="off" required>
-                  <label class="btn btn-outline-primary" for="modalidade-{{type.0}}">{{type.1}}</label>
+                  <label class="btn btn-outline-primary" for="modalidade-{{lottery.name}}">{{lottery.name}}</label>
                   {% endfor %}
                 </div>
                 <input type="button" class="btn btn-primary mt-2 text-align disabled" id="redirect" onclick="redirect()" value="VER PÁGINA"
@@ -220,7 +218,7 @@ $("input[name='select-lottery']").change(function(){
   }
 })
 function redirect(){
-  window.location.href = "/loterias/"+ $("input[name='select-lottery']:checked").val()
+  window.location.href = $("input[name='select-lottery']:checked").val()
 
 }
 </script>

@@ -152,7 +152,6 @@ class Gameset(models.Model):
     def __str__(self):
         return str(self.name)
 
-
 class Collection(models.Model):
     name = models.CharField(max_length=200)
     gamesets = models.ManyToManyField(

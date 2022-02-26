@@ -371,7 +371,7 @@ function updateFixedAndRemovedGrids(){ // Callback to reset grids on nPlayed val
   let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
   let nPlayedChosen = parseInt($("input[name=nPlayed]:checked").val())
   let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
-  let lottery = $("input[name='lototype']:checked").val()
+  let lottery = $("input[name='lottery_name']:checked").val()
   let nPossiblesList = lotteryInfo[lottery].nPossiblesList
   let sum = nFixed.length + nRemoved.length
   if (sum == nPlayedChosen) {
@@ -461,7 +461,7 @@ function calcNumberOfCombinations() { // Calculate the number of combinations in
   var formData = $("#gerador-form").get(0)
   if (generator == "simple") {
     willCalcCombs.val("False")
-    let lottery = formData["lototype"].value
+    let lottery = formData["lottery_name"].value
     let nPlayed = parseInt(formData['nPlayed'].value)
     let nFixed = Array.from($("input[name='nFixed']:checked"))
     let nRemoved = Array.from($("input[name='nRemoved']:checked"))
@@ -476,7 +476,7 @@ function calcNumberOfCombinations() { // Calculate the number of combinations in
     var serializedData = $(formData).serialize()
     $.ajax({
       type: "POST",
-      url: "jogos/generator",
+      url: "jogos/geradores",
       data: serializedData,
       success: function (response, nCombs) {
         nCombs = response["combs"]
@@ -536,7 +536,7 @@ $("#gerador-form").submit(function (e) { // POST form and get generated jogos as
   var serializedData = $(this).serialize()
   $.ajax({
     type: "POST",
-    url: "jogos/generator",
+    url: "jogos/geradores",
     data: serializedData,
     success: function (response) {
       $("#modal-content-gameset .modal-body").empty()
@@ -595,7 +595,7 @@ $("#reset-generator-form").click(function () { // Reset generator form completel
 
 $("#gerador-form").change(function () { // Listen to changes on generator form and handle calc-combs-btn display
   var generator = $("input[name='generator']:checked").val()
-  var lottery = $("input[name='lototype']:checked").val()
+  var lottery = $("input[name='lottery_name']:checked").val()
   let nPlayed = parseInt($("input[name=nPlayed]:checked").val())
   let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
   let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
@@ -630,7 +630,7 @@ $("#add-collection-form").submit(function (e) { // Add new collections
   var serializedData = $(this).serialize()
   $.ajax({
     type: "POST",
-    url: "jogos/colecoes/create-collection",
+    url: "jogos/colecoes/criar-colecao",
     data: serializedData,
     success: function (response) {
       $("#add-collection-form").trigger('reset')
@@ -639,7 +639,11 @@ $("#add-collection-form").submit(function (e) { // Add new collections
       $("#collection-gen-select").prepend(
         `<option value="${response.id}" loto-name="${response.lottery}">${response.name}</option>`
       )
-      showAlertMessage(`Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`, "success")
+       Toast.fire({
+    icon: 'success',
+    title: "Sucesso!",
+    text: `Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`
+})
 
     },
     error: function (response) {
@@ -656,7 +660,7 @@ $("#collection-file-form").submit(function (e) { // Handle file input to create 
   console.log(data)
   $.ajax({
     type: "POST",
-    url: "jogos/colecoes/create-collection",
+    url: "jogos/colecoes/criar-colecao",
     cache: false,
     contentType: false,
     processData: false,
@@ -681,7 +685,7 @@ $("#collection-file-form").submit(function (e) { // Handle file input to create 
 
 // Draws Tab
 
-$("input[name=lototype2]").on("click", function () { // Get current lottery draws numbers
+$("input[name=lottery_name2]").on("click", function () { // Get current lottery draws numbers
   $.ajax({
     type: "GET",
     url: `get-draw?lottery=${this.value}`,

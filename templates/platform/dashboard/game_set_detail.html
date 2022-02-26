@@ -1,50 +1,7 @@
-{% extends 'plataform/dashboard/base.html' %}
+{% extends 'platform/dashboard/base.html' %}
 {% load static %}
 
 {% block css %}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/r-2.2.9/b-2.2.2/sl-1.3.4/sb-1.3.1/datatables.min.css"/>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
-<style>
-  .my-actions { margin: 0 2em; }
-.order-1 { order: 1; }
-.order-2 { order: 2; }
-
-.right-gap {
-  margin-right: auto;
-}
-
-.colored-toast.swal2-icon-success {
-  background-color: #a5dc86 !important;
-}
-
-.colored-toast.swal2-icon-error {
-  background-color: #f27474 !important;
-}
-
-.colored-toast.swal2-icon-warning {
-  background-color: #f8bb86 !important;
-}
-
-.colored-toast.swal2-icon-info {
-  background-color: #3fc3ee !important;
-}
-
-.colored-toast.swal2-icon-question {
-  background-color: #87adbd !important;
-}
-
-.colored-toast .swal2-title {
-  color: white;
-}
-
-.colored-toast .swal2-close {
-  color: white;
-}
-
-.colored-toast .swal2-html-container {
-  color: white;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -213,7 +170,7 @@
           </p>
         </div>
         <div class="buttons">
-          <form action="{% url 'lottery:conjunto-detail' gameset.pk %}" method="POST" id="edit-gameset">
+          <form action="{% url 'lottery:game-set-detail' gameset.pk %}" method="POST" id="edit-gameset">
             {% csrf_token %}
             <button type="button" class="btn btn-secondary" id="remove-games">Remover</button>
             {% if gameset.isActive %}
