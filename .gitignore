@@ -7,3 +7,5 @@ LotoWebApp/__pycache__/*.pyc
 todasCombsFiltradasDiadesorte.csv
 todasCombsFiltradasLotofacil.csv
 megaFiltered.csv
+.env/
+/.env

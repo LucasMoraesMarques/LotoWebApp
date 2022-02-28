@@ -1,8 +1,11 @@
+import os.path
+
 from babel.dates import format_date
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from lottery.models import Result
-
+from LotoWebApp import settings
+from io import BytesIO
 
 def create_text_report_file(draw, scores_by_games_set, collection, total_balance, abridged=True):
     result = draw.result
@@ -51,12 +54,10 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
             lines.append(f"\n{label}: R$ {total_balance['Total Geral'][label]:,.2f}")
         lines.append(f"\nNumero de Jogos: {total_balance['Total Geral']['Numero de Jogos']:,.2f}")
         lines.append('\n')
-    file_path = f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/txt/{file_name}"
-    if not default_storage.exists(file_path):
-        default_storage.save(file_path, ContentFile("".join(lines)))
-    else:
-        with default_storage.open(file_path, "w+") as file:
-            file.writelines(lines)
+    file_path = os.path.join(settings.MEDIA_ROOT, f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/txt/{file_name}")
+    output = default_storage.open(file_path, "w")
+    output.write("".join(lines))
+    output.close()
     result_obj, was_created = Result.objects.get_or_create(
         lottery=lottery,
         collection=collection,
