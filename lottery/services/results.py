@@ -9,13 +9,23 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
     lottery = draw.lottery
     scores_interval = draw.lottery.possiblesPointsToEarn
     total_by_scores = {f'{i} acertos': 0 for i in scores_interval}
-    balance_labels = ['Premiacao', 'Valor Gasto', 'Saldo', "Numero de Jogos"]
-    file_name = f'{collection.name.replace(" ", "_")}_{draw.number}.txt'
-    file_header = f"Resultado referente ao concurso n {draw.number} da {lottery.name} " \
-              f"realizado no dia {format_date(draw.date, 'dd/MM/yyyy', 'pt_br')}\n"
-    lines = [file_header]
-    print(scores_by_games_set)
-    print(total_balance)
+    balance_labels = ['Premiacao', 'Valor Gasto', 'Saldo']
+    file_name = f'{collection.name.replace(" ", "_")}_{draw.number}_{"resumido" if abridged else "completo"}.txt'
+    lines = []
+    result_text = ''
+    for number in result:
+        result_text += f"{number} - "
+    result_text = result_text[:-2]
+    lines.append(f"Resultado da Colecao {collection.name}".center(30, "="))
+    lines.append(f"\n\nLoteria: {lottery.name} \n")
+    lines.append(f"Concurso: {draw.number} \n")
+    lines.append(f"Data: {format_date(draw.date, 'dd/MM/yyyy', 'pt_br')} \n")
+    lines.append(f"Numeros: {result_text} \n")
+    lines.append(f"Acumulou: {'Sim' if draw.hasAccumulated else 'Nao'}\n")
+    if draw.hasAccumulated:
+        lines.append(f"Premio estimado proximo concurso: R$ {draw.nextDrawEstimatedPrize: ,.2f}\n")
+    else:
+        lines.append(f"Premio {scores_interval[-1]} acertos: R$ {draw.maxPrize:,.2f}")
     for games_set_name, scores in scores_by_games_set.items():
         lines.append(f"\n\n{games_set_name:=^30}\n")
         lines.append(f"\n\nBalanco de Acertos\n")
@@ -26,7 +36,6 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
         for label in balance_labels:
             lines.append(f"\n{label}: R$ {total_balance['Por conjunto'][games_set_name][label]:,.2f}")
         lines.append('\n')
-        print(scores["Jogos"].items())
         if not abridged:
             lines.append(f"\n\nBalanco por Jogo\n")
             for game_number, score in scores["Jogos"].items():
@@ -40,20 +49,24 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
         lines.append(f"\n\nBalanco Monetario Geral\n")
         for label in balance_labels:
             lines.append(f"\n{label}: R$ {total_balance['Total Geral'][label]:,.2f}")
+        lines.append(f"\nNumero de Jogos: {total_balance['Total Geral']['Numero de Jogos']:,.2f}")
         lines.append('\n')
-    default_storage.save(f"usuario_{collection.user.id}/{file_name}", ContentFile("".join(lines)))
-    result_obj = Result(
+    file_path = f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/txt/{file_name}"
+    if not default_storage.exists(file_path):
+        default_storage.save(file_path, ContentFile("".join(lines)))
+    else:
+        with default_storage.open(file_path, "w+") as file:
+            file.writelines(lines)
+    result_obj, was_created = Result.objects.get_or_create(
         lottery=lottery,
         collection=collection,
+        draw=draw,
         number_of_game_sets=len(scores_by_games_set),
         number_of_games=total_balance["Total Geral"]["Numero de Jogos"],
-        draw=draw,
         points_info=scores_by_games_set,
         money_balance=total_balance,
-        report_file=f"usuario_{collection.user.id}/{file_name}",
-        abridged=abridged
-    )
-    result_obj.save()
+        report_file=file_path,
+        abridged=abridged)
 
     return result_obj.report_file.url, result_obj
 

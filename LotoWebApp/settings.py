@@ -138,3 +138,13 @@ MEDIA_ROOT = "media/"
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_TIMEZONE = "UTC"
+CELERY_BEAT_SCHEDULE = {
+    "get_draws": {
+        "task": "get_draws_daily",  # registered task
+        "schedule": 90,
+    },
+
+}
