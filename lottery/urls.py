@@ -29,13 +29,14 @@ urlpatterns = [
     path("jogos/colecoes/<int:collection_id>", views.collection_detail, name="collection-detail"),
     path("jogos/colecoes/criar-colecao", views.create_collection, name="create-collection"),
     path("jogos/geradores", views.games_generators, name="generators"),
-    path("resultados", views.results, name="results"),
+    path("resultados", views.results_reports, name="results"),
     path("profile", views.profile, name="profile"),
     path("login", views.CustomLoginView.as_view(), name="login"),
     path("logout", views.CustomLogoutView.as_view(), name="logout"),
     path("cadastro", views.register, name="register"),
     path("billing", views.billing, name="billing"),
-    path("get-draw", views.get_selected_draw, name="get-draw"),
+    path("get-draws/<str:name>", views.get_draws_numbers, name="get-draws"),
+    path("create-results-report", views.create_results_report, name="create-results-report"),
     path("get-combinations", views.get_combinations, name="get-combinations"),
     path("save-games-batch", views.save_games_batch, name="save-games-batch")
 

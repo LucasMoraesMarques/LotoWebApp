@@ -109,7 +109,7 @@ class Command(BaseCommand):
                 for index, i in enumerate(loto.possiblesPointsToEarn):
                     rateio[0][f"Rateio {i} acertos"] = faixas[index]["valorPremio"]
             print(faixas)
-            numbers = draw.result
+            numbers = [int(i) for i in draw["listaDezenas"]]
             parity = stats.parity(numbers)
             n_primes = stats.nPrimeNumbers(numbers)
             gaps = stats.gap(numbers)
@@ -121,7 +121,7 @@ class Command(BaseCommand):
             draw = Draw.objects.create(
                 number=draw["numero"],
                 date=datetime.strptime(draw["dataApuracao"], "%d/%m/%Y"),
-                result=[int(i) for i in draw["listaDezenas"]],
+                result=numbers,
                 prizesInfoByRange=rateio,
                 earnedValue=draw["valorArrecadado"],
                 nextDrawEstimatedPrize=draw["valorEstimadoProximoConcurso"],

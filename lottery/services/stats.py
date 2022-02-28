@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from lottery.models import Game, Draw, GameParity
-
+from typing import List, Dict
 
 def parity(jogo):
     bol_array = map(lambda x: x % 2, jogo)
@@ -79,7 +79,7 @@ def numbers_ranking(data, lottery):
     rank = dict()
     for i in range(1, lottery.numbersRangeLimit + 1):
         v = np.where(df == i, True, False).sum()
-        rank[f'{i}'] = v
+        rank[i] = v
     rank_series = pd.Series(rank)
     rank_series.sort_values(ascending=False, inplace=True)
     rank_series.name = "Ranking Geral"
@@ -104,3 +104,29 @@ def numbers_metadata(qs):
             else:
                 metadata[prop][value] = 1
     return metadata
+
+
+def parity_balance(numbers: List[int]) -> Dict[str, int]:
+    balance = {
+        "odd": 0,
+        "even": 0
+    }
+    for number in numbers:
+        if number % 2 == 0:
+            balance["even"] += 1
+        else:
+            balance["odd"] += 1
+    return balance
+
+
+def latest_frequency_in_draws(numbers, draws):
+    frequency = {
+        number: 0 for number in numbers
+    }
+    for number in numbers:
+        for draw in draws:
+            if number in draw.result:
+                frequency[number] += 1
+            else:
+                break
+    return frequency

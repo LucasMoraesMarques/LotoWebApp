@@ -5,6 +5,8 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
+from django.core.files.storage import default_storage
+
 from django.utils import timezone
 # Create your models here.
 LOTTERY_CHOICES = [
@@ -225,14 +227,14 @@ class Result(models.Model):
         related_name="collections_results",
         verbose_name="Collection result in draw"
     )
-    points_info = ArrayField(models.JSONField(null=True), null=True)
-    price = models.FloatField(default=0)
-    prizes = models.FloatField(default=0)
-    balance = models.FloatField(default=0)
+    points_info = models.JSONField(default=dict)
+    money_balance = models.JSONField(default=dict)
+    report_file = models.FileField(null=True)
     abridged = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'results'
         verbose_name = 'Collections Result'
         verbose_name_plural = 'Collections Results'
+        managed = True
 

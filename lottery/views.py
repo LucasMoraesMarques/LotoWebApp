@@ -5,18 +5,16 @@ from django import forms
 from django.http import JsonResponse
 from django.db.models import Sum, F, Q, Case, When
 import pandas as pd
-from lottery.backend.games import generators, gamesets, collections
-from lottery.backend.functions import stats
+from lottery.services import generators, gamesets, collections, stats, results
 from lottery.forms import CustomUserCreationForm, LoginForm
-from django.forms.models import model_to_dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseRedirect, HttpResponse
 from time import time
+from django.forms.models import model_to_dict
 from babel.dates import format_date
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
+
 
 
 @login_required
@@ -248,54 +246,42 @@ def collection_detail(request, collection_id):
 def draw_detail(request, name, number):
     draws = Draw.objects.filter(lottery__name=name)
     current_draw = draws.get(number=number)
-    even = odd = 0
-    freq = {i:0 for i in current_draw.result}
-    totalFreq = {i: 0 for i in current_draw.result}
-    for value in current_draw.result:
-        if value % 2 == 0:
-            even += 1
-        else:
-            odd += 1
-
-        for draw in draws.order_by('-date').filter(number__lte=number):
-            if value in draw.result:
-                freq[value] += 1
-            else:
-                break
-    for draw in draws.order_by('number'):
-        for value in current_draw.result:
-            if value in draw.result:
-                totalFreq[value] += 1
-    seq = stats.sequences(current_draw.result)
+    numbers_ranking = stats.numbers_ranking(draws.values_list("result"), current_draw.lottery)
+    draw_numbers_ranking = numbers_ranking.loc[numbers_ranking.index.isin(current_draw.result)]
+    parity_stats = stats.parity_balance(current_draw.result)
+    latest_frequency = stats.latest_frequency_in_draws(current_draw.result, draws.order_by('-date').filter(number__lte=number))
+    sequences = stats.sequences(current_draw.result)
     gaps = stats.gap(current_draw.result)
     primes = stats.nPrimeNumbers(current_draw.result)
 
-
     metadata = {
         'charts': {
-            'even': even,
-            'odd': odd,
-            'freq': freq,
+            'parity_balance': parity_stats,
+            'freq': latest_frequency,
         },
-        'Sequência Máxima': ["Maior sequência de números consecutivos", max(seq)],
-        'Sequência Mínima': ["Menor sequência de números consecutivos", min(seq)],
+        'Sequência Máxima': ["Maior sequência de números consecutivos", max(sequences)],
+        'Sequência Mínima': ["Menor sequência de números consecutivos", min(sequences)],
         'Salto Máximo': ["Maior salto de 2 números sorteados", max(gaps)],
         'Salto Mínimo': ["Maior salto de 2 números sorteados", min(gaps)],
         'Números Primos': ["Total de números primos", primes],
         'Soma': ["Soma de todos os números sorteados", sum(current_draw.result)],
-        'Média': ["Média dos números sorteados", round(sum(current_draw.result)/len(current_draw.result),2)]
+        'Média': ["Média dos números sorteados", round(sum(current_draw.result)/len(current_draw.result), 2)]
     }
     ctx = {
         'draw': current_draw,
         'metadata': metadata,
-        'totalFreq': totalFreq
+        'total_freq': draw_numbers_ranking.sort_index(ascending=True)
     }
     return render(request, "platform/dashboard/draw_detail.html", ctx)
 
 
 @login_required
-def results(request):
-    return render(request, "platform/dashboard/results.html")
+def results_reports(request):
+    lotteries_objs = Lottery.objects.all()
+    ctx = {
+        'lotteries': lotteries_objs,
+    }
+    return render(request, "platform/dashboard/results.html", ctx)
 
 
 @login_required
@@ -329,104 +315,46 @@ def billing(request):
 
 
 @login_required
-def get_selected_draw(request):
-    user = request.user
-    if request.method == 'GET':
-        lottery = request.GET.get('lottery', 0)
-        draws = list(Draw.objects.filter(lottery__name=lottery).order_by("-date").values('number'))
-        collections = list(user.collections.filter(lottery__name=lottery).values('id', 'name'))
-        data = {
-            'draws': draws,
-            'collections': collections
-        }
-        return JsonResponse(data=data, status=200)
+def get_draws_numbers(request, name=''):
+    draws = Draw.objects.filter(lottery__name=name).order_by("-date")
+    draws_numbers = list(draws.values('number'))
+    user_collections = collections.all(request.user)
+    user_collections = user_collections.filter(lottery__name=name).values('id', 'name')
+    data = {
+        'draws': draws_numbers,
+        'collections': list(user_collections)
+    }
+    return JsonResponse(data=data, status=200)
+
+
+@login_required
+def create_results_report(request):
     if request.method == "POST":
         form = forms.Form(request.POST)
         if form.is_valid():
             data = request.POST
-            data = check_collection_in_draw(data)
+            selected_collection = collections.all(request.user).get(id=data.get("collection_id"))
+            user_games_sets = gamesets.all(request.user).prefetch_related("collections")
+            games_sets_in_collection = user_games_sets.filter(collections=selected_collection)
+            games_sets_actives = data.get("active", True)
+            filtered_games_sets = games_sets_in_collection.filter(isActive=games_sets_actives)
+            selected_draw = Draw.objects.get(lottery__name=data.get("lottery_name"), number=data.get("draw"))
+            scores_by_games_set = results.check_scores_in_draw(selected_draw, filtered_games_sets)
+            prizes_balance = results.check_prizes_in_draw(selected_draw, scores_by_games_set)
+            file_url, result_obj = results.create_text_report_file(selected_draw, scores_by_games_set,
+                                                                   selected_collection,
+                                                                   prizes_balance)
+            data = {
+                'draw': model_to_dict(selected_draw),
+                'filepath': file_url,
+                'total_balance': prizes_balance["Total Geral"]
+            }
+            data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
             return JsonResponse(data=data, status=200)
-
-
-def check_collection_in_draw(data):
-    col_is_active = data.get("active")
-    collection = Collection.objects.get(id=data.get("collection_id"))
-    lottery = data.get("lottery_id_results")
-    draw = Draw.objects.get(number=data.get("draw"), lottery__name=lottery)
-    lottery = Lottery.objects.get(name=lottery)
-    file_url, total_balance = check_results(draw, lottery, collection)
-    data = {
-        'draw': model_to_dict(draw),
-        'results': model_to_dict(collection, fields=[field.name for field in collection._meta.fields]),
-        'filepath': file_url,
-        'total_balance': total_balance
-    }
-    data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
-    return data
-
-
-def check_results(draw, lottery, collection):
-    result = draw.result
-    print(result)
-    filename = f'{collection.name.replace(" ", "_")}_{draw.number}.txt'
-    restext = f"Resultado referente ao concurso nº {draw.number} da {lottery.name} " \
-              f"realizado no dia {format_date(draw.date, 'dd/MM/yyyy', 'pt_br')}\n"
-    lines = []
-    lines.append(restext)
-    gamesets = collection.gamesets.all()
-    print(gamesets)
-    total_balance = {
-        'Premiacao': 0,
-        'Valor Gasto': 0,
-        'Saldo': 0,
-        'Numero de Jogos': collection.numberOfGames
-    }
-    for gameset in gamesets:
-        lines.append(f"\n\n{gameset.name:=^20}\n")
-        games = gameset.games.all()
-        interval = lottery.possiblesPointsToEarn
-        scores = acertos(result, games, interval)
-        scores['Premiacao'] = 0
-        scores['Valor Gasto'] = gameset.numberOfGames * lottery.possiblesPricesRange[
-            gameset.gameLength - lottery.possiblesChoicesRange[0]]
-        for acerto in interval:
-            for faixa, data in draw.metadata[0].items():
-                print(faixa, data)
-                if int(data['descricaoFaixa'].split(" ")[0]) == acerto:
-                    scores['Premiacao'] += scores[f'Total {acerto}'] * data['valorPremio']
-        scores['Saldo'] = scores['Premiacao'] - scores['Valor Gasto']
-        total = [f'Total {i}' for i in interval]
-        moneyBalance = ['Premiacao', 'Valor Gasto', 'Saldo']
-        for value in total:
-            lines.append(f"\n{value}: {scores[value]}")
-
-        for value in moneyBalance:
-            lines.append(f"\n{value}: R$ {scores[value]:,.2f}")
-            total_balance[value] += scores[value]
-        lines.append('\n')
-        for k, v in scores.items():
-            if k not in total and k not in moneyBalance:
-                lines.append(f"\n{k}: {v} acertos")
-
-    default_storage.save(filename, ContentFile("".join(lines)))
-    return filename, total_balance
-
-
-def acertos(result, games, interval):
-    scores = {f'Total {i}': 0 for i in interval}
-    i = 1
-    for game in games:
-        score = len(set(game.arrayNumbers) & set(result))
-        scores[f"Jogo {i}"] = score
-        i += 1
-        if score in interval:
-            scores[f'Total {score}'] += 1
-    return scores
 
 
 @login_required
 def get_combinations(request):
-    print(request.GET)
     combs_size = request.GET.get("combs-size")
     lottery = request.GET.get("lottery")
     combs = Combinations.objects.filter(lottery=lottery, n=combs_size)
@@ -436,5 +364,5 @@ def get_combinations(request):
         "combs": list(combs_filtered.values("numbers", "repetitions")),
         "total": combs.count()
     }
-    print(combs_filtered.count())
     return JsonResponse(data, status=200)
+

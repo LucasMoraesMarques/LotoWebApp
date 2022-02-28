@@ -120,10 +120,10 @@
                 <p class="text-sm mb-0 text-capitalize font-weight-bold">Números Sorteados</p>
               </div>
               <div class="d-flex justify-content-center mt-2">
-                {% for number, frequence in totalFreq.items %}
+                {% for number, frequency in total_freq.items %}
                   <span class="badge badge-sm bg-gradient-primary text-center align-middle p-2 fs-5 mx-2" style="width:40px; height:40px;"
                   data-bs-toggle="tooltip" data-bs-placement="top"
-                     title="Foi sorteado {{ frequence }} vezes no total dos concursos" data-container="body" data-animation="true">
+                     title="Foi sorteado {{ frequency }} vezes no total dos concursos" data-container="body" data-animation="true">
                     {{number}}
                   </span>
                   {% endfor %}
@@ -501,7 +501,7 @@
   // Even or odd pie chart
   var ctx3 = document.getElementById("chart-even-odd").getContext("2d");
   var xValues = ["Par", "Ímpar"]
-  var yValues = [{{metadata.charts.even}}, {{metadata.charts.odd}}];
+  var yValues = [{{metadata.charts.parity_balance.even}}, {{metadata.charts.parity_balance.odd}}];
   var barColors = ["#181C97", "#AEB9CE"];
 
       new Chart(ctx3, {
