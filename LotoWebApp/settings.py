@@ -127,6 +127,14 @@ USE_L10N = True
 
 USE_TZ = True
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
+ADMINS = config("ADMIN_EMAIL")
+
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/dashboard'
 LOGOUT_REDIRECT_URL = '/login'
@@ -165,5 +173,9 @@ CELERY_BEAT_SCHEDULE = {
         "task": "get_draws_daily",  # registered task
         "schedule": 90,
     },
+    "send_daily_results":{
+        "task": "send_daily_results_by_email",
+        "schedule":60
+    }
 
 }

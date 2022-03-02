@@ -179,6 +179,7 @@ class Collection(models.Model):
     numberOfGamesets = models.IntegerField(default=0)
     createdAt = models.DateTimeField(auto_now_add=True)
     updateAt = models.DateTimeField(auto_now=True)
+    is_reported = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['name']

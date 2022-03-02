@@ -1,5 +1,4 @@
 import os
-
 from celery import shared_task
 from django.core import management
 
@@ -8,16 +7,16 @@ from django.core import management
 @shared_task(name='get_draws_daily')
 def get_draws_daily():
     management.call_command("get_draws", "--last")
-    update_lottery_combinations_daily.delay()
+    management.call_command("update_combinations")
     send_daily_results.delay()
 
 
-@shared_task(name="update_lottery_combinations_daily")
-def update_lottery_combinations_daily():
-    management.call_command("update_combinations")
-
-
-
-@shared_task
+@shared_task(name="send_daily_results_by_email")
 def send_daily_results():
-    os.system("python /home/lucas/PycharmProjects/ProjetosLoteria/send_daily_result_heroku/verifica.py")
+    try:
+        management.call_command("generate_daily_results")
+    except Exception as exc:
+        print(exc)
+    else:
+        management.call_command("send_daily_results")
+

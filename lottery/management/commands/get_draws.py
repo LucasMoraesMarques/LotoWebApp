@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 import requests
 from lottery.models import Draw, Lottery
-from lottery.backend.functions import stats
+from lottery.services import stats
 LOTTERY_CHOICES = {"lotofacil": 1, "diadesorte": 2, "megasena": 3}
 
 

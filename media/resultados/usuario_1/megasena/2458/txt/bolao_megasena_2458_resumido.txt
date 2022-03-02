@@ -6,3 +6,19 @@ Data: 26/02/2022
 Numeros: 15 - 40 - 44 - 45 - 47 - 51  
 Acumulou: Sim
 Premio estimado proximo concurso: R$  57,000,000.00
+
+
+============dfasdf============
+
+
+Balanco de Acertos
+
+4 acertos: 0
+5 acertos: 0
+6 acertos: 0
+
+Balanco Monetario
+
+Premiacao: R$ 0.00
+Valor Gasto: R$ 450.00
+Saldo: R$ -450.00

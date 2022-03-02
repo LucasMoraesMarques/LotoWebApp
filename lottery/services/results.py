@@ -7,6 +7,7 @@ from lottery.models import Result
 from LotoWebApp import settings
 from io import BytesIO
 
+
 def create_text_report_file(draw, scores_by_games_set, collection, total_balance, abridged=True):
     result = draw.result
     lottery = draw.lottery
@@ -54,10 +55,14 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
             lines.append(f"\n{label}: R$ {total_balance['Total Geral'][label]:,.2f}")
         lines.append(f"\nNumero de Jogos: {total_balance['Total Geral']['Numero de Jogos']:,.2f}")
         lines.append('\n')
-    file_path = os.path.join(settings.MEDIA_ROOT, f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/txt/{file_name}")
-    output = default_storage.open(file_path, "w")
-    output.write("".join(lines))
-    output.close()
+    file_path = os.path.join(f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/txt/{file_name}")
+    if default_storage.exists(file_path):
+        output = default_storage.open(file_path, "w+")
+        output.write("".join(lines))
+        output.close()
+    else:
+        default_storage.save(file_path, ContentFile("".join(lines)))
+
     result_obj, was_created = Result.objects.get_or_create(
         lottery=lottery,
         collection=collection,
@@ -68,7 +73,6 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
         money_balance=total_balance,
         report_file=file_path,
         abridged=abridged)
-
     return result_obj.report_file.url, result_obj
 
 
@@ -134,4 +138,7 @@ def check_prizes_in_draw(draw, scores_by_games_set):
         total_balance["Total Geral"]['Numero de Jogos'] += total_by_games_sets[games_set_name]['Numero de Jogos']
     total_balance["Por conjunto"] = total_by_games_sets
     return total_balance
+
+
+
 

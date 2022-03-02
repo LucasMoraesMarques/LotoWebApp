@@ -9,3 +9,5 @@ todasCombsFiltradasLotofacil.csv
 megaFiltered.csv
 .env/
 /.env
+/media/resultados/
+/templates/emails/images/
