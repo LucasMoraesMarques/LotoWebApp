@@ -23,7 +23,7 @@
   <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       {% for draw in lastDraws %}
-      {% with 'assets/img/loterias/logos/'|add:draw.loto_name|add:'.png' as lotteryLogo %}
+      {% with 'assets/img/loterias/logos/'|add:lottery.name|add:'.png' as lotteryLogo %}
       {% if forloop.counter == 1 %}
       <div class="carousel-item active">
         {% else %}

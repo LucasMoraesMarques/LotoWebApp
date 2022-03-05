@@ -3,7 +3,7 @@ from lottery.forms import CreateCollectionForm, UploadCollectionForm
 from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection, Combinations
 from django import forms
 from django.http import JsonResponse
-from django.db.models import Sum, F, Q, Case, When
+from django.db.models import Sum, F, Q, Case, When, Count
 import pandas as pd
 from lottery.services import generators, gamesets, collections, stats, results, email_sending
 from lottery.forms import CustomUserCreationForm, LoginForm
@@ -14,7 +14,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from time import time
 from django.forms.models import model_to_dict
 from babel.dates import format_date
-
+from django.shortcuts import get_object_or_404
 
 
 @login_required
@@ -278,10 +278,28 @@ def draw_detail(request, name, number):
 @login_required
 def results_reports(request):
     lotteries_objs = Lottery.objects.all()
+    user_results = results.get_by_user(request.user)
+    user_collections = collections.all(request.user)
+    last_results = user_results.order_by("lottery", "-draw__date")
+    last_results = last_results[:5]
+    total = user_results.aggregate(collections=Count('collection', distinct=True), games_sets=Sum("number_of_game_sets"), games=Sum("number_of_games"))
     ctx = {
         'lotteries': lotteries_objs,
+        "results": user_results,
+        "last_results": last_results,
+        "collections": user_collections,
+        "total": total
     }
+    print(ctx)
     return render(request, "platform/dashboard/results.html", ctx)
+
+
+@login_required
+def results_reports_detail(request, result_id):
+    user_results = results.get_by_user(request.user)
+    result = get_object_or_404(user_results, pk=result_id)
+    ctx = {}
+    return render(request, "platform/dashboard/result_detail.html", ctx)
 
 
 @login_required
@@ -351,18 +369,13 @@ def create_results_report(request):
             }
             data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
             info = {
-                "user1":{"SUBJECT": "TESTE",
+                "user1":[{"SUBJECT": "TESTE",
                  "BODY": "TESTE",
                  "FROM": "lucasmoraes@gmail.com",
                  "TO": [request.user.email],
                  "TEMPLATE": "emails/template1.html",
-                "FILES": (result_obj.report_file,)},
-                "user2":{"SUBJECT": "TESTE",
-                 "BODY": "TESTE",
-                 "FROM": "lucasmoraes@gmail.com",
-                 "TO": ["lucasmoraes7552@gmail.com"],
-                 "TEMPLATE": "emails/template1.html",
-                         "FILES": (result_obj.report_file,)}
+                "FILES": (result_obj.report_file,)}],
+
             }
             email_sending.custom_send_email(info)
             return JsonResponse(data=data, status=200)

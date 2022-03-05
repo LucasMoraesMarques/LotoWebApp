@@ -30,6 +30,7 @@ urlpatterns = [
     path("jogos/colecoes/criar-colecao", views.create_collection, name="create-collection"),
     path("jogos/geradores", views.games_generators, name="generators"),
     path("resultados", views.results_reports, name="results"),
+    path("resultados/<int:result_id>", views.results_reports_detail, name="result_detail"),
     path("profile", views.profile, name="profile"),
     path("login", views.CustomLoginView.as_view(), name="login"),
     path("logout", views.CustomLogoutView.as_view(), name="logout"),

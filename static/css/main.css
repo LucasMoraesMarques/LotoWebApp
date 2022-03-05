@@ -37,3 +37,11 @@
 .colored-toast .swal2-html-container {
   color: white;
 }
+
+.btn-icon {
+  background-color: transparent;
+  border: none;
+  color: white;
+  padding: 0px 0px;
+  cursor: pointer;
+}

@@ -18,7 +18,40 @@
 {% load static %}
 
 {% block css %}
+<style>
+        .multipleSelection {
+            width: 300px;
+            background-color: #FFFFFF;
+        }
 
+        .selectBox {
+            position: relative;
+        }
+
+        .overSelect {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .checkBoxes {
+            display: none;
+            position: absolute;
+            background-color: white;
+            z-index:10;
+            width: 300px;
+        }
+
+        .checkBoxes label {
+            display: block;
+        }
+
+        .checkBoxes label:hover {
+            background-color: #E6E6E6;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -43,21 +76,21 @@
     <!-- Tabs Nav -->
     <ul class="nav nav-pills nav-fill p-1" role="tablist">
       <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#geradores-tab" data-bs-target="#geradores-tab"
+        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#geracao-resultados-tab" data-bs-target="#geracao-resultados-tab"
            role="tab" aria-controls="preview" aria-selected="true">
-          <i class="fas fa-tools"></i> Geradores
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#colecoes-tab" data-bs-target="#colecoes-tab" role="tab"
-           aria-controls="code" aria-selected="false">
-          <i class="fas fa-list-ol"></i> Coleções
+          <i class="fas fa-tasks"></i> Geração de Resultados
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#resultados-tab" data-bs-target="#resultados-tab"
            role="tab" aria-controls="code" aria-selected="false">
-          <i class="fas fa-tasks"></i> Resultados
+          <i class="fas fa-tools"></i> Resultados e Estatísticas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#automacao-tab" data-bs-target="#automacao-tab" role="tab"
+           aria-controls="code" aria-selected="false">
+          <i class="fas fa-list-ol"></i> Automação de Resultados
         </a>
       </li>
     </ul>
@@ -65,485 +98,12 @@
 
     <!-- Content Section -->
     <div class="tab-content" id="nav-tabContent">
-      <!-- Generators Section -->
-      <div class="tab-pane fade show active" id="geradores-tab" role="tabpanel" aria-labelledby="nav-geradores-tab">
-        <!-- Info Section -->
+       <!-- Results Generation Section-->
+      <div class="tab-pane fade show active" id="geracao-resultados-tab" role="tabpanel" aria-labelledby="nav-resultados-tab">
+        <!-- End Info Section -->
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="d-flex flex-column h-100">
-                      <h5 class="font-weight-bolder">Nossos Geradores</h5>
-                      <p>
-                        Oferecemos dois tipos de geradores de jogos randômicos:
-                      <ul>
-                        <li>Simples</li>
-                        <li>Inteligente</li>
-                      </ul>
-                      Escolha com sabedoria!
-                      </p>
-                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                        Leia sobre
-                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-                    <div class="border-radius-lg h-100">
-                      <img src="{% static 'assets/img/shapes/waves-white.svg' %}"
-                           class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
-                      <div class="position-relative d-flex align-items-center justify-content-center h-100">
-                        <img class="w-100 position-relative z-index-2 pt-4"
-                             src="{% static 'assets/img/gen-options.svg' %}" alt="Pessoa escolhendo entre opções">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5">
             <div class="card h-100">
-              <div class="overflow-hidden position-relative border-radius-lg h-100">
-                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                  <h5 class="font-weight-bolder">Loterias Disponíveis</h5>
-                  <p class="text-body">Nossa plataforma suporta as seguintes modalidades da Loteria Federal.</p>
-                  <div class="d-flex flex-row w-100 p-3">
-                    {% for lottery in lotteries %}
-                    <img src="{% static 'assets/img/loterias/logos/'|add:lottery.name|add:'.png' %}" alt="Logo da {{lottery.name|capfirst}}"
-                         class="btn-tooltip mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
-                         title="{{ lottery.name|capfirst }}" data-container="body" data-animation="true"
-                         style="width:50px; height:50px;">
-                    {% endfor %}
-                  </div>
-                  <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                    Leia sobre
-                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Info Section -->
-
-        <!-- Generator Section -->
-        <div class="row mt-4">
-          <div class="col-lg- mb-lg-0 mb-4">
-            <div class="card z-index-2">
-              <div class="card-body p-3">
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Generator Section -->
-
-        <!-- Game Set Table Section -->
-        <div class="row my-4">
-          <div class="col">
-            <div class="card">
-              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-                <div class="d-inline">
-                  <h5 class="font-weight-bolder">Conjunto de Jogos</h5>
-                  <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
-                  <p class="text-sm">
-                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
-                    {{collectionsData.totalGamesets}} conjuntos encontrados
-                  </p>
-                </div>
-                <form action="{% url 'lottery:games' %}" id="modify-gameset" method="POST">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="">
-                 </form>
-                <div class="buttons">
-                  <div class="btn-group" role="group">
-                  <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    STATUS
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                    <button type="button" class="btn btn-success" id="activate-gamesets">ATIVAR</button>
-                    <button type="button" class="btn btn-danger" id="deactivate-gamesets">DESATIVAR</button>
-                  </ul>
-                </div>
-                  <button type="button" class="btn btn-danger" id="delete-gamesets">DELETAR</button>
-                </div>
-              </div>
-              <div class="card-body px-2 pt-0 pb-2">
-                  <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display responsive" id="gamesets-table">
-                    <thead>
-                    <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle text-center">
-                      Selecionar
-                      </th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Loteria</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nome</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Coleção</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nº de
-                        Jogos
-                      </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                        Ativo
-                      </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Info
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for gameset in gamesetsData.gamesets %}
-                    {% with 'assets/img/loterias/logos/'|add:gameset.lottery.name|add:'.png' as lotteryLogo %}
-                    <tr>
-                      <td class="align-middle text-center text-sm">
-                        <input type="hidden" name="gamesets" value="{{gameset.id}}">
-                      </td>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <img src="{% static lotteryLogo %}" alt="Logo da {{gameset.lottery.name}}"
-                               class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Logo da {{gameset.lottery.name}}" data-container="body" data-animation="true">
-                        </div>
-                        <p hidden>{{gameset.lottery.name}}</p>
-                      </td>
-                      <td>
-                        <p class="text-xs font-weight-bold mb-0">{{gameset.name}}</p>
-                      </td>
-                      <td>
-                        <ul class="text-xs font-weight-bold mb-0">
-                        {% for collection in gameset.collections.all %}
-                          <li>{{collection.name}}</li>
-                        {% endfor %}
-                        </ul>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="badge badge-sm bg-gradient-primary">{{gameset.numberOfGames}}</span>
-                      </td>
-                      <td class="align-middle text-center">
-                        {% if gameset.isActive %}
-                        <span class="badge badge-sm bg-gradient-success">SIM</span>
-                        {% else %}
-                        <span class="badge badge-sm bg-gradient-danger">NÃO</span>
-                        {% endif %}
-                      </td>
-                      <td class="align-middle text-center">
-                        <a href="{% url 'lottery:game-set-detail' gameset.id  %}">
-                          <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                        </a>
-                      </td>
-                    </tr>
-                    {% endwith %}
-                    {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6">
-            <div class="card">
-              <div class="card-header pb-0">
-                <h5 class="font-weight-bolder">Histórico</h5>
-                <p class="text-sm">
-                  Últimos conjuntos criados
-                </p>
-              </div>
-              <div class="card-body p-3">
-                {% for gameset in gamesetsData.lastGamesets %}
-                {% with 'assets/img/loterias/logos/'|add:gameset.lottery.name|add:'.png' as lotteryLogo %}
-
-                <div class="timeline timeline-one-side">
-                  <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <div class="d-flex px-2 py-1">
-                          <img src="{% static lotteryLogo %}" alt="Logo da {{gameset.lottery.name}}"
-                               class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Logo da {{gameset.lottery.name}}" data-container="body" data-animation="true">
-                        </div>
-                        <p hidden>{{gameset.lottery.name}}</p>
-                  </span>
-                    <a href="{% url 'lottery:game-set-detail' gameset.id %}" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Ver detalhes" data-container="body" data-animation="true">
-                          <div class="timeline-content">
-                      <h6 class="text-dark text-sm font-weight-bold mb-0"> {{gameset.name|capfirst}}</h6>
-                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">{{gameset.createdAt|date:"d M Y"}}</p>
-                    </div>
-                        </a>
-                  </div>
-                </div>
-                {% endwith %}
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Game Set Table Section -->
-      </div>
-      <!-- End Generators Section -->
-
-      <!-- Collections Section -->
-      <div class="tab-pane fade" id="colecoes-tab" role="tabpanel" aria-labelledby="nav-colecoes-tab">
-        <!-- Info Section -->
-        <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="d-flex flex-column h-100">
-                      <h5 class="font-weight-bolder">Coleções de Jogos</h5>
-                      <p>
-                        Agrupe os seus conjuntos de jogos por coleções, seja por loterias, concursos ou bolões e
-                        mantenha
-                        tudo organizado
-                      </p>
-                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                        Leia sobre
-                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-                    <div class="border-radius-lg h-100">
-                      <img src="{% static 'assets/img/shapes/waves-white.svg' %}"
-                           class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
-                      <div class="position-relative d-flex align-items-center justify-content-center h-100">
-                        <img class="w-100 position-relative z-index-2 pt-4"
-                             src="{% static 'assets/img/collection-add.svg' %}" alt="Arquivos com um ícone de adicionar">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="card h-100">
-              <div class="card-body p-3">
-                <h5 class="font-weight-bolder mb-2">Análise das Coleções</h5>
-                <div class="row mb-2">
-                  <div class="col-8">
-                    <div class="numbers">
-                      <p class="text-sm mb-0 font-weight-bold">Você possui</p>
-                      <h5 class="font-weight-bolder mb-0">
-                        {{collectionsData.totalCollections}} coleções
-                      </h5>
-                    </div>
-                  </div>
-                  <div class="col-4 text-end">
-                    <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                      <i class="ni ni-collection text-lg opacity-10" aria-hidden="true"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-8">
-                    <div class="numbers">
-                      <p class="text-sm mb-0 font-weight-bold">Que juntas somam </p>
-                      <h5 class="font-weight-bolder mb-0">
-                        {{collectionsData.totalGamesets}} conjuntos
-                      </h5>
-                    </div>
-                  </div>
-                  <div class="col-4 text-end">
-                    <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                      <i class="ni ni-single-copy-04 text-lg opacity-10" aria-hidden="true"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-8">
-                    <div class="numbers">
-                      <p class="text-sm mb-0 font-weight-bold">E totalizam</p>
-                      <h5 class="font-weight-bolder mb-0">
-                        {{collectionsData.totalGames.sum}} jogos
-                      </h5>
-                    </div>
-                  </div>
-                  <div class="col-4 text-end">
-                    <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                      <i class="ni ni-tag text-lg opacity-10" aria-hidden="true"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Info Section -->
-
-        <!-- Collections Table Section -->
-        <div class="row my-4">
-          <div class="col">
-            <div class="card mb-4 p-3 d-flex">
-              <div class="row">
-                <div class="col">
-                  <h5 class="font-weight-bolder">Adicione Coleções</h5>
-                  <span class="text-sm">Importe arquivos em formato csv ou xlsx</span>
-                  <form action="{% url 'lottery:create-collection' %}" method="POST" enctype="multipart/form-data" id="collection-file-form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                      <div class="custom-file mb-3">
-                        <input type="file" class="form-control" id="customFile" name="file">
-                      </div>
-                      <div class="input-group mb-3">
-                        <input type="text" placeholder="Nome da coleção" class="form-control" name="name"/>
-                        <button class="btn btn-outline-primary mb-0" type="submit" id="add-collection2">Adicionar nova
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                  <p class="text-center align-middle">
-                    <i class="fa fa-plus-square fs-3 "></i>
-                  </p>
-                  <p>Crie coleções vazias para usá-las ao gerar seus conjunto de jogos. Escolha o nome e a loteria para
-                  criar uma nova coleção
-                  </p>
-                </div>
-                <div class="col d-flex align-items-center justify-content-center flex-column">
-                  <p class="text-center align-middle">
-                    <i class="fa fa-info-circle fs-3 "></i>
-                  </p>
-                  <p>As coleções devem estar com os conjuntos de jogos separados em abas se for do tipo xlsx, ou em por
-                    vírgulas se for csv. Veja os modelos abaixo:
-                  <p class="text-center">
-                    <a href=""><i class="fa fa-file-excel fs-2 mx-3"></i></a>
-                    <a href=""><i class="fa fa-file-csv fs-2 mx-3"></i></a>
-                  </p>
-                  </p>
-                    <button class="btn btn-outline-primary mb-0" type="button" id="add-collection3" data-bs-toggle="modal" data-bs-target="#addCollectionModal">Criar
-                              nova
-                            </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-                <div class="d-inline">
-                  <h5 class="font-weight-bolder">Suas Coleções</h5>
-                  <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
-                </div>
-                <form action="{% url 'lottery:games' %}" id="edit-collection" method="POST">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="">
-                 </form>
-                <div class="buttons">
-                  <button type="button" class="btn btn-danger" id="delete-collections">DELETAR</button>
-                </div>
-              </div>
-              <div class="card-body px-2 pt-0 pb-2">
-                <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display" id="collections-table">
-                    <thead>
-                    <tr>
-                      <th>Selecionar</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Loteria</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder ps-2">Nome</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº de
-                        Conjuntos
-                      </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº de
-                        Jogos
-                      </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Info
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for collection in collectionsData.collections %}
-                    {% with 'assets/img/loterias/logos/'|add:collection.lottery.name|add:'.png' as lotteryLogo %}
-                    <tr>
-                      <td>
-                        <input type="hidden" name="collections" value="{{collection.id}}">
-                      </td>
-                      <td>
-                        <div class="d-flex px-2 py-1 align-middle">
-                          <img src="{% static lotteryLogo %}" alt="Logo da {{collection.lottery.name}}"
-                               class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Logo da {{collection.lottery.name}}" data-container="body" data-animation="true">
-                        </div>
-                        <p hidden>{{collection.lottery.name}}</p>
-                      </td>
-                      <td>
-                        <p class="text-xs font-weight-bold mb-0">{{collection.name|capfirst}}</p>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="badge badge-sm bg-gradient-primary">{{collection.numberOfGamesets|capfirst}}</span>
-                      </td>
-                      <td class="align-middle text-center">
-                        <span class="badge badge-sm bg-gradient-primary">{{collection.numberOfGames|capfirst}}</span>
-                      </td>
-                      <td class="align-middle text-center">
-                        <a href="{% url 'lottery:collection-detail' collection.id %}">
-                          <span class="btn-inner--icon"><i class="fa fa-info-circle" style="font-size:20px"></i></span>
-                        </a>
-                      </td>
-                    </tr>
-                    {% endwith %}
-                    {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6">
-            <div class="card">
-              <div class="card-header pb-0">
-                <h5 class="font-weight-bolder">Histórico</h5>
-                <p class="text-sm">
-                  Últimas coleções criadas
-                </p>
-              </div>
-              <div class="card-body p-3">
-                {% for collection in collectionsData.lastCollections %}
-                {% with 'assets/img/loterias/logos/'|add:collection.lottery.name|add:'.png' as lotteryLogo %}
-                <div class="timeline timeline-one-side">
-                  <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <div class="d-flex px-2 py-1">
-                          <img src="{% static lotteryLogo %}" alt="Logo da {{collection.lottery.name}}"
-                               class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Logo da {{collection.lottery.name}}" data-container="body" data-animation="true">
-                        </div>
-                        <p hidden>{{collection.lottery.name}}</p>
-                  </span>
-                    <a href="{% url 'lottery:collection-detail' collection.id %}" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Ver detalhes" data-container="body" data-animation="true">
-                          <div class="timeline-content">
-                      <h6 class="text-dark text-sm font-weight-bold mb-0"> {{collection.name|capfirst}}</h6>
-                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">{{collection.createdAt|date:"d M Y"}}</p>
-                    </div>
-                        </a>
-
-                  </div>
-                </div>
-
-                    {% endwith %}
-                    {% endfor %}
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End Collections Table Section -->
-      </div>
-      <!-- End Collections Section -->
-
-      <!-- Results Section-->
-      <div class="tab-pane fade" id="resultados-tab" role="tabpanel" aria-labelledby="nav-resultados-tab">
-        <!-- End Info Section -->
-        <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
               <div class="card-body p-3">
                 <div class="row">
                   <div class="col-lg-6">
@@ -578,13 +138,14 @@
             <div class="card h-100">
               <div class="overflow-hidden position-relative border-radius-lg h-100">
                 <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                  <h5 class="font-weight-bolder">Praticidade</h5>
-                  <p class="text-body">Configure como quer receber os resultados. As opções são:</p>
-                  <ul>
-                    <li>Email diário automatizado</li>
-                    <li>Envio por WhatsApp automatizado</li>
-                    <li>Baixar pelo nosso Bot de WhatsApp</li>
-                  </ul>
+                  <h5 class="font-weight-bolder">Relatórios</h5>
+                  <p class="text-body">Os relatórios podem ser resumidos, sem informações para cada jogo, ou completo, que detalha os acertos
+                  por jogo de cada conjunto. Você ainda pode filtrar os conjuntos por status ativo e escolher o tipo de
+                  documento do relatório</p>
+                   <p class="text-center">
+                    <a href=""><i class="fa fa-file-excel fs-2 mx-3"></i></a>
+                    <a href=""><i class="fa fa-file-csv fs-2 mx-3"></i></a>
+                  </p>
                   <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
                     Leia sobre
                     <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
@@ -597,151 +158,9 @@
         <!-- Info Section -->
 
         <!-- Results Analysis Section -->
-        <div class="row my-4">
-          <div class="col-md-12 col-lg-6">
-            <div class="card z-index-2">
-              <div class="card-body p-3">
-                <h5 class="font-weight-bolder">Gere os resultados de suas Coleções</h5>
-                <h6 class="font-weight-bolder">Modalidade</h6>
-                <form id="get-results-form">
-                  {% csrf_token %}
-                  <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                  {% for lottery in lotteries %}
-                  <input type="radio" class="btn-check" name="lottery_name" id="results-{{lottery.name}}" value="{{lottery.name}}"
-                         autocomplete="off" required>
-                  <label class="btn btn-outline-primary" for="results-{{lottery.name}}">{{lottery.name}}</label>
-                  {% endfor %}
-                </div>
-                <div class="form-group">
-                  <label for="collection-select-draw" class="form-control-label"><h6 class="font-weight-bolder">
-                    Coleção</h6></label>
-                  <div class="input-group mb-3">
-                    <select class="form-control" id="collection-select-draw" aria-describedby="add-collection" required
-                    name="collection_id">
-                      <option value="" selected>Escolha uma loteria</option>
-                    </select>
-                  </div>
-                </div>
-                <!--div class="form-group">
-                  <label for="collection-select" class="form-control-label"><h6 class="font-weight-bolder">
-                    Conjunto de Jogo</h6></label>
-                  <div class="input-group mb-3">
-                    <select class="form-control" id="gameset-select" aria-describedby="add-collection" required>
-                      <option>Todos</option>
-                      <option>Jogos1</option>
-                      <option>Jogos2</option>
-                    </select>
-                  </div>
-                </div-->
-                  <h6 class="font-weight-bolder">Somente Conjuntos Ativos</h6>
-                  <div class="d-flex flex-row h-100">
-                    <div class="form-check mb-3">
-                      <input class="form-check-input" type="radio" value="True" name="active"
-                             id="all_games_sets" required>
-                      <label class="custom-control-label" for="all_games_sets">Sim</label>
-                    </div>
-                    <div class="form-check ms-5">
-                      <input class="form-check-input" type="radio" value="False" name="active"
-                             id="active_games_sets" required>
-                      <label class="custom-control-label" for="active_games_sets">Não</label>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                  <label for="draw-select" class="form-control-label"><h6 class="font-weight-bolder">
-                    Concurso</h6></label>
-                  <div class="input-group mb-3">
-                    <select class="form-control" id="draw-select" aria-describedby="add-collection" required
-                    name="draw">
-                      <option value="" selected>Escolha uma loteria</option>
-                    </select>
-                  </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Gerar resultados</button>
-                </form>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-12 col-lg-6">
-            <h5 class="font-weight-bolder">Dados do Concurso</h5>
-            <div class="card mb-2">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col">
-                    <div class="numbers d-flex justify-content-between align-items-center">
-                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Concurso</p>
-                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
-                           style="width:40px; height:40px;">
-                        <i class="ni ni-money-coins text-md opacity-10 text-center" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                    <h5 class="font-weight-bolder mb-0" id="draw-number">
-                      -
-                    </h5>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            <div class="card mb-2">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col">
-                    <div class="numbers d-flex justify-content-between align-items-center">
-                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Números Sorteados</p>
-                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
-                           style="width:40px; height:40px;">
-                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                    <h5 class="font-weight-bolder mb-0" id="draw-result">
-                      -
-                    </h5>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card mb-2">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col">
-                    <div class="numbers d-flex justify-content-between align-items-center">
-                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Acumulou</p>
-
-                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
-                           style="width:40px; height:40px;">
-                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <h5 class="font-weight-bolder mb-0" id="draw-accumulated">
-                    -
-                  </h5>
-                </div>
-              </div>
-            </div>
-            <div class="card mb-2">
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col">
-                    <div class="numbers d-flex justify-content-between align-items-center">
-                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Prêmio Máximo</p>
-
-                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md align-middle"
-                           style="width:40px; height:40px;">
-                        <i class="ni ni-world text-md opacity-10" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <h5 class="font-weight-bolder mb-0" id="draw-prize">
-                    -
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="row mt-4">
           <h5 class="font-weight-bolder">Dados do Resultado</h5>
+          <p class="text-sm">Preencha o formulário de conferência para ver os dados do resultado.</p>
         <div id="download-result-file" style="display:none;">
         </div>
           <div class="col">
@@ -829,6 +248,235 @@
             </div>
           </div>
         </div>
+        <div class="row my-4">
+          <div class="col-md-12 col-lg-6">
+            <div class="card z-index-2">
+              <div class="card-body p-3">
+                <h5 class="font-weight-bolder">Geração de Resultados</h5>
+                <h6 class="font-weight-bolder">Modalidade</h6>
+                <form id="get-results-form">
+                  {% csrf_token %}
+                  <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                  {% for lottery in lotteries %}
+                  <input type="radio" class="btn-check" name="lottery_name" id="results-{{lottery.name}}" value="{{lottery.name}}"
+                         autocomplete="off" required>
+                  <label class="btn btn-outline-primary" for="results-{{lottery.name}}">{{lottery.name}}</label>
+                  {% endfor %}
+                </div>
+                <div class="form-group">
+                  <label for="collection-select-draw" class="form-control-label"><h6 class="font-weight-bolder">
+                    Coleção</h6></label>
+                  <div class="input-group mb-3">
+                    <select class="form-control" id="collection-select-draw" aria-describedby="add-collection" required
+                    name="collection_id">
+                      <option value="" selected>Escolha uma loteria</option>
+                    </select>
+                  </div>
+                </div>
+                  <h6 class="font-weight-bolder">Somente Conjuntos Ativos</h6>
+                  <div class="d-flex flex-row h-100">
+                    <div class="form-check mb-3">
+                      <input class="form-check-input" type="radio" value="True" name="active"
+                             id="all_games_sets" required>
+                      <label class="custom-control-label" for="all_games_sets">Sim</label>
+                    </div>
+                    <div class="form-check ms-5">
+                      <input class="form-check-input" type="radio" value="False" name="active"
+                             id="active_games_sets" required>
+                      <label class="custom-control-label" for="active_games_sets">Não</label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  <label for="draw-select" class="form-control-label"><h6 class="font-weight-bolder">
+                    Concurso</h6></label>
+                  <div class="input-group mb-3">
+                    <select class="form-control" id="draw-select" aria-describedby="add-collection" required
+                    name="draw">
+                      <option value="" selected>Escolha uma loteria</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="generate-results-btn">Gerar resultados</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 col-lg-6">
+            <h5 class="font-weight-bolder">Dados do Concurso</h5>
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Concurso</p>
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10 text-center" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                    <h5 class="font-weight-bolder mb-0" id="draw-number">
+                      -
+                    </h5>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Números Sorteados</p>
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                    <h5 class="font-weight-bolder mb-0" id="draw-result">
+                      -
+                    </h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Acumulou</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0" id="draw-accumulated">
+                    -
+                  </h5>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-2">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col">
+                    <div class="numbers d-flex justify-content-between align-items-center">
+                      <p class="text-sm mb-0 text-capitalize font-weight-bold">Prêmio Máximo</p>
+
+                      <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md align-middle"
+                           style="width:40px; height:40px;">
+                        <i class="ni ni-world text-md opacity-10" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 class="font-weight-bolder mb-0" id="draw-prize">
+                    -
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Results Generation Section -->
+
+      <!-- Results Section -->
+      <div class="tab-pane fade" id="resultados-tab" role="tabpanel" aria-labelledby="nav-resultados-tab">
+        <!-- Info Section -->
+        <div class="row mt-4">
+          <div class="col-lg-7 mb-lg-0 mb-4">
+            <div class="card h-100">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col-lg-6">
+                    <div class="d-flex flex-column h-100">
+                      <h5 class="font-weight-bolder">Resultados</h5>
+                      <p>
+                        Aqui você pode conferir seus resultados gerados, ver estatísticas e baixar os relatórios. Caso deseje, você pode enviar
+                        os relatórios por email.
+
+                      </p>
+                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                        Leia sobre
+                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+                    <div class="border-radius-lg h-100">
+                      <img src="{% static 'assets/img/shapes/waves-white.svg' %}"
+                           class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
+                      <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                        <img class="w-100 position-relative z-index-2 pt-4"
+                             src="{% static 'assets/img/results1.svg' %}" alt="Gráfico de barras crescente">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="overflow-hidden position-relative border-radius-lg h-100">
+                <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
+                 <h5 class="font-weight-bolder mb-2">Análise dos Resultados</h5>
+                <div class="row mb-2">
+                  <div class="col-9">
+                    <div class="numbers">
+                      <p class="text-sm mb-0 font-weight-bold">Você possui</p>
+                      <h5 class="font-weight-bolder mb-0">
+                        {{results.count}} resultados
+                      </h5>
+                    </div>
+                  </div>
+                  <div class="col-3 text-end my-auto">
+                    <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                      <i class="ni ni-chart-bar-32 text-lg opacity-10" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-9">
+                    <div class="numbers">
+                      <p class="text-sm mb-0 font-weight-bold">Que juntos somam </p>
+                      <h5 class="font-weight-bolder mb-0">
+                        {{total.collections}} coleções e {{total.games_sets}} conjuntos
+                      </h5>
+                    </div>
+                  </div>
+                  <div class="col-3 text-end">
+                    <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                      <i class="ni ni-collection text-lg opacity-10" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-9">
+                    <div class="numbers">
+                      <p class="text-sm mb-0 font-weight-bold">E totalizam</p>
+                      <h5 class="font-weight-bolder mb-0">
+                        {{total.games}} jogos
+                      </h5>
+                    </div>
+                  </div>
+                  <div class="col-3 text-end">
+                    <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                      <i class="ni ni-bullet-list-67 text-lg opacity-10" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Info Section -->
+
+        <!-- Generator Section -->
         <!--div class="row my-4">
            <div class="col-lg-5">
             <div class="card z-index-2">
@@ -857,153 +505,494 @@
             </div>
           </div>
         </div-->
-        <!-- End Results Analysis Section -->
+        <!-- End Generator Section -->
 
-        <!-- Results Table Section -->
+        <!-- Game Set Table Section -->
         <div class="row my-4">
-            <div class="col">
-              <div class="card">
-                <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
-                  <div class="d-inline">
-                    <h5 class="font-weight-bolder">Seus Resultados</h5>
-                    <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo na coleção</p>
-                  </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+                <div class="d-inline">
+                  <h5 class="font-weight-bolder">Seus Resultados</h5>
+                    <p class="text-sm">Aqui você tem a listagem de todos os resultados gerados. Clique em info para ver
+                      detalhes de um resultado específico. </p>
+                  <p class="text-sm">
+                    <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+                    {{results.count}} resultados encontrados
+                  </p>
                 </div>
-                <div class="card-body px-2 pt-0 pb-2">
+                <form action="{% url 'lottery:results' %}" id="modify-results" method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="">
+                 </form>
+                <div class="buttons">
+                  <div class="btn-group" role="group">
+                  <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    ENVIAR
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <button type="button" class="btn btn-success" id="send-results-by-email">EMAIL</button>
+                    <button type="button" class="btn btn-danger" id="deactivate-gamesets">WHATSAPP</button>
+                  </ul>
+                </div>
+                  <button type="button" class="btn btn-danger" id="delete-result">DELETAR</button>
+                </div>
+              </div>
+              <div class="card-body px-2 pt-0 pb-2">
                   <div class="table-responsive p-0">
-                    <table class="table align-items-center mb-0 display" id="collectionsTable">
+                  <table class="table align-items-center mb-0 display" id="results-table">
                       <thead>
                       <tr>
-                        <th>Selecionar</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Loteria</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder ps-2">Nome</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Selecionar</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Loteria</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Concurso</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">
+                          Coleção
+                        </th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Nº
                           de
                           Conjuntos
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Nº
                           de
                           Jogos
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">
-                          Jogos
-                          Premiados
+
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">
+                          Relatório
                         </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">
-                          Ativo
-                        </th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Info
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Info
                         </th>
                       </tr>
                       </thead>
                       <tbody>
+                      {% for result in results %}
+                       {% with 'assets/img/loterias/logos/'|add:result.lottery.name|add:'.png' as lotteryLogo %}
                       <tr>
                         <td><input type="hidden" name="results" ></td>
-                        <td>
+                        <td class="align-middle text-center text-sm">
                           <div class="d-flex px-2 py-1">
-                            <img src="{% static 'assets/img/loterias/logos/lotofacil.png' %}" alt="Logo da Lotofácil"
-                                 class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                            <img src="{% static lotteryLogo %}" alt="Logo da {{result.lottery.name}}"
+                                 class="btn-tooltip text-info text-gradient mx-auto" data-bs-toggle="tooltip"
                                  data-bs-placement="top"
                                  title="Logo da Lotofácil" data-container="body" data-animation="true">
                           </div>
-                          <p hidden>Lotofacil</p>
-                        </td>
-                        <td>
-                          <p class="text-xs font-weight-bold mb-0">Bolão Fim de Ano</p>
+                          <p hidden>{{result.lottery.name}}</p>
                         </td>
                         <td class="align-middle text-center text-sm">
-                          <span class="badge badge-sm bg-gradient-primary">50</span>
+                          <p class="text-xs font-weight-bold mb-0">{{result.draw.number}}</p>
+                        </td>
+                        <td class="align-middle text-center text-sm">
+                          <p class="text-xs font-weight-bold mb-0">{{result.collection.name}}</p>
                         </td>
                         <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-primary">50000</span>
+                          <span class="badge badge-sm bg-gradient-primary">{{result.number_of_game_sets}}</span>
                         </td>
                         <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-primary">4000</span>
+                          <span class="badge badge-sm bg-gradient-primary">{{result.number_of_games}}</span>
                         </td>
                         <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-success">SIM</span>
+                          <div class="dropdown mx-auto">
+                            <a href="javascript:;" class="btn-icon dropdown-toggle" data-bs-toggle="dropdown"
+                               id="navbarDropdownMenuLink2">
+                              <i class="fa fa-file-text fs-3 mx-3 text-primary"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+                              <li>
+                                <a class="dropdown-item" href="{{result.report_file.url}}" target="_blank">
+                                  <i class="fa fa-file-export fs-5 mx-2 text-primary"></i>Abrir em nova aba
+                                </a>
+                              </li>
+                              <li>
+                                <a class="dropdown-item" href="{{result.report_file.url}}" download>
+                                  <i class="fa fa-file-download fs-5 mx-2 text-primary"></i>Baixar
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
                         </td>
                         <td class="align-middle text-center">
-                          <a>
+                          <a href="{% url 'lottery:result_detail' result.id %}" target="_blank">
                             <span class="btn-inner--icon"><i class="fa fa-info-circle"
                                                              style="font-size:20px"></i></span>
                           </a>
                         </td>
                       </tr>
-                      <tr>
-                        <td>
-                          <div class="d-flex px-2 py-1">
-                            <img src="{% static 'assets/img/loterias/logos/megasena.png' %}" alt="Logo da Lotofácil"
-                                 class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                                 data-bs-placement="top"
-                                 title="Logo da Lotofácil" data-container="body" data-animation="true">
-                          </div>
-                          <p hidden>Megasena</p>
-                        </td>
-                        <td>
-                          <p class="text-xs font-weight-bold mb-0">Mega da Virada</p>
-                        </td>
-                        <td class="align-middle text-center text-sm">
-                          <span class="badge badge-sm bg-gradient-primary">20</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-primary">4000</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-primary">1200</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-danger">NÃO</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <a>
-                            <span class="btn-inner--icon"><i class="fa fa-info-circle"
-                                                             style="font-size:20px"></i></span>
-                          </a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="d-flex px-2 py-1">
-                            <img src="{% static 'assets/img/loterias/logos/diadesorte.png' %}" alt="Logo da Lotofácil"
-                                 class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
-                                 data-bs-placement="top"
-                                 title="Logo da Lotofácil" data-container="body" data-animation="true">
-                          </div>
-                          <p hidden>Dia de Sorte</p>
-                        </td>
-                        <td>
-                          <p class="text-xs font-weight-bold mb-0">Coleção 1</p>
-                        </td>
-                        <td class="align-middle text-center text-sm">
-                          <span class="badge badge-sm bg-gradient-primary">5</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-primary">500</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-primary">120</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <span class="badge badge-sm bg-gradient-success">SIM</span>
-                        </td>
-                        <td class="align-middle text-center">
-                          <a>
-                            <span class="btn-inner--icon"><i class="fa fa-info-circle"
-                                                             style="font-size:20px"></i></span>
-                          </a>
-                        </td>
-                      </tr>
+                      {% endwith %}
+                      {% endfor %}
                       </tbody>
                     </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="card">
+              <div class="card-header pb-0">
+                <h5 class="font-weight-bolder">Histórico</h5>
+                <p class="text-sm">
+                  Últimos resultados criados
+                </p>
+              </div>
+              <div class="card-body p-3">
+                {% for result in last_results %}
+                {% with 'assets/img/loterias/logos/'|add:result.lottery.name|add:'.png' as lotteryLogo %}
+                <div class="timeline timeline-one-side">
+                  <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <div class="d-flex px-2 py-1">
+                          <img src="{% static lotteryLogo %}" alt="Logo da {{result.lottery.name}}"
+                               class="btn-tooltip text-info text-gradient" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Logo da {{result.lottery.name}}" data-container="body" data-animation="true">
+                        </div>
+                        <p hidden>{{result.lottery.name}}</p>
+                  </span>
+                    <a href="{% url 'lottery:game-set-detail' result.id %}" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Ver detalhes" data-container="body" data-animation="true">
+                          <div class="timeline-content">
+                      <h6 class="text-dark text-sm font-weight-bold mb-0"> {{result.collection.name|capfirst}}</h6>
+                      <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">{{result.draw.date|date:"d M Y"}} - Conc. {{result.draw.number}}</p>
+                    </div>
+                        </a>
+                  </div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Results Section -->
+
+      <!-- Collections Section -->
+      <div class="tab-pane fade" id="automacao-tab" role="tabpanel" aria-labelledby="nav-automacao-tab">
+        <!-- Info Section -->
+        <div class="row mt-4">
+          <div class="col-lg-7 mb-lg-0 mb-4">
+            <div class="card h-100">
+              <div class="card-body p-3">
+                <div class="row">
+                  <div class="col-lg-7">
+                    <div class="d-flex flex-column h-100">
+                      <h5 class="font-weight-bolder">Automação de Resultados</h5>
+                      <p>
+                        Receba os resultados de suas coleções diariamente, por email ou WhatsApp. Esqueça a trabalheira
+                        de conferir manualmente os seus jogos e abuse da automação.
+                      </p>
+                      <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                        Leia sobre
+                        <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 ms-auto text-center mt-5 mt-lg-0">
+                    <div class="border-radius-lg h-100">
+                      <img src="{% static 'assets/img/shapes/waves-white.svg' %}"
+                           class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
+                      <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                        <img class="w-100 position-relative z-index-2 pt-4"
+                             src="{% static 'assets/img/automated_results.svg' %}" alt="Arquivos com um ícone de adicionar">
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        <!-- End Results Table Section -->
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="card-body p-3">
+                <h5 class="font-weight-bolder">Praticidade</h5>
+                  <p class="text-body">Configure como quer receber os resultados. As opções são:</p>
+                  <ul>
+                    <li>Email diário automatizado</li>
+                    <li>Envio por WhatsApp automatizado</li>
+                    <li>Baixar pelo nosso Bot de WhatsApp</li>
+                  </ul>
+                <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                    Leia sobre
+                    <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
+                  </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Info Section -->
+
+        <!-- Collections Table Section -->
+       <div class="row my-4">
+          <div class="col">
+            <div class="card z-index-2">
+              <div class="card-body p-3">
+                <h5 class="font-weight-bolder">Envio diário pelo Email</h5>
+                <p class="text-sm">Receba os arquivos dos resultados por loteria no email cadastrado. Logo após o
+                  sorteio,
+                  cada coleção será conferida e o relatório gerado será enviado.</p>
+                <form id="email-settings-form">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="col-lg-7">
+                      <div class="d-flex flex-column h-100">
+                        <form>
+                          <div class="form-group">
+                            <label for="collection-select-draw" class="form-control-label"><h6
+                                    class="font-weight-bolder">
+                              Coleções</h6></label>
+
+                            <div class="multipleSelection">
+                              <div class="selectBox">
+                                <select class="form-select">
+                                  <option>Escolha as coleções</option>
+                                </select>
+                                <div class="overSelect"></div>
+                              </div>
+
+                              <div class="form-check form-control checkBoxes">
+                                {% for collection in collections %}
+                                <label for="collection-email-{{collection.id}}">
+                                  <input type="checkbox" class="form-check-input"
+                                         id="collection-email-{{collection.id}}" value="{{collection.id}}"/>
+                                  {{collection.name}}
+                                </label>
+                                {% endfor %}
+                              </div>
+                            </div>
+
+                          </div>
+                          <h6 class="font-weight-bolder">Somente Conjuntos Ativos</h6>
+                          <div class="d-flex flex-row h-100">
+                            <div class="form-check mb-3">
+                              <input class="form-check-input" type="radio" value="True" name="all_games_sets" required>
+                              <label class="custom-control-label" for="all_games_sets">Sim</label>
+                            </div>
+                            <div class="form-check ms-5">
+                              <input class="form-check-input" type="radio" value="False" name="active_games_sets"
+                                     required>
+                              <label class="custom-control-label" for="active_games_sets">Não</label>
+                            </div>
+                          </div>
+                          <h6 class="font-weight-bolder">Detalhamento do Relatório</h6>
+                          <div class="d-flex flex-row h-100">
+                            <div class="form-check mb-3">
+                              <input class="form-check-input" type="radio" value="True" name="abridged_report" required>
+                              <label class="custom-control-label" for="all_games_sets">Resumido</label>
+                            </div>
+                            <div class="form-check ms-5">
+                              <input class="form-check-input" type="radio" value="False" name="full_report" required>
+                              <label class="custom-control-label" for="active_games_sets">Completo</label>
+                            </div>
+                          </div>
+                          <h6 class="font-weight-bolder">Email para envio</h6>
+                          <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-envelope fs-4"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="Digite o seu endereço de email." aria-label="Email"
+                                   aria-describedby="basic-addon1">
+                          </div>
+                          <button type="submit" class="btn btn-primary w-50" id="submit-email-settings">SALVAR
+                            CONFIGURAÇÕES
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                    <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+                      <div class="border-radius-lg h-100">
+                        <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                          <img class="w-100 position-relative z-index-2 pt-4"
+                               src="{% static 'assets/img/results_email.svg' %}"
+                               alt="Pessoa habilitando botões do tipo switch">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+       </div>
+        <div class="row my-4">
+          <div class="col">
+            <div class="card z-index-2">
+              <div class="card-body p-3">
+                <h5 class="font-weight-bolder">Envio diário pelo WhatsApp</h5>
+                <p class="text-sm">Receba os arquivos dos resultados por loteria no WhatsApp do número cadastrado. Logo
+                  após o sorteio,
+                  cada coleção será conferida e o relatório gerado será enviado. </p>
+                <form id="whatsapp-settings-form">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+                      <div class="border-radius-lg h-100">
+                        <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                          <img class="w-100 position-relative z-index-2 pt-4"
+                               src="{% static 'assets/img/whatsapp_messages.svg' %}"
+                               alt="Pessoa habilitando botões do tipo switch">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-7">
+                      <div class="d-flex flex-column h-100">
+                        <form>
+                          <div class="form-group">
+                            <label for="collection-select-draw" class="form-control-label"><h6
+                                    class="font-weight-bolder">
+                              Coleções</h6></label>
+
+                            <div class="multipleSelection">
+                              <div class="selectBox">
+                                <select class="form-select">
+                                  <option>Escolha as coleções</option>
+                                </select>
+                                <div class="overSelect"></div>
+                              </div>
+
+                              <div class="form-check form-control checkBoxes">
+                                {% for collection in collections %}
+                                <label for="collection-email-{{collection.id}}">
+                                  <input type="checkbox" class="form-check-input"
+                                         id="collection-whatsapp-{{collection.id}}" value="{{collection.id}}"/>
+                                  {{collection.name}}
+                                </label>
+                                {% endfor %}
+                              </div>
+                            </div>
+
+                          </div>
+                          <h6 class="font-weight-bolder">Somente Conjuntos Ativos</h6>
+                          <div class="d-flex flex-row h-100">
+                            <div class="form-check mb-3">
+                              <input class="form-check-input" type="radio" value="True" name="all_games_sets" required>
+                              <label class="custom-control-label" for="all_games_sets">Sim</label>
+                            </div>
+                            <div class="form-check ms-5">
+                              <input class="form-check-input" type="radio" value="False" name="active_games_sets"
+                                     required>
+                              <label class="custom-control-label" for="active_games_sets">Não</label>
+                            </div>
+                          </div>
+                          <h6 class="font-weight-bolder">Detalhamento do Relatório</h6>
+                          <div class="d-flex flex-row h-100">
+                            <div class="form-check mb-3">
+                              <input class="form-check-input" type="radio" value="True" name="abridged_report" required>
+                              <label class="custom-control-label" for="all_games_sets">Resumido</label>
+                            </div>
+                            <div class="form-check ms-5">
+                              <input class="form-check-input" type="radio" value="False" name="full_report" required>
+                              <label class="custom-control-label" for="active_games_sets">Completo</label>
+                            </div>
+                          </div>
+                          <h6 class="font-weight-bolder">WhatsApp para envio</h6>
+                          <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon2"><i class="fab fa-whatsapp fs-4"></i></span>
+                            <input type="tel" name="phone_number" class="form-control" placeholder="DIgite o seu número de telefone com DDD" aria-label="Phone Number"
+                                   aria-describedby="basic-addon1">
+                          </div>
+                          <button type="submit" class="btn btn-primary w-50 ms-auto" id="submit-whatsapp-settings">SALVAR
+                            CONFIGURAÇÕES
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col">
+            <div class="card z-index-2">
+              <div class="card-body p-3">
+                <h5 class="font-weight-bolder">Bot de WhatsApp</h5>
+                <p class="text-sm">Nosso bot de WhatsApp permite ver concursos, conferir os jogos e baixar os
+                  arquivos de resultados. Siga as regras do menu e veja a mágica acontecer.</p>
+               <div class="row">
+                    <div class="col-lg-7">
+                      <div class="d-flex flex-column h-100">
+                        <h6 class="font-weight-bolder">Comandos do Bot</h6>
+                        <div class="d-flex flex-column h-100">
+                          <ol>
+                            <li>
+                              <span class="font-weight-bolder">Buscar Concursos</span>
+                              <ul>
+                                <li>Para buscar um concurso digite "resultado@loteria@numero", sem aspas e com o nome da
+                                  loteria e numero desejados.
+                                </li>
+                                <li>Caso deseje o último disponível, digite "resultado@loteria@ultimo".</li>
+                                <li>Ex:
+                                  resultado@lotofacil@2250 ou resultado@diadesorte@ultimo
+                                </li>
+                              </ul>
+                            </li>
+                            <li>
+                              <span class="font-weight-bolder">Conferir e Baixar resultados</span>
+                              <ul>
+                                <li>Para conferir resultados é preciso fazer login na plataforma. Caso não esteja
+                                  conectado siga o passo 3.
+                                </li>
+                                <li>Após estar logado, digite "conferir@nomedoconjunto@loteria@numero" para obter um
+                                  relatorio desse conjunto de jogos
+                                  para o concurso desejado.
+                                </li>
+                                <li>Ex:
+                                  conferir@bolao dia de sorte@diadesorte@540
+                                </li>
+                              </ul>
+                            </li>
+                            <li>
+                              <span class="font-weight-bolder">Login no Bot</span>
+                              <ul>
+                                <li>Digite LOGIN seguido do código de acesso disponibilizado abaixo</li>
+                                <li>Ex:
+                                  LOGIN 12345
+                                </li>
+                              </ul>
+
+                            </li>
+                          </ol>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
+                      <div class="border-radius-lg h-100">
+                        <div class="position-relative d-flex align-items-center justify-content-center h-100">
+                          <img class="w-100 position-relative z-index-2 pt-4"
+                               src="{% static 'assets/img/chat_bot.svg' %}"
+                               alt="Pessoa habilitando botões do tipo switch">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <div class="buttons d-flex flex-row align-items-center">
+                  <div class="access-code w-50">
+                    <h6 class="font-weight-bolder">Código de Acesso</h6>
+                    <div class="input-group">
+                      <button class="btn btn-outline-primary mb-0" type="button"><i class="fas fa-copy fs-6"></i>
+                      </button>
+                      <input type="password" class="form-control px-3 fs-5" disabled
+                             aria-label="Recipient's username with two button addons"
+                             aria-describedby="button-addon4" value="156156165">
+                      <button class="btn btn-outline-primary mb-0" type="button"><i class="fas fa-eye fs-6"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="bot-link mx-3 text-center">
+                    <h6 class="font-weight-bolder">Link do Bot</h6>
+                    <a  href="" class="mb-0 mx-auto"><i class="fab fa-whatsapp fs-2"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Collections Table Section -->
       </div>
-      <!-- End Results Section -->
+      <!-- End Collections Section -->
+
     </div>
   </div>
   <!-- End Content Section -->
@@ -1071,6 +1060,19 @@ $(document).ready(function() {
     title: el.innerText
 })
   })
+  var show = true;
+  $(".selectBox").click(function showCheckboxes() {
+    var checkboxes = $(this).parent().find(".checkBoxes");
+    console.log(this, checkboxes)
+
+    if (show) {
+        checkboxes.css("display", "block")
+        show = false;
+    } else {
+        checkboxes.css("display", "none")
+        show = true;
+    }
+})
 } );
 
 $("#activate-gamesets, #delete-gamesets, #deactivate-gamesets").click(function(){

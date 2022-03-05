@@ -26,7 +26,8 @@ class Command(BaseCommand):
                 self.check_has_draw(loto, data)
             else:
                 draw = self.get_last(loto)
-                self.save_last_draw(draw, loto)
+                if draw:
+                    self.save_last_draw(draw, loto)
 
     @staticmethod
     def get_draws(loto):
@@ -43,8 +44,7 @@ class Command(BaseCommand):
             print(df)
             return df
 
-    @staticmethod
-    def get_last(loto):
+    def get_last(self, loto):
         try:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux i686; G518Rco3Yp0uLV40Lcc9hAzC1BOROTJADjicLjOmlr4=) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',
@@ -58,6 +58,8 @@ class Command(BaseCommand):
             if response.status_code == 200:
                 data = response.json()
                 return data
+            self.stdout.write(self.style.ERROR("Error when getting new draw. Try again in a while! \n %s" %(response.text)))
+            return None
 
     def save_last_draw(self, draw, loto):
         faixas = draw["listaRateioPremio"]
@@ -108,7 +110,6 @@ class Command(BaseCommand):
                 rateio = [{}]
                 for index, i in enumerate(loto.possiblesPointsToEarn):
                     rateio[0][f"Rateio {i} acertos"] = faixas[index]["valorPremio"]
-            print(faixas)
             numbers = [int(i) for i in draw["listaDezenas"]]
             parity = stats.parity(numbers)
             n_primes = stats.nPrimeNumbers(numbers)

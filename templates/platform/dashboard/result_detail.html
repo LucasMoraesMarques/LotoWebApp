@@ -1,0 +1,557 @@
+<!--
+=========================================================
+* Soft UI Dashboard - v1.0.3
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
+* Copyright 2021 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+
+{% extends 'platform/dashboard/base.html' %}
+{% load static %}
+{% load numbers %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 pe-0">
+      <div class="card">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="numbers">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Concurso</p>
+                <h5 class="font-weight-bolder mb-0">
+                </h5>
+              </div>
+            </div>
+            <div class="col-2 text-end">
+              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                   style="margin-right:20px;">
+                <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 pe-0">
+      <div class="card">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="numbers">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Data</p>
+                <h5 class="font-weight-bolder mb-0">
+                </h5>
+              </div>
+            </div>
+            <div class="col-2 text-end">
+              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                <i class="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 pe-0">
+      <div class="card">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="numbers">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Prêmio Principal</p>
+                <h5 class="font-weight-bolder mb-0">
+                  <!--span class="text-danger text-sm font-weight-bolder">-2%</span-->
+                </h5>
+              </div>
+            </div>
+            <div class="col-2 text-end">
+              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                <i class="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+      <div class="card">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="numbers">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Acumulou</p>
+                <h5 class="font-weight-bolder mb-0">
+
+                </h5>
+              </div>
+            </div>
+            <div class="col-2 text-end">
+              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
+                <i class="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-2">
+  <div class="card">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col">
+              <div class="numbers d-flex justify-content-between align-items-center">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Números Sorteados</p>
+              </div>
+              <div class="d-flex justify-content-center mt-2">
+                {% for number, frequency in total_freq.items %}
+                  <span class="badge badge-sm bg-gradient-primary text-center align-middle p-2 fs-5 mx-2" style="width:40px; height:40px;"
+                  data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="Foi sorteado {{ frequency }} vezes no total dos concursos" data-container="body" data-animation="true">
+                    {{number}}
+                  </span>
+                  {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="row mt-2">
+    <div class="col-lg-8">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h5 class="font-weight-bolder">Sequências dos Números</h5>
+          <p class="text-sm">
+            <span class="font-weight-bold">Veja a sequência de repetições de cada número nos últimos concursos</span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="chart">
+            <canvas id="chart-freq" class="chart-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card z-index-2 mt-3">
+        <div class="card-header pb-0">
+          <h5 class="font-weight-bolder">Metadados do Concurso</h5>
+          <p class="text-sm">
+            <span class="font-weight-bold">Veja informações matemáticas sobre o concurso</span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="row">
+            {% for key, value in metadata.items %}
+            {% if key != "charts" %}
+            <div class="col">
+              <div class="card">
+                <div class="card-body text-center" data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="{{ value.0 }}" data-container="body" data-animation="true">
+                  <p><strong>{{key}}</strong></p>
+                  <h5 class="font-weight-bolder mb-0">
+                  {{value.1}}
+                </h5>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+
+      <div class="card mb-2">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col">
+              <div class="numbers d-flex justify-content-between align-items-center">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Ganhadores</p>
+
+                <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                     style="width:40px; height:40px;">
+                  <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+            <ul class="ms-3">
+              {% for faixa, data in draw.metadata.0.items %}
+              <li>
+                <h5 class="text-sm mb-0 text-capitalize font-weight-bold">{{data.descricaoFaixa}} &rarr; <span
+                    class="font-weight-bolder mb-0">{{data.numeroDeGanhadores|decimal}}</span></h5>
+
+              </li>
+              {% endfor %}
+            </ul>
+
+          </div>
+        </div>
+      </div>
+      <div class="card mb-2">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col">
+              <div class="numbers d-flex justify-content-between align-items-center">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Faixas de Prêmios</p>
+
+                <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                     style="width:40px; height:40px;">
+                  <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+            <ul class="ms-3">
+              {% for faixa, data in draw.prizesInfoByRange.0.items %}
+              <li>
+                <h5 class="text-sm mb-0 text-capitalize font-weight-bold">{{faixa}} &rarr; <span
+                    class="font-weight-bolder mb-0">{{data}}</span></h5>
+
+              </li>
+              {% endfor %}
+            </ul>
+
+          </div>
+        </div>
+      </div>
+      <div class="card mb-2">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col">
+              <div class="numbers d-flex justify-content-between align-items-center">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Valor Arrecadado</p>
+                <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                     style="width:40px; height:40px;">
+                  <i class="ni ni-cart opacity-10" aria-hidden="true"></i>
+                </div>
+
+              </div>
+            </div>
+            <h5 class="font-weight-bolder mb-0">
+              {{draw.earnedValue}}
+            </h5>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-2">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col">
+              <div class="numbers d-flex justify-content-between align-items-center">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Acumulado para o Próximo Concurso</p>
+                <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                     style="width:40px; height:40px;">
+                  <i class="ni ni-cart opacity-10" aria-hidden="true"></i>
+                </div>
+
+              </div>
+            </div>
+            <h5 class="font-weight-bolder mb-0">
+              {{draw.nextDrawAccumulatedPrize}}
+            </h5>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-2">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col">
+              <div class="numbers d-flex justify-content-between align-items-center">
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Prêmio Estimado Próximo Concurso</p>
+                <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
+                     style="width:40px; height:40px;">
+                  <i class="ni ni-cart opacity-10" aria-hidden="true"></i>
+                </div>
+
+              </div>
+            </div>
+            <h5 class="font-weight-bolder mb-0">
+              {{draw.nextDrawEstimatedPrize}}
+            </h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4 h-100">
+    <div class="col">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h5 class="font-weight-bolder">Par ou Ímpar?</h5>
+          <p class="text-sm">
+            <span class="font-weight-bold">Verifique se o jogo tem mais pares ou ímpares</span>
+          </p>
+        </div>
+        <div class="card-body p-3 justify-content-center d-flex">
+          <div class="chart w-60 h-60" >
+            <canvas id="chart-even-odd" class="chart-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h5 class="font-weight-bolder">Distribuição dos números</h5>
+          <p class="text-sm">
+            <span class="font-weight-bold">Veja se há ou não linearidade entre os números</span>
+          </p>
+        </div>
+        <div class="card-body p-3 justify-content-center d-flex">
+          <div class="chart w-60 h-60">
+            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% block script %}
+<script>
+    var ctx = document.getElementById("chart-freq").getContext("2d");
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        datasets: [{
+          label: "Frequência",
+          tension: 0.4,
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "#181C97",
+          data: {{metadata.charts.freq}},
+          maxBarThickness: 10
+        }, ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+            },
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 500,
+              beginAtZero: true,
+              padding: 15,
+              font: {
+                size: 14,
+                family: "Open Sans",
+                style: 'normal',
+                lineHeight: 2
+              },
+              color: "#000"
+            },
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false
+            },
+            ticks: {
+              display: true
+            },
+          },
+        },
+      },
+    });
+
+
+
+/*
+    var ctx2 = document.getElementById("chart-line").getContext("2d");
+
+    var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
+
+    gradientStroke1.addColorStop(1, 'rgba(203,12,159,0.2)');
+    gradientStroke1.addColorStop(0.2, 'rgba(72,72,176,0.0)');
+    gradientStroke1.addColorStop(0, 'rgba(203,12,159,0)'); //purple colors
+
+    var gradientStroke2 = ctx2.createLinearGradient(0, 230, 0, 50);
+
+    gradientStroke2.addColorStop(1, 'rgba(20,23,39,0.2)');
+    gradientStroke2.addColorStop(0.2, 'rgba(72,72,176,0.0)');
+    gradientStroke2.addColorStop(0, 'rgba(20,23,39,0)'); //purple colors
+
+    new Chart(ctx2, {
+      type: "line",
+      data: {
+        labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{
+            label: "Mobile apps",
+            tension: 0.4,
+            borderWidth: 0,
+            pointRadius: 0,
+            borderColor: "#cb0c9f",
+            borderWidth: 3,
+            backgroundColor: gradientStroke1,
+            fill: true,
+            data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+            maxBarThickness: 6
+
+          },
+          {
+            label: "Websites",
+            tension: 0.4,
+            borderWidth: 0,
+            pointRadius: 0,
+            borderColor: "#3A416F",
+            borderWidth: 3,
+            backgroundColor: gradientStroke2,
+            fill: true,
+            data: [30, 90, 40, 140, 290, 290, 340, 230, 400],
+            maxBarThickness: 6
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              padding: 10,
+              color: '#b2b9bf',
+              font: {
+                size: 11,
+                family: "Open Sans",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#b2b9bf',
+              padding: 20,
+              font: {
+                size: 11,
+                family: "Open Sans",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+*/
+  // Even or odd pie chart
+  var ctx3 = document.getElementById("chart-even-odd").getContext("2d");
+  var xValues = ["Par", "Ímpar"]
+  var yValues = [{{metadata.charts.parity_balance.even}}, {{metadata.charts.parity_balance.odd}}];
+  var barColors = ["#181C97", "#AEB9CE"];
+
+      new Chart(ctx3, {
+    type: "pie",
+    data: {
+      labels: xValues,
+      datasets: [{
+        backgroundColor: barColors,
+        data: yValues
+      }]
+    },
+    options: {
+      title: {
+        display: true,
+        text: "World Wide Wine Production"
+      }
+    }
+  });
+
+
+    var ctx4 = document.getElementById("chart-line").getContext("2d");
+  var xyValues = []
+  var result = {{draw.result}}
+  for(i in result){
+    xyValues.push({x:i, y:result[i]})
+  }
+
+
+new Chart(ctx4, {
+  type: "line",
+  data: {
+    datasets: [{
+      label: "Números",
+      pointRadius: 4,
+      pointBackgroundColor: "rgba(0,0,255,1)",
+      data: xyValues
+    }]
+  },
+});
+
+
+</script>
+<script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+
+
+
+</script>
+{% endblock %}
+
+
+{% endblock %}
+
+</body>

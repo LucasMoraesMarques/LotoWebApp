@@ -140,5 +140,9 @@ def check_prizes_in_draw(draw, scores_by_games_set):
     return total_balance
 
 
-
+def get_by_user(user):
+    results = Result.objects.all()
+    results = results.select_related("collection", "collection__user", "lottery", "draw")
+    results = results.filter(collection__user=user)
+    return results
 
