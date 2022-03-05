@@ -34,14 +34,18 @@ def create_collection(request):
         form = CreateCollectionForm(request.POST)
         data = {}
         if form.is_valid():
-            collection = form.save(request.user)
-            data = {
-                    'name': collection.name,
-                    'id': collection.id,
-                    'lottery': str(collection.lottery)
-                }
+            user_collections = collections.all(request.user)
+            if user_collections.filter(name=form.cleaned_data["name"]).exists():
+                data = {'error': "Já existe um coleção com esse nome. Tente novamente com outro nome!"}
+            else:
+                collection = form.save(request.user)
+                data = {
+                        'name': collection.name,
+                        'id': collection.id,
+                        'lottery': str(collection.lottery)
+                    }
             return JsonResponse(data=data, status=200)
-        return JsonResponse(data={'error': "Um erro inesperado impediu a criação da coleção. Tente novamente."}, status=400)
+        return JsonResponse(data, status=400)
 
 
 def landing(request):
@@ -298,7 +302,18 @@ def results_reports(request):
 def results_reports_detail(request, result_id):
     user_results = results.get_by_user(request.user)
     result = get_object_or_404(user_results, pk=result_id)
-    ctx = {}
+    money_balance = results.parse_money_balance_json(result.money_balance)
+    points_by_games_sets = results.parse_points_by_games_sets_json(result, result.points_info["Conjuntos"])
+    ctx = {
+        "result": result,
+        "money_balance": money_balance,
+        "points_info": {
+            "total": result.points_info["Total"],
+            "winner_games": sum(result.points_info["Total"].values()),
+            "by_games_sets": points_by_games_sets
+        }
+
+    }
     return render(request, "platform/dashboard/result_detail.html", ctx)
 
 
@@ -357,9 +372,9 @@ def create_results_report(request):
             games_sets_actives = data.get("active", True)
             filtered_games_sets = games_sets_in_collection.filter(isActive=games_sets_actives)
             selected_draw = Draw.objects.get(lottery__name=data.get("lottery_name"), number=data.get("draw"))
-            scores_by_games_set = results.check_scores_in_draw(selected_draw, filtered_games_sets)
-            prizes_balance = results.check_prizes_in_draw(selected_draw, scores_by_games_set)
-            file_url, result_obj = results.create_text_report_file(selected_draw, scores_by_games_set,
+            total_scores = results.check_scores_in_draw(selected_draw, filtered_games_sets)
+            prizes_balance = results.check_prizes_in_draw(selected_draw, total_scores)
+            file_url, result_obj = results.create_text_report_file(selected_draw, total_scores,
                                                                    selected_collection,
                                                                    prizes_balance)
             data = {
@@ -377,7 +392,7 @@ def create_results_report(request):
                 "FILES": (result_obj.report_file,)}],
 
             }
-            email_sending.custom_send_email(info)
+            #email_sending.custom_send_email(info)
             return JsonResponse(data=data, status=200)
 
 

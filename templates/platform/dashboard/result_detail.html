@@ -20,20 +20,20 @@
 {% block content %}
 <div class="container-fluid py-4">
   <div class="row justify-content-center">
-    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 pe-0">
-      <div class="card">
+    <div class="col-xl-6 col-sm-6 mb-xl-0 mb-4 pe-0">
+      <div class="card h-100">
         <div class="card-body p-3">
-          <div class="row">
-            <div class="col-8">
+          <div class="d-flex flew-row justify-content-between">
+            <div>
               <div class="numbers">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Concurso</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Coleção</p>
                 <h5 class="font-weight-bolder mb-0">
+                  <a href="{% url 'lottery:collection-detail' result.collection.id %}" target="_blank">{{result.collection.name|capfirst}}</a>
                 </h5>
               </div>
             </div>
-            <div class="col-2 text-end">
-              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
-                   style="margin-right:20px;">
+            <div class="text-end">
+              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
                 <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
               </div>
             </div>
@@ -42,13 +42,14 @@
       </div>
     </div>
     <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 pe-0">
-      <div class="card">
+      <div class="card h-100">
         <div class="card-body p-3">
           <div class="row">
             <div class="col-8">
               <div class="numbers">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Data</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Loteria</p>
                 <h5 class="font-weight-bolder mb-0">
+                  <a href="{% url 'lottery:lottery-detail' result.lottery.name %}" target="_blank">{{result.lottery.name}}</a>
                 </h5>
               </div>
             </div>
@@ -62,13 +63,14 @@
       </div>
     </div>
     <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 pe-0">
-      <div class="card">
+      <div class="card h-100">
         <div class="card-body p-3">
           <div class="row">
             <div class="col-8">
               <div class="numbers">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Prêmio Principal</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Concurso</p>
                 <h5 class="font-weight-bolder mb-0">
+                  <a href="{% url 'lottery:draw-detail' result.lottery.name result.draw.number %}" target="_blank">{{result.draw.number}}</a>
                   <!--span class="text-danger text-sm font-weight-bolder">-2%</span-->
                 </h5>
               </div>
@@ -82,41 +84,18 @@
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-sm-6">
-      <div class="card">
-        <div class="card-body p-3">
-          <div class="row">
-            <div class="col-8">
-              <div class="numbers">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Acumulou</p>
-                <h5 class="font-weight-bolder mb-0">
-
-                </h5>
-              </div>
-            </div>
-            <div class="col-2 text-end">
-              <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                <i class="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-  <div class="row mt-2">
+  <div class="row mt-2 mx-auto">
   <div class="card">
         <div class="card-body p-3">
           <div class="row">
             <div class="col">
               <div class="numbers d-flex justify-content-between align-items-center">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Números Sorteados</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Números do Concurso</p>
               </div>
               <div class="d-flex justify-content-center mt-2">
-                {% for number, frequency in total_freq.items %}
-                  <span class="badge badge-sm bg-gradient-primary text-center align-middle p-2 fs-5 mx-2" style="width:40px; height:40px;"
-                  data-bs-toggle="tooltip" data-bs-placement="top"
-                     title="Foi sorteado {{ frequency }} vezes no total dos concursos" data-container="body" data-animation="true">
+                {% for number in result.draw.result %}
+                  <span class="badge badge-sm bg-gradient-primary text-center align-middle p-2 fs-5 mx-2" style="width:40px; height:40px;">
                     {{number}}
                   </span>
                   {% endfor %}
@@ -127,74 +106,102 @@
       </div>
     </div>
   <div class="row mt-2">
-    <div class="col-lg-8">
+    <div class="col-lg-9">
       <div class="card z-index-2">
         <div class="card-header pb-0">
-          <h5 class="font-weight-bolder">Sequências dos Números</h5>
+          <h5 class="font-weight-bolder">Balanço Financeiro</h5>
           <p class="text-sm">
-            <span class="font-weight-bold">Veja a sequência de repetições de cada número nos últimos concursos</span>
+            <span class="font-weight-bold">Veja o valor gasto, prêmio total e o saldo projetado para o resultado.</span>
           </p>
         </div>
-        <div class="card-body p-3">
-          <div class="chart">
-            <canvas id="chart-freq" class="chart-canvas"></canvas>
+        <div class="card-body p-2">
+          <div class="row">
+            <div class="col px-1">
+              <div class="card h-100">
+                <div class="card-body text-center pt-0 px-0" data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="Valor Gasto" data-container="body" data-animation="true">
+                  <p><strong>Valor Gasto</strong></p>
+                  <h5 class="fs-5 font-weight-bolder mb-0 text-danger">
+                  - {{money_balance.total.cost|currency}}
+                    <i class="fa fa-arrow-down text-danger fs-5"></i>
+                </h5>
+                </div>
+              </div>
+            </div>
+            <div class="col px-1">
+              <div class="card h-100">
+                <div class="card-body text-center pt-0 px-0" data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="Premiação" data-container="body" data-animation="true">
+                  <p><strong>Premiação</strong></p>
+                  <h5 class="fs-5 font-weight-bolder mb-0 {% if money_balance.total.prize > 0 %}text-success{% else %}text-success{% endif %}">
+                  + {{money_balance.total.prize|currency}}
+                    {% if money_balance.total.prize > 0 %}
+                    <i class="fa fa-arrow-up text-success fs-5"></i>
+                    {% endif %}
+                </h5>
+                </div>
+              </div>
+            </div>
+            <div class="col px-1">
+              <div class="card h-100">
+                <div class="card-body text-center pt-0" data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="Saldo" data-container="body" data-animation="true">
+                  <p><strong>Saldo</strong></p>
+                  <h5 class="fs-5 font-weight-bolder mb-0 {% if money_balance.total.balance < 0 %}text-danger{% else %}text-success{% endif %}">
+                  {{money_balance.total.balance|currency}}
+                    {% if money_balance.total.balance < 0 %}
+                    <i class="fa fa-arrow-down text-danger fs-5"></i>
+                    {% elif money_balance.total.balance > 0 %}
+                    <i class="fa fa-arrow-up text-success fs-5"></i>
+                    {% endif %}
+                </h5>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div class="card z-index-2 mt-3">
         <div class="card-header pb-0">
-          <h5 class="font-weight-bolder">Metadados do Concurso</h5>
+          <h5 class="font-weight-bolder">Balanço de Acertos</h5>
           <p class="text-sm">
-            <span class="font-weight-bold">Veja informações matemáticas sobre o concurso</span>
+            <span class="font-weight-bold">Veja quantos acertos por cada faixa o resultado obteve</span>
           </p>
         </div>
         <div class="card-body p-3">
           <div class="row">
-            {% for key, value in metadata.items %}
-            {% if key != "charts" %}
-            <div class="col">
+            {% for key, value in points_info.total.items %}
+            <div class="col px-1">
               <div class="card">
-                <div class="card-body text-center" data-bs-toggle="tooltip" data-bs-placement="top"
+                <div class="card-body text-center px-1 pt-0" data-bs-toggle="tooltip" data-bs-placement="top"
                      title="{{ value.0 }}" data-container="body" data-animation="true">
                   <p><strong>{{key}}</strong></p>
                   <h5 class="font-weight-bolder mb-0">
-                  {{value.1}}
+                  {{value}}
                 </h5>
                 </div>
               </div>
             </div>
-            {% endif %}
             {% endfor %}
           </div>
 
         </div>
       </div>
     </div>
-    <div class="col-lg-4">
-
+    <div class="col-lg-3">
       <div class="card mb-2">
         <div class="card-body p-3">
           <div class="row">
             <div class="col">
               <div class="numbers d-flex justify-content-between align-items-center">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Ganhadores</p>
-
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">N° de Conjuntos</p>
                 <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
                      style="width:40px; height:40px;">
                   <i class="ni ni-money-coins text-md opacity-10" aria-hidden="true"></i>
                 </div>
               </div>
             </div>
-            <ul class="ms-3">
-              {% for faixa, data in draw.metadata.0.items %}
-              <li>
-                <h5 class="text-sm mb-0 text-capitalize font-weight-bold">{{data.descricaoFaixa}} &rarr; <span
-                    class="font-weight-bolder mb-0">{{data.numeroDeGanhadores|decimal}}</span></h5>
-
-              </li>
-              {% endfor %}
-            </ul>
-
+            <h5 class="font-weight-bolder mb-0">{{result.number_of_game_sets}}</h5>
           </div>
         </div>
       </div>
@@ -203,7 +210,7 @@
           <div class="row">
             <div class="col">
               <div class="numbers d-flex justify-content-between align-items-center">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Faixas de Prêmios</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">N° de Jogos</p>
 
                 <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
                      style="width:40px; height:40px;">
@@ -211,16 +218,7 @@
                 </div>
               </div>
             </div>
-            <ul class="ms-3">
-              {% for faixa, data in draw.prizesInfoByRange.0.items %}
-              <li>
-                <h5 class="text-sm mb-0 text-capitalize font-weight-bold">{{faixa}} &rarr; <span
-                    class="font-weight-bolder mb-0">{{data}}</span></h5>
-
-              </li>
-              {% endfor %}
-            </ul>
-
+            <h5 class="font-weight-bolder mb-0">{{result.number_of_games}}</h5>
           </div>
         </div>
       </div>
@@ -229,7 +227,7 @@
           <div class="row">
             <div class="col">
               <div class="numbers d-flex justify-content-between align-items-center">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Valor Arrecadado</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">N° de Jogos Premiados</p>
                 <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
                      style="width:40px; height:40px;">
                   <i class="ni ni-cart opacity-10" aria-hidden="true"></i>
@@ -238,7 +236,7 @@
               </div>
             </div>
             <h5 class="font-weight-bolder mb-0">
-              {{draw.earnedValue}}
+              {{points_info.winner_games}}
             </h5>
           </div>
         </div>
@@ -248,7 +246,7 @@
           <div class="row">
             <div class="col">
               <div class="numbers d-flex justify-content-between align-items-center">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Acumulado para o Próximo Concurso</p>
+                <p class="text-sm mb-0 text-capitalize font-weight-bold">Arquivo de Relatório</p>
                 <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
                      style="width:40px; height:40px;">
                   <i class="ni ni-cart opacity-10" aria-hidden="true"></i>
@@ -257,26 +255,24 @@
               </div>
             </div>
             <h5 class="font-weight-bolder mb-0">
-              {{draw.nextDrawAccumulatedPrize}}
-            </h5>
-          </div>
-        </div>
-      </div>
-      <div class="card mb-2">
-        <div class="card-body p-3">
-          <div class="row">
-            <div class="col">
-              <div class="numbers d-flex justify-content-between align-items-center">
-                <p class="text-sm mb-0 text-capitalize font-weight-bold">Prêmio Estimado Próximo Concurso</p>
-                <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md"
-                     style="width:40px; height:40px;">
-                  <i class="ni ni-cart opacity-10" aria-hidden="true"></i>
-                </div>
-
+              <div class="dropdown mx-auto">
+                <a href="javascript:;" class="btn-icon dropdown-toggle" data-bs-toggle="dropdown"
+                   id="navbarDropdownMenuLink2">
+                  <i class="fa fa-file-text fs-3 mx-3 text-primary"></i>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+                  <li>
+                    <a class="dropdown-item" href="{{result.report_file.url}}" target="_blank">
+                      <i class="fa fa-file-export fs-5 mx-2 text-primary"></i>Abrir em nova aba
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{{result.report_file.url}}" download>
+                      <i class="fa fa-file-download fs-5 mx-2 text-primary"></i>Baixar
+                    </a>
+                  </li>
+                </ul>
               </div>
-            </div>
-            <h5 class="font-weight-bolder mb-0">
-              {{draw.nextDrawEstimatedPrize}}
             </h5>
           </div>
         </div>
@@ -287,38 +283,112 @@
     <div class="col">
       <div class="card z-index-2">
         <div class="card-header pb-0">
-          <h5 class="font-weight-bolder">Par ou Ímpar?</h5>
+          <h5 class="font-weight-bolder">Restrospectiva da Coleção nos Resultados</h5>
           <p class="text-sm">
-            <span class="font-weight-bold">Verifique se o jogo tem mais pares ou ímpares</span>
+            <span class="font-weight-bold">Verifique os ganhos e as perdas dessa coleção ao longo de vários concursos </span>
           </p>
         </div>
         <div class="card-body p-3 justify-content-center d-flex">
-          <div class="chart w-60 h-60" >
+          <div class="chart w-60 h-60">
             <canvas id="chart-even-odd" class="chart-canvas"></canvas>
           </div>
         </div>
       </div>
     </div>
+  </div>
+  <div class="row my-4">
     <div class="col">
-      <div class="card z-index-2">
-        <div class="card-header pb-0">
-          <h5 class="font-weight-bolder">Distribuição dos números</h5>
-          <p class="text-sm">
-            <span class="font-weight-bold">Veja se há ou não linearidade entre os números</span>
-          </p>
-        </div>
-        <div class="card-body p-3 justify-content-center d-flex">
-          <div class="chart w-60 h-60">
-            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+      <div class="card">
+        <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+          <div class="d-inline">
+            <h5 class="font-weight-bolder">Pontuações por Conjuntos e Jogos</h5>
+            <p class="text-sm">Escolha o conjunto e veja pontuações de cada jogo nesse concurso.</p>
+            <p class="text-sm">
+              <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
+              {{draws.count}} concursos encontrados!
+            </p>
           </div>
         </div>
+        <div class="nav-wrapper position-relative end-0 my-3">
+          <!-- Tabs Nav -->
+          <ul class="nav nav-pills nav-fill p-1" role="tablist">
+            {% for games_set in points_info.by_games_sets.keys %}
+            <li class="nav-item">
+              <a class="nav-link mb-0 px-0 py-1 {% if forloop.counter0 == 0 %}active{% endif%}" data-bs-toggle="tab" href="#concursos-tab"
+                 data-bs-target="#concursos-tab"
+                 role="tab" aria-controls="{% if forloop.counter0 == 0 %}preview{% else %}code{% endif%}" aria-selected="{% if forloop.counter0 == 0 %}true{% else %}false{% endif%}">
+                <i class="fas fa-tools"></i> {{games_set}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <!-- End Tabs Nav -->
+
+          <!-- Content Section -->
+          {% for games_set, games_data in points_info.by_games_sets.items %}
+            <div class="tab-content" id="nav-tabContent">
+            <!-- Generators Section -->
+            <div class="tab-pane fade {% if forloop.counter0 == 0 %}show active{% endif %}" id="{{games_set}}-tab" role="tabpanel"
+                 aria-labelledby="nav-{{games_set}}-tab">
+              <div class="card-body px-2 pt-0 pb-2">
+                <div class="table-responsive p-0">
+                  <table class="table align-items-center mb-0 display" id="drawsTable" data-order='[[0, "asc"]]'>
+                    <thead>
+                    <tr>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                        Jogo
+                      </th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                        Números
+                      </th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
+                        Acertos
+                      </th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
+                        Info
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for game, points in games_data.items %}
+                    <tr>
+                      <td>
+                        <p class="text-center text-xs font-weight-bold mb-0">Jogo {{forloop.counter}}</p>
+                      </td>
+                      <td class="text-sm text-center">
+                        {% for number in points.numbers %}
+                        <span class="badge badge-sm bg-gradient-primary">
+                    {{number}}
+                  </span>
+                        {% endfor %}
+                      </td>
+                      <td>
+                        <p class="text-center text-xs font-weight-bold mb-0">{{points.forloop.counter.points}}</p>
+                      </td>
+                      <td class="text-center text-center">
+                        <a href="" target="_blank">
+                              <span class="btn-inner--icon"><i class="fa fa-info-circle"
+                                                               style="font-size:20px"></i></span>
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+            {% endfor %}
+
+
       </div>
     </div>
   </div>
 
 </div>
-
-{% block script %}
+    {% block script %}
 <script>
     var ctx = document.getElementById("chart-freq").getContext("2d");
 

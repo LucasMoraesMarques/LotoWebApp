@@ -70,7 +70,24 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
       $("#download-result-file").show()
       $("#download-result-file").html(
         `<span>Baixe o resultado gerado com os quantitativos abaixo. Clique no arquivo para baixar.</span>
-      <a href="media/${filepath}" download><i class="fa fa-file-download h3 text-primary mx-3" id="filepath"></i></a>`
+      <div class="dropdown mx-auto d-inline">
+                <a href="javascript:;" class="btn-icon dropdown-toggle" data-bs-toggle="dropdown"
+                   id="navbarDropdownMenuLink2">
+                  <i class="fa fa-file-text fs-3 mx-3 text-primary"></i>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+                  <li>
+                    <a class="dropdown-item" href="${filepath}" target="_blank">
+                      <i class="fa fa-file-export fs-5 mx-2 text-primary"></i>Abrir em nova aba
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="${filepath}" download>
+                      <i class="fa fa-file-download fs-5 mx-2 text-primary"></i>Baixar
+                    </a>
+                  </li>
+                </ul>
+              </div>`
       )
       $("#n-jogos").html(total_balance["Numero de Jogos"])
       $("#value-paid").html(total_balance["Valor Gasto"].toLocaleString("pt-br", currency))

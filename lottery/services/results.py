@@ -8,11 +8,12 @@ from LotoWebApp import settings
 from io import BytesIO
 
 
-def create_text_report_file(draw, scores_by_games_set, collection, total_balance, abridged=True):
+def create_text_report_file(draw, total_scores, collection, total_balance, abridged=False):
     result = draw.result
     lottery = draw.lottery
     scores_interval = draw.lottery.possiblesPointsToEarn
-    total_by_scores = {f'{i} acertos': 0 for i in scores_interval}
+    scores_by_games_set = total_scores["Conjuntos"]
+    total_by_scores = total_scores["Total"]
     balance_labels = ['Premiacao', 'Valor Gasto', 'Saldo']
     file_name = f'{collection.name.replace(" ", "_")}_{draw.number}_{"resumido" if abridged else "completo"}.txt'
     lines = []
@@ -35,7 +36,6 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
         lines.append(f"\n\nBalanco de Acertos\n")
         for score in total_by_scores.keys():
             lines.append(f"\n{score}: {scores['Total'][score]}")
-            total_by_scores[score] += scores['Total'][score]
         lines.append(f"\n\nBalanco Monetario\n")
         for label in balance_labels:
             lines.append(f"\n{label}: R$ {total_balance['Por conjunto'][games_set_name][label]:,.2f}")
@@ -69,38 +69,45 @@ def create_text_report_file(draw, scores_by_games_set, collection, total_balance
         draw=draw,
         number_of_game_sets=len(scores_by_games_set),
         number_of_games=total_balance["Total Geral"]["Numero de Jogos"],
-        points_info=scores_by_games_set,
-        money_balance=total_balance,
         report_file=file_path,
         abridged=abridged)
+    if was_created:
+        result_obj.points_info = total_scores
+        result_obj.money_balance = total_balance
+        result_obj.save()
     return result_obj.report_file.url, result_obj
 
 
 def check_scores_in_draw(draw, games_sets):
-    scores_by_games_set = {}
     scores_interval = draw.lottery.possiblesPointsToEarn
+    scores_by_games_set = {
+        "Total": {f'{i} acertos': 0 for i in scores_interval},
+        "Conjuntos": {}
+    }
     for games_set in games_sets:
-        scores_by_games_set[games_set.name] = {}
-        scores_by_games_set[games_set.name]["Total"] = {
+        scores_by_games_set["Conjuntos"][games_set.name] = {}
+        scores_by_games_set["Conjuntos"][games_set.name]["Total"] = {
             f'{i} acertos': 0 for i in scores_interval
         }
-        scores_by_games_set[games_set.name]["Jogos"] = {}
-        scores_by_games_set[games_set.name]["gameLength"] = games_set.gameLength
+        scores_by_games_set["Conjuntos"][games_set.name]["Jogos"] = {}
+        scores_by_games_set["Conjuntos"][games_set.name]["gameLength"] = games_set.gameLength
         game_number = 1
         for game in games_set.games.all():
             score = len(set(game.arrayNumbers) & set(draw.result))
-            scores_by_games_set[games_set.name]["Jogos"][f"{game_number}"] = score
+            scores_by_games_set["Conjuntos"][games_set.name]["Jogos"][f"{game_number}"] = score
             game_number += 1
             if score in scores_interval:
-                scores_by_games_set[games_set.name]["Total"][f'{score} acertos'] += 1
+                scores_by_games_set["Conjuntos"][games_set.name]["Total"][f'{score} acertos'] += 1
+                scores_by_games_set["Total"][f'{score} acertos'] += 1
     return scores_by_games_set
 
 
-def check_prizes_in_draw(draw, scores_by_games_set):
+def check_prizes_in_draw(draw, total_scores):
     lottery = draw.lottery
     scores_interval = lottery.possiblesPointsToEarn
     prices_ranges = lottery.possiblesPricesRange
     default_choices_number = lottery.possiblesChoicesRange[0]
+    scores_by_games_set = total_scores["Conjuntos"]
     total_balance = {
         "Por conjunto": {},
         "Total Geral":
@@ -145,4 +152,33 @@ def get_by_user(user):
     results = results.select_related("collection", "collection__user", "lottery", "draw")
     results = results.filter(collection__user=user)
     return results
+
+
+def parse_money_balance_json(money_balance):
+    parsed_dict = {
+        "total": {
+            "balance": money_balance["Total Geral"]["Saldo"],
+            "cost": money_balance["Total Geral"]["Valor Gasto"],
+            "prize": money_balance["Total Geral"]["Premiacao"]
+        }
+    }
+    return parsed_dict
+
+
+def parse_points_by_games_sets_json(result, points_by_games_sets):
+    result_collection = result.collection
+    results_games_sets = result_collection.gamesets.filter(name__in=points_by_games_sets.keys())
+    print(results_games_sets)
+    points_by_games_sets_and_games = {}
+    for games_set in results_games_sets:
+        games_set_games = games_set.games.all()
+        points_by_games = points_by_games_sets[games_set.name]["Jogos"].values()
+        points_by_games_sets_and_games[games_set.name] = {}
+        print(len(games_set_games), len(points_by_games))
+        for game, points in zip(games_set_games, points_by_games):
+            points_by_games_sets_and_games[games_set.name][game.id] = {
+                "numbers": game.arrayNumbers,
+                "points": points
+            }
+    return points_by_games_sets_and_games
 
