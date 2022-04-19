@@ -1,3 +1,5 @@
+import os.path
+
 from django.core.management.base import BaseCommand, CommandError
 import pandas as pd
 from datetime import datetime
@@ -24,6 +26,7 @@ class Command(BaseCommand):
                 draws = self.get_draws(loto)
                 data = self.parse_response(draws, loto)
                 self.check_has_draw(loto, data)
+                print(data)
             else:
                 draw = self.get_last(loto)
                 if draw:
@@ -32,17 +35,18 @@ class Command(BaseCommand):
     @staticmethod
     def get_draws(loto):
         try:
-            resp = requests.get(loto.urlHistoricResultAPI)
+            pass
+            """resp = requests.get(loto.urlHistoricResultAPI)
             print(resp, resp.status_code)
             if resp.status_code != 200:
                 print(resp.status_code, resp)
-                raise requests.exceptions.RequestException
+                raise requests.exceptions.RequestException"""
         except requests.exceptions.RequestException:
             raise CommandError("Error in requisition!" )
         else:
-            df = pd.read_html(resp.text, decimal=',', thousands='.')[0]
-            print(df)
-            return df
+            with open(os.path.join("/home/lucas/PycharmProjects/ProjetosLoteria/LotoWebApp/lottery/management/commands", f"{loto.name}.html"), "r") as file:
+                df = pd.read_html(file.read(), decimal=',', thousands='.')[0]
+                return df
 
     def get_last(self, loto):
         try:
@@ -176,7 +180,7 @@ class Command(BaseCommand):
         df = df.dropna(how='any', thresh=3)
         df['Concurso'] = df['Concurso'].astype("int64")
         df.set_index('Concurso', inplace=True)
-        df.sort_index(ascending=False, inplace=True)
+        df.sort_index(ascending=True, inplace=True)
         return df
 
     def check_has_draw(self, loto, df):
