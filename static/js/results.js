@@ -62,6 +62,7 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
       var draw = response["draw"]
       var filepath = response["filepath"]
       var total_balance = response["total_balance"]
+      var result_id = response["result_id"]
       $("#draw-number").html(`Nº ${draw.number} de ${draw.date}`)
       $("#draw-accumulated").html(draw.hasAccumulated ? "Sim" : "Não")
       $("#draw-result").html(`${draw.result.join(separator = "-")}`)
@@ -89,6 +90,7 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
                 </ul>
               </div>`
       )
+      $("#get-results-form").append(`<a href="resultados/${result_id}" class="btn btn-secondary mx-2"> Ver página do resultado</a>`)
       $("#n-jogos").html(total_balance["Numero de Jogos"])
       $("#value-paid").html(total_balance["Valor Gasto"].toLocaleString("pt-br", currency))
       $("#prizes-value").html(total_balance["Premiacao"].toLocaleString("pt-br", currency))
@@ -109,7 +111,7 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
   })
 })
 $(document).ready(function(){
-$('#results-table').DataTable({
+$('.table').DataTable({
     "language": {
       "lengthMenu": "Mostrar _MENU_ jogos por página",
       "zeroRecords": "",
@@ -124,45 +126,13 @@ $('#results-table').DataTable({
       "search": "Filtrar"
 
     },
-    "dom": "Brtip",
+    "dom": "fBrtip",
     "buttons": [
-        {
-        "extend": "collection",
-            "text": "Exportar",
-            "autoClose": true,
-            "className": "btn btn-primary",
-            "buttons":[
-                {
-                extend:    'excelHtml5',
-                text:      '<i class="fa fa-file-excel fs-5"></i>',
-                titleAttr: 'Exportar como Excel',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            },
-            {
-                extend:    'csvHtml5',
-                text:      '<i class="fa fa-file-text fs-5"></i>',
-                titleAttr: 'Exportar como CSV',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            },
-            {
-                extend:    'pdfHtml5',
-                text:      '<i class="fa fa-file-pdf fs-5"></i>',
-                titleAttr: 'Exportar como PDF',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            },
-            {
-                extend:    'print',
-                text:      '<i class="fa fa-print fs-5"></i>',
-                titleAttr: 'Imprimir tabela',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            }
-            ]
-            },
             {
             "extend": "collection",
             "text": "Selecionar",
             "autoClose": true,
-            "className": "btn btn-primary",
+            "className": "btn btn-primary d-none opacity-0",
             "buttons":[
                 {
                     "extend": "selectAll",

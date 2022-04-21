@@ -91,11 +91,9 @@ def check_scores_in_draw(draw, games_sets):
         }
         scores_by_games_set["Conjuntos"][games_set.name]["Jogos"] = {}
         scores_by_games_set["Conjuntos"][games_set.name]["gameLength"] = games_set.gameLength
-        game_number = 1
         for game in games_set.games.all():
             score = len(set(game.arrayNumbers) & set(draw.result))
-            scores_by_games_set["Conjuntos"][games_set.name]["Jogos"][f"{game_number}"] = score
-            game_number += 1
+            scores_by_games_set["Conjuntos"][games_set.name]["Jogos"][f"{game.id}"] = score
             if score in scores_interval:
                 scores_by_games_set["Conjuntos"][games_set.name]["Total"][f'{score} acertos'] += 1
                 scores_by_games_set["Total"][f'{score} acertos'] += 1
@@ -168,17 +166,25 @@ def parse_money_balance_json(money_balance):
 def parse_points_by_games_sets_json(result, points_by_games_sets):
     result_collection = result.collection
     results_games_sets = result_collection.gamesets.filter(name__in=points_by_games_sets.keys())
-    print(results_games_sets)
     points_by_games_sets_and_games = {}
     for games_set in results_games_sets:
         games_set_games = games_set.games.all()
-        points_by_games = points_by_games_sets[games_set.name]["Jogos"].values()
+        points_by_games = points_by_games_sets[games_set.name]["Jogos"]
         points_by_games_sets_and_games[games_set.name] = {}
-        print(len(games_set_games), len(points_by_games))
-        for game, points in zip(games_set_games, points_by_games):
+        for game in games_set_games:
             points_by_games_sets_and_games[games_set.name][game.id] = {
                 "numbers": game.arrayNumbers,
-                "points": points
+                "points": points_by_games.get(str(game.id), '-')
             }
     return points_by_games_sets_and_games
 
+
+def historic(user_results, collection):
+    results = user_results.filter(collection=collection).order_by("draw__number")
+    historic_balance = {}
+    for result in results:
+        historic_balance[result.id] = {
+            "balance": parse_money_balance_json(result.money_balance),
+            "draw": result.draw
+        }
+    return historic_balance

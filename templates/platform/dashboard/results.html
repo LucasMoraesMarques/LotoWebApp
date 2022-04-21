@@ -511,7 +511,7 @@
         <div class="row my-4">
           <div class="col">
             <div class="card">
-              <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+              <div class="card-header pb-0">
                 <div class="d-inline">
                   <h5 class="font-weight-bolder">Seus Resultados</h5>
                     <p class="text-sm">Aqui você tem a listagem de todos os resultados gerados. Clique em info para ver
@@ -521,21 +521,49 @@
                     {{results.count}} resultados encontrados
                   </p>
                 </div>
-                <form action="{% url 'lottery:results' %}" id="modify-results" method="POST">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="">
-                 </form>
-                <div class="buttons">
-                  <div class="btn-group" role="group">
-                  <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    ENVIAR
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                    <button type="button" class="btn btn-success" id="send-results-by-email">EMAIL</button>
-                    <button type="button" class="btn btn-danger" id="deactivate-gamesets">WHATSAPP</button>
-                  </ul>
-                </div>
-                  <button type="button" class="btn btn-danger" id="delete-result">DELETAR</button>
+
+                <div class="buttons d-flex flex-row align-items-center mt-1 position-absolute">
+                  <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Exportar resultados" data-container="body" data-animation="true">
+                    <a href="" id="export-results" class="" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary"></i></a>
+                    <ul class="dropdown-menu" aria-labelledby="export-results">
+                      <li>
+                        <a id="by-csv" role="button" class="fs-5"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
+                      </li>
+                      <li>
+                        <a id="by-excel" role="button" class="fs-5"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <form action="{% url 'lottery:send-results-reports' 0 %}" method="POST" id="send-results-form">
+                      {% csrf_token %}
+                      <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Enviar resultados" data-container="body" data-animation="true">
+                    <a href="" id="send-results-options" class="" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-envelope fs-4 text-primary"></i></a>
+                    <ul class="dropdown-menu" aria-labelledby="send-results-options">
+                      <li>
+                        <a id="email" role="button" class="fs-5 send-results"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
+                      </li>
+                      <li>
+                        <a id="whatsapp" role="button" class="fs-5 send-results" ><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
+                      </li>
+                    </ul>
+                  </div>
+                    </form>
+                  <div class="mx-3">
+                    <form action="{% url 'lottery:delete-results-reports' 0 %}" method="POST" id="action-results">
+                      {% csrf_token %}
+                      <a id="delete-results" role="button" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Deletar resultados" data-container="body" data-animation="true"><i class="fas fa-trash-alt fs-4 text-danger"></i></a>
+
+                      <input type="hidden" name="action" value="">
+                    </form>
+                  </div>
                 </div>
               </div>
               <div class="card-body px-2 pt-0 pb-2">
@@ -569,7 +597,7 @@
                       {% for result in results %}
                        {% with 'assets/img/loterias/logos/'|add:result.lottery.name|add:'.png' as lotteryLogo %}
                       <tr>
-                        <td><input type="hidden" name="results" ></td>
+                        <td><input type="hidden" name="results" value="{{result.id}}"></td>
                         <td class="align-middle text-center text-sm">
                           <div class="d-flex px-2 py-1">
                             <img src="{% static lotteryLogo %}" alt="Logo da {{result.lottery.name}}"
@@ -593,7 +621,7 @@
                         </td>
                         <td class="align-middle text-center">
                           <div class="dropdown mx-auto">
-                            <a href="javascript:;" class="btn-icon dropdown-toggle" data-bs-toggle="dropdown"
+                            <a href="javascript:;" class="btn-icon" data-bs-toggle="dropdown"
                                id="navbarDropdownMenuLink2">
                               <i class="fa fa-file-text fs-3 mx-3 text-primary"></i>
                             </a>
@@ -648,7 +676,7 @@
                         </div>
                         <p hidden>{{result.lottery.name}}</p>
                   </span>
-                    <a href="{% url 'lottery:game-set-detail' result.id %}" data-bs-toggle="tooltip"
+                    <a href="{% url 'lottery:result-detail' result.id %}" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Ver detalhes" data-container="body" data-animation="true">
                           <div class="timeline-content">
@@ -1110,12 +1138,12 @@ $("#activate-gamesets, #delete-gamesets, #deactivate-gamesets").click(function()
   })
 })
 
-$("#delete-collections").click(function(){
+$("#delete-results").click(function(){
   var action = this.innerText
   Swal.fire({
     icon:"warning",
     title: "Tem certeza ?",
-    text: `Você realmente deseja ${this.innerText} os coleções selecionadas?`,
+    text: `Você realmente deseja ${this.innerText} os resultados selecionados?`,
     showDenyButton: true,
     confirmButtonText: "SIM",
     denyButtonText: "NÃO",
@@ -1127,15 +1155,49 @@ $("#delete-collections").click(function(){
   }
   }).then((answer)=>{
     if (answer.isConfirmed){
-    var table = $("#collections-table").DataTable()
+    var table = $("#results-table").DataTable()
     var rows = table.rows({"selected": true})
-    var form = $("#edit-collection")
+    var form = $("#action-results")
     for(row of rows[0]){
       var tr = table.row(row).node()
       var input = $(tr).find("td:first-child input")
       form.append(input)
     }
-      $("#edit-collection input[name=action]").val(action)
+      $("#action-results input[name=action]").val(action)
+      form.submit()
+    }
+    else if (answer.isDenied){
+
+    }
+  })
+})
+
+$(".send-results").click(function(){
+  var send_by = this.id
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja enviar os resultados selecionados por ${send_by}?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    confirmButtonColor: "green",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+    var table = $("#results-table").DataTable()
+    var rows = table.rows({"selected": true})
+    var form = $("#send-results-form")
+    for(row of rows[0]){
+      var tr = table.row(row).node()
+      var input = $(tr).find("td:first-child input")
+      form.append(input)
+    }
+      form.append(`<input name="method" value="${send_by}">`)
       form.submit()
     }
     else if (answer.isDenied){
@@ -1144,9 +1206,6 @@ $("#delete-collections").click(function(){
   })
 })
 </script>
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.1/math.js"></script>
 {% endblock %}
 
 

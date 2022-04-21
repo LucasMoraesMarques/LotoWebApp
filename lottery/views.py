@@ -284,7 +284,7 @@ def results_reports(request):
     lotteries_objs = Lottery.objects.all()
     user_results = results.get_by_user(request.user)
     user_collections = collections.all(request.user)
-    last_results = user_results.order_by("lottery", "-draw__date")
+    last_results = user_results.order_by("-id")
     last_results = last_results[:5]
     total = user_results.aggregate(collections=Count('collection', distinct=True), games_sets=Sum("number_of_game_sets"), games=Sum("number_of_games"))
     ctx = {
@@ -294,7 +294,6 @@ def results_reports(request):
         "collections": user_collections,
         "total": total
     }
-    print(ctx)
     return render(request, "platform/dashboard/results.html", ctx)
 
 
@@ -304,6 +303,7 @@ def results_reports_detail(request, result_id):
     result = get_object_or_404(user_results, pk=result_id)
     money_balance = results.parse_money_balance_json(result.money_balance)
     points_by_games_sets = results.parse_points_by_games_sets_json(result, result.points_info["Conjuntos"])
+    collection_historic = results.historic(user_results, result.collection)
     ctx = {
         "result": result,
         "money_balance": money_balance,
@@ -311,10 +311,61 @@ def results_reports_detail(request, result_id):
             "total": result.points_info["Total"],
             "winner_games": sum(result.points_info["Total"].values()),
             "by_games_sets": points_by_games_sets
-        }
-
+        },
+        "historic": collection_historic
     }
     return render(request, "platform/dashboard/result_detail.html", ctx)
+
+
+@login_required
+def delete_results_reports(request, result_id):
+    user_results = results.get_by_user(request.user)
+    if result_id:
+        user_results.get(result_id).delete()
+        messages.success(request, f"Resultado DELETADO com sucesso!")
+    if request.POST and not result_id:
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            for result_id in request.POST.getlist("results"):
+                result = user_results.filter(id=result_id)
+                if result:
+                    result.delete()
+                    messages.success(request, f"Resultados DELETADOS com sucesso!")
+        else:
+            messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect('lottery:results')
+
+
+@login_required
+def send_results_reports(request, result_id):
+    user_results = results.get_by_user(request.user)
+    print(request.POST)
+    if result_id:
+        user_results.get(result_id)
+        messages.success(request, f"Resultado ENVIADO com sucesso!")
+    if request.POST and not result_id:
+        form = forms.Form(request.POST)
+        if form.is_valid() and request.POST.getlist("results",[]):
+            info = {
+                "user1": [{"SUBJECT": "TESTE",
+                           "BODY": "TESTE",
+                           "FROM": "lucasmoraes@gmail.com",
+                           "TO": [request.user.email],
+                           "TEMPLATE": "emails/template1.html",
+                           "FILES": []}],
+
+            }
+            for result_id in request.POST.getlist("results"):
+                result = user_results.filter(id=result_id).first()
+                if result:
+                    info["user1"][0]["FILES"].append(result.report_file)
+                    email_sending.custom_send_email(info)
+            messages.success(request, f"Resultados ENVIADOS com sucesso!")
+        elif not request.POST.getlist("results",[]):
+            messages.error(request, f"Nenhum resultado foi selecionado!")
+        else:
+            messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect('lottery:results')
 
 
 @login_required
@@ -380,7 +431,8 @@ def create_results_report(request):
             data = {
                 'draw': model_to_dict(selected_draw),
                 'filepath': file_url,
-                'total_balance': prizes_balance["Total Geral"]
+                'total_balance': prizes_balance["Total Geral"],
+                'result_id': result_obj.id
             }
             data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
             info = {
