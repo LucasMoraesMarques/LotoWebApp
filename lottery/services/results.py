@@ -5,7 +5,9 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from lottery.models import Result
 from LotoWebApp import settings
+from lottery.services import email_sending
 from io import BytesIO
+import requests
 
 
 def create_text_report_file(draw, total_scores, collection, total_balance, abridged=False):
@@ -188,3 +190,41 @@ def historic(user_results, collection):
             "draw": result.draw
         }
     return historic_balance
+
+
+def send_by_email(user, results, user_results):
+    emails_info = {
+        f"{user.username}": [{"SUBJECT": "Resultados dos Jogos | LotoAssistant",
+                              "BODY": "Seguem os resultados dos seus jogos.",
+                              "FROM": settings.DEFAULT_FROM_EMAIL,
+                              "TO": [user.email],
+                              "TEMPLATE": "emails/template1.html",
+                              "FILES": []}],
+
+    }
+    for result_id in results:
+        result = user_results.filter(id=result_id).first()
+        if result:
+            emails_info[f"{user.username}"][0]["FILES"].append(result.report_file)
+    email_sending.custom_send_email(emails_info)
+
+
+def send_by_whatsapp(user, results, user_results):
+    from twilio.twiml.messaging_response import MessagingResponse
+    from twilio.rest import Client
+    message = """
+    *Resultados*
+    """
+    phone = '+5531983086959'
+
+    for result_id in results:
+        result = user_results.filter(id=result_id).first()
+        if result:
+            message += f"\n{result.report_file.url}"
+    account_sid = 'AC206789752706a6333002964c24f080fc'
+    auth_token = 'a59d54db595c4da8e5f1dd0697ef54c0'
+    client = Client(account_sid, auth_token)
+    resp = MessagingResponse()
+    msg = resp.message()
+    msg.body(message)
+    requests.get(whatsapp_api)

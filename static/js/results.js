@@ -1,11 +1,8 @@
-// Draws Tab
-
-$("#get-results-form input[name=lottery_name]").on("click", function () { // Get current lottery draws numbers
+function handleDrawsSelect() { // Get current lottery draws numbers
   $.ajax({
     type: "GET",
     url: `get-draws/${this.value}`,
     success: function (response) {
-      console.log(response)
       var draws = response["draws"]
       var collections = response["collections"]
       var colSelect = $("#collection-select-draw")
@@ -22,32 +19,23 @@ $("#get-results-form input[name=lottery_name]").on("click", function () { // Get
           `<option value="${collection.id}">${collection.name}</option>`
         )
       }
-      if (collections.length == 0){
+      if (collections.length == 0) {
         $("#get-results-form button[type=submit]").addClass("disabled")
-        Toast.fire({
-            title: "Crie coleções",
-            text: "Não há coleções para essa loteria",
-            icon: "warning"
-        })
+        fireToast("Não há coleções para essa loteria", "Crie coleções", "warning")
       }
-      else{
+      else {
         $("#get-results-form button[type=submit]").removeClass("disabled")
       }
-
     },
     error: function (response) {
-      console.log(response)
-      alert(response["responseJSON"]["error"]);
+      fireToast("Desculpe, ocorreu um erro inesperado. Tente novamente!", "Erro!", "error")
     }
-
   })
-})
+}
 
-
-$("#get-results-form").submit(function (e) { // Submit collection to check in a given draw and receive a file with points by game
+function handleResultsGeneration(e) { // Submit collection to check in a given draw and receive a file with points by game
   e.preventDefault()
   var serializedData = $(this).serialize()
-  console.log(serializedData)
   spinner = createSpinnerLoading("Gerando resultado ...")
   $("#generate-results-btn").hide()
   $("#get-results-form").append(spinner)
@@ -58,7 +46,6 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
     data: serializedData,
     success: function (response) {
       $(this).trigger('reset')
-      console.log(response)
       var draw = response["draw"]
       var filepath = response["filepath"]
       var total_balance = response["total_balance"]
@@ -69,94 +56,141 @@ $("#get-results-form").submit(function (e) { // Submit collection to check in a 
       var currency = { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' }
       $("#draw-prize").html(draw.maxPrize.toLocaleString("pt-br", currency))
       $("#download-result-file").show()
-      $("#download-result-file").html(
-        `<span>Baixe o resultado gerado com os quantitativos abaixo. Clique no arquivo para baixar.</span>
-      <div class="dropdown mx-auto d-inline">
-                <a href="javascript:;" class="btn-icon dropdown-toggle" data-bs-toggle="dropdown"
-                   id="navbarDropdownMenuLink2">
-                  <i class="fa fa-file-text fs-3 mx-3 text-primary"></i>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
-                  <li>
-                    <a class="dropdown-item" href="${filepath}" target="_blank">
-                      <i class="fa fa-file-export fs-5 mx-2 text-primary"></i>Abrir em nova aba
-                    </a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="${filepath}" download>
-                      <i class="fa fa-file-download fs-5 mx-2 text-primary"></i>Baixar
-                    </a>
-                  </li>
-                </ul>
-              </div>`
-      )
-      $("#get-results-form").append(`<a href="resultados/${result_id}" class="btn btn-secondary mx-2"> Ver página do resultado</a>`)
+      $("#download-result-file ul a").attr("href", filepath)
+      $("#see-result-page-btn").show()
+      $("#see-result-page-btn").attr("href", `resultados/${result_id}`)
       $("#n-jogos").html(total_balance["Numero de Jogos"])
       $("#value-paid").html(total_balance["Valor Gasto"].toLocaleString("pt-br", currency))
       $("#prizes-value").html(total_balance["Premiacao"].toLocaleString("pt-br", currency))
       $("#balance").html(total_balance["Saldo"].toLocaleString("pt-br", currency))
-      Toast.fire({
-    icon: 'success',
-    title: "Sucesso",
-    text: "Resultado gerado com sucesso!"
-})
-  $("#spinner").remove()
-  $("#generate-results-btn").show()
+      fireToast("Resultado gerado com sucesso!", "Sucesso", 'success')
+      $("#spinner").remove()
+      $("#generate-results-btn").show()
     },
     error: function (response) {
-      console.log(response)
-      alert(response["responseJSON"]["error"]);
+      fireToast(response["responseJSON"]["message"], "Erro!", 'error')
+      $("#spinner").remove()
+      $("#generate-results-btn").show()
     }
-
   })
-})
-$(document).ready(function(){
-$('.table').DataTable({
+}
+
+
+function setDataTables() {
+  $('.table').DataTable({
     "language": {
-      "lengthMenu": "Mostrar _MENU_ jogos por página",
+      "lengthMenu": "Mostrar _MENU_ resultados por página",
       "zeroRecords": "",
       "info": "Página _PAGE_ de _PAGES_",
-      "infoEmpty": "Nenhum jogo encontrado",
-      "infoFiltered": "(Filtrados de _MAX_ jogos)",
+      "infoEmpty": "Nenhum resultado encontrado",
+      "infoFiltered": "(Filtrados de _MAX_ resultados)",
       "paginate": {
         "previous": "←",
         "next": "→"
       },
-      "searchPlaceholder": "Busque jogos por loteria, nome ou status",
+      "searchPlaceholder": "Filtre por loteria, coleção ou concurso",
       "search": "Filtrar"
 
     },
-    "dom": "fBrtip",
+    "dom": "fBlrtip",
     "buttons": [
-            {
-            "extend": "collection",
-            "text": "Selecionar",
-            "autoClose": true,
-            "className": "btn btn-primary d-none opacity-0",
-            "buttons":[
-                {
-                    "extend": "selectAll",
-                    "text": "Selecionar tudo",
-                    "className": "btn btn-secondary px-3 py-2"
-                },
-                {
-                    "extend": "selectNone",
-                    "text": "Limpar seleção",
-                    "className": "btn btn-secondary px-3 py-2"
-                },
-            ]
-            },
+      {
+        "extend": "collection",
+        "text": "Selecionar",
+        "autoClose": true,
+        "className": "btn btn-primary d-none opacity-0",
+        "buttons": [
+          {
+            "extend": "selectAll",
+            "text": "Selecionar tudo",
+            "className": "btn btn-secondary px-3 py-2"
+          },
+          {
+            "extend": "selectNone",
+            "text": "Limpar seleção",
+            "className": "btn btn-secondary px-3 py-2"
+          },
+        ]
+      },
     ],
 
-    "columnDefs": [ {
-            "orderable": false,
-            "className": 'select-checkbox',
-            "targets":   0
-        },
-         ],
+    "columnDefs": [{
+      "orderable": false,
+      "className": 'select-checkbox',
+      "targets": 0
+    },
+    ],
     "select": {
-        "style": "multi",
-        "selector": "td:first-child",
+      "style": "multi",
+      "selector": "td:first-child",
     },
   });
+  $("#results-table_filter input").css("width", "250px")
+  $("#results-table_filter").addClass("mb-2")
+}
+
+function handleSendResults() {
+  var send_by = this.id
+  fireModal(`Você realmente deseja enviar os resultados selecionados por ${send_by}?`, "Tem certeza ?", "warning")
+    .then((answer) => {
+      if (answer.isConfirmed) {
+        var table = $("#results-table").DataTable()
+        var rows = table.rows({ "selected": true })
+        var form = $("#send-results-form")
+        if (rows[0].length != 0) {
+          for (row of rows[0]) {
+            var tr = table.row(row).node()
+            var input = $(tr).find("td:first-child input")
+            form.append(input)
+          }
+          form.append(`<input name="method" value="${send_by}" type="hidden">`)
+          form.submit()
+        }
+        else {
+          fireToast("Nenhum resultado foi selecionado para envio. Clique nos botões na primeira coluna para selecionar", "Atenção", "warning")
+        }
+      }
+
+    })
+}
+
+function handleDeleteResults() {
+  fireModal(`Você realmente deseja DELETAR os resultados selecionados?`,
+    "Tem certeza ?", "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#results-table").DataTable()
+      var rows = table.rows({ "selected": true })
+      var form = $("#action-results")
+      for (row of rows[0]) {
+        var tr = table.row(row).node()
+        var input = $(tr).find("td:first-child input")
+        form.append(input)
+      }
+      form.submit()
+    }
+  })
+}
+
+
+function showCheckboxes() {
+    var checkboxes = $(this).parent().find(".checkBoxes");
+    if (show) {
+        checkboxes.css("display", "block")
+        show = false;
+    } else {
+        checkboxes.css("display", "none")
+        show = true;
+    }
+}
+
+$(document).ready(function () {
+  show = true;
+  fireMessagesToasts()
+  setDataTables()
+  $("#get-results-form").submit(handleResultsGeneration)
+  $("#get-results-form input[name=lottery_name]").click(handleDrawsSelect)
+  $(".send-results-btn").click(handleSendResults)
+  $("#delete-results-btn").click(handleDeleteResults)
+  $(".selectBox").click(showCheckboxes)
 })

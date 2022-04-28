@@ -294,6 +294,10 @@ def results_reports(request):
         "collections": user_collections,
         "total": total
     }
+    if user_results:
+        messages.success(request, "Resultados carregados com sucesso!")
+    else:
+        messages.warning(request, "Não foram encontrados resultados. Gere seus relatórios abaixo!")
     return render(request, "platform/dashboard/results.html", ctx)
 
 
@@ -339,63 +343,28 @@ def delete_results_reports(request, result_id):
 @login_required
 def send_results_reports(request, result_id):
     user_results = results.get_by_user(request.user)
-    print(request.POST)
+    results_to_send = request.POST.getlist("results", [])
+    method = request.POST.get('method', '')
+    redirect_to = redirect('lottery:results')
     if result_id:
-        user_results.get(result_id)
-        messages.success(request, f"Resultado ENVIADO com sucesso!")
+        results_to_send = [result_id]
+        redirect_to = redirect('lottery:result-detail', result_id=result_id)
     if request.POST and not result_id:
         form = forms.Form(request.POST)
-        if form.is_valid() and request.POST.getlist("results",[]):
-            info = {
-                "user1": [{"SUBJECT": "TESTE",
-                           "BODY": "TESTE",
-                           "FROM": "lucasmoraes@gmail.com",
-                           "TO": [request.user.email],
-                           "TEMPLATE": "emails/template1.html",
-                           "FILES": []}],
-
-            }
-            for result_id in request.POST.getlist("results"):
-                result = user_results.filter(id=result_id).first()
-                if result:
-                    info["user1"][0]["FILES"].append(result.report_file)
-                    email_sending.custom_send_email(info)
-            messages.success(request, f"Resultados ENVIADOS com sucesso!")
-        elif not request.POST.getlist("results",[]):
-            messages.error(request, f"Nenhum resultado foi selecionado!")
+        if form.is_valid() and results_to_send:
+            pass
         else:
-            messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
-    return redirect('lottery:results')
-
-
-@login_required
-def profile(request):
-    return render(request, "platform/dashboard/profile.html")
-
-
-class CustomLoginView(auth_views.LoginView):
-    template_name = "platform/auth/login.html"
-
-
-class CustomLogoutView(auth_views.LogoutView):
-    template_name = "platform/auth/login.html"
-
-
-def register(request):
-    form = CustomUserCreationForm(request.POST)
-    if request.method == "POST":
-        new_user = CustomUserCreationForm(request.POST)
-        if new_user.is_valid():
-            new_user.save()
-            messages.success(request, "Usuário cadastrado com sucesso!")
-            return redirect('lottery:dashboard')
-    ctx = {"form": form}
-    return render(request, "platform/auth/register.html", ctx)
-
-
-@login_required
-def billing(request):
-    return render(request, "platform/dashboard/billing.html")
+            results_to_send = []
+            messages.error(request, f"Formulário Inválido! Tente novamente.")
+    if results_to_send and method:
+        if method == "email":
+            results.send_by_email(request.user, results_to_send, user_results)
+        elif method == "whatsapp":
+            results.send_by_whatsapp(request.user, results_to_send, user_results)
+        messages.success(request, f"Resultados ENVIADOS com sucesso!" if len(results_to_send) > 1 else f"Resultado ENVIADO com sucesso!")
+    else:
+        messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect_to
 
 
 @login_required
@@ -435,17 +404,9 @@ def create_results_report(request):
                 'result_id': result_obj.id
             }
             data['draw']['date'] = format_date(data['draw']['date'], "dd/MM/yyyy", "pt_br")
-            info = {
-                "user1":[{"SUBJECT": "TESTE",
-                 "BODY": "TESTE",
-                 "FROM": "lucasmoraes@gmail.com",
-                 "TO": [request.user.email],
-                 "TEMPLATE": "emails/template1.html",
-                "FILES": (result_obj.report_file,)}],
-
-            }
-            #email_sending.custom_send_email(info)
             return JsonResponse(data=data, status=200)
+        return JsonResponse(data={"message": "Formulário Inválido! Tente novamente."}, status=400)
+    return JsonResponse(data={"message": "Erro na requisição! Tente novamente."}, status=500)
 
 
 @login_required
@@ -461,3 +422,32 @@ def get_combinations(request):
     }
     return JsonResponse(data, status=200)
 
+
+@login_required
+def profile(request):
+    return render(request, "platform/dashboard/profile.html")
+
+
+class CustomLoginView(auth_views.LoginView):
+    template_name = "platform/auth/login.html"
+
+
+class CustomLogoutView(auth_views.LogoutView):
+    template_name = "platform/auth/login.html"
+
+
+@login_required
+def billing(request):
+    return render(request, "platform/dashboard/billing.html")
+
+
+def register(request):
+    form = CustomUserCreationForm(request.POST)
+    if request.method == "POST":
+        new_user = CustomUserCreationForm(request.POST)
+        if new_user.is_valid():
+            new_user.save()
+            messages.success(request, "Usuário cadastrado com sucesso!")
+            return redirect('lottery:dashboard')
+    ctx = {"form": form}
+    return render(request, "platform/auth/register.html", ctx)

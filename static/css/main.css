@@ -1,47 +1,88 @@
-  .my-actions { margin: 0 2em; }
-.order-1 { order: 1; }
-.order-2 { order: 2; }
+.my-actions {
+	margin: 0 2em;
+}
+
+.order-1 {
+	order: 1;
+}
+
+.order-2 {
+	order: 2;
+}
 
 .right-gap {
-  margin-right: auto;
+	margin-right: auto;
 }
 
 .colored-toast.swal2-icon-success {
-  background-color: #a5dc86 !important;
+	background-color: #a5dc86 !important;
 }
 
 .colored-toast.swal2-icon-error {
-  background-color: #f27474 !important;
+	background-color: #f27474 !important;
 }
 
 .colored-toast.swal2-icon-warning {
-  background-color: #f8bb86 !important;
+	background-color: #f8bb86 !important;
 }
 
 .colored-toast.swal2-icon-info {
-  background-color: #3fc3ee !important;
+	background-color: #3fc3ee !important;
 }
 
 .colored-toast.swal2-icon-question {
-  background-color: #87adbd !important;
+	background-color: #87adbd !important;
 }
 
 .colored-toast .swal2-title {
-  color: white;
+	color: white;
 }
 
 .colored-toast .swal2-close {
-  color: white;
+	color: white;
 }
 
 .colored-toast .swal2-html-container {
-  color: white;
+	color: white;
 }
 
 .btn-icon {
-  background-color: transparent;
-  border: none;
-  color: white;
-  padding: 0px 0px;
-  cursor: pointer;
+	background-color: transparent;
+	border: none;
+	color: white;
+	padding: 0px 0px;
+	cursor: pointer;
+}
+
+.multipleSelection {
+	width: 300px;
+	background-color: #FFFFFF;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.checkBoxes {
+	display: none;
+	position: absolute;
+	background-color: white;
+	z-index: 10;
+	width: 300px;
+}
+
+.checkBoxes label {
+	display: block;
+}
+
+.checkBoxes label:hover {
+	background-color: #E6E6E6;
 }

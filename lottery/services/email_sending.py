@@ -11,7 +11,7 @@ def custom_send_email(emails_info):
             for email_info in emails_info:
                 if email_info["FILES"]:
                     template = get_template(email_info["TEMPLATE"])
-                    ctx = {}
+                    ctx = {"user": user}
                     html = template.render(ctx)
 
                     email = EmailMultiAlternatives(

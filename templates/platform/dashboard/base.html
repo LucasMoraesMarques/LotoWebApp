@@ -1,3 +1,18 @@
+<!--
+=========================================================
+* Soft UI Dashboard - v1.0.3
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
+* Copyright 2021 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
 {% load static %}
 
 <!DOCTYPE html>
@@ -34,25 +49,32 @@
 
 </style>
 <body class="g-sidenav-show">
-    <!-- Sidebar -->
-    {% include 'components/sidebar.html' %}
-    <!-- End Sidebar -->
-  <main class="main-content position-relative mt-1 border-radius-lg " style="min-height:100vh;">
+{% if messages %}
+<ul class="messages d-none" id="messages">
+  {% for message in messages %}
+  <li class="{{message.tags}}">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<!-- Sidebar -->
+{% include 'components/sidebar.html' %}
+<!-- End Sidebar -->
+<main class="main-content position-relative mt-1 border-radius-lg " style="min-height:100vh;">
 
-    <!-- Navbar -->
-    {% include 'components/navbar.html' %}
-    <!-- End Navbar -->
+  <!-- Navbar -->
+  {% include 'components/navbar.html' %}
+  <!-- End Navbar -->
 
-    <!-- Content -->
-    {% block content %}
+  <!-- Content -->
+  {% block content %}
 
-    {% endblock %}
-    <!-- End Content -->
+  {% endblock %}
+  <!-- End Content -->
 
-    <!-- Footer -->
-    {% include 'components/footer.html' %}
-    <!-- End Footer -->
-  </main>
+  <!-- Footer -->
+  {% include 'components/footer.html' %}
+  <!-- End Footer -->
+</main>
 </body>
 </html>
 
