@@ -447,20 +447,23 @@
                 </div>
 
                 <div class="buttons d-flex flex-row align-items-center mt-1 position-absolute">
-                  <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                  <form action="{% url 'lottery:export-results-reports' %}" method="POST" id="export-results-form">
+                    {% csrf_token %}
+                    <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Exportar resultados" data-container="body" data-animation="true">
                     <a href="" id="export-results" class="" data-bs-toggle="dropdown"
                        aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary"></i></a>
                     <ul class="dropdown-menu" aria-labelledby="export-results">
                       <li>
-                        <a id="by-csv" role="button" class="fs-5"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
+                        <a id="csv" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
                       </li>
                       <li>
-                        <a id="by-excel" role="button" class="fs-5"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
+                        <a id="excel" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
                       </li>
                     </ul>
                   </div>
+                  </form>
                   <form action="{% url 'lottery:send-results-reports' 0 %}" method="POST" id="send-results-form">
                       {% csrf_token %}
                       <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"

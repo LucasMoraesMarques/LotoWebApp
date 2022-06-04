@@ -1,3 +1,4 @@
+import io
 import os.path
 
 from babel.dates import format_date
@@ -7,8 +8,9 @@ from lottery.models import Result
 from LotoWebApp import settings
 from lottery.services import email_sending
 from io import BytesIO
+import pandas as pd
 import requests
-
+import csv
 
 def create_text_report_file(draw, total_scores, collection, total_balance, abridged=False):
     result = draw.result
@@ -228,3 +230,68 @@ def send_by_whatsapp(user, results, user_results):
     msg = resp.message()
     msg.body(message)
     requests.get(whatsapp_api)
+
+def parse_data_to_export(df):
+    df["points_info"] = df["points_info"].apply(lambda x: x["Total"])
+    df["money_balance"] = df["money_balance"].apply(lambda x: x["Total Geral"])
+    money_balance_keys = df.loc[0, "money_balance"].keys()
+    points_keys = df.loc[0, "points_info"].keys()
+    for key in points_keys:
+        df[key] = 0
+    for key in points_keys:
+        df[key] = df["points_info"].apply(lambda x: x[key])
+
+    for key in money_balance_keys:
+        df[key] = 0
+    for key in money_balance_keys:
+        df[key] = df["money_balance"].apply(lambda x: x[key])
+    df.drop(["points_info", "money_balance", "Numero de Jogos"], axis=1, inplace=True)
+    df.rename(columns={"number_of_game_sets": "Nº de Conjuntos",
+                       "number_of_games": "Nº de Jogos",
+                       "collection__name": "Coleção",
+                       "draw__number": "Concurso",
+                       "lottery__name": "Loteria",
+                       "Premiacao": "Premiação",
+                       }, inplace=True)
+    df = df[["Coleção", "Loteria", "Concurso", "Nº de Conjuntos", "Nº de Jogos", "Valor Gasto", "Premiação", "Saldo",
+             *points_keys]]
+    return df
+
+
+def export_by_excel(results):
+    output = io.BytesIO()
+    data = results.values("number_of_game_sets", "number_of_games", "points_info", "money_balance", "collection__name", "draw__number", "lottery__name")
+    df = pd.DataFrame(data)
+    df = parse_data_to_export(df)
+    writer = pd.ExcelWriter(output, engine="xlsxwriter")
+    df.to_excel(writer, index=False, sheet_name=f"Resultados")
+    wbook = writer.book
+    wsheet = writer.sheets[f"Resultados"]
+    wsheet.set_default_row(30)
+    formats = wbook.add_format({"align": "center"})
+    formats.set_align("vcenter")
+    money_format = wbook.add_format({"num_format": "R$ #,##0.00", "align": "center"})
+    money_format.set_align("vcenter")
+    for column in df.columns:
+        column_width = max(df[column].astype(str).map(len).max() + 10, len(column) + 5)
+        col_idx = df.columns.get_loc(column)
+        formatting = formats
+        if column in ["Valor Gasto", "Premiação", "Saldo"]:
+            formatting = money_format
+        wsheet.set_column(col_idx, col_idx, column_width, formatting)
+    wbook.close()
+    output.seek(0)
+    return {"content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "output": output,
+            "file_name": "resultados.xlsx"}
+
+
+def export_by_csv(results):
+    output = io.StringIO()
+    data = results.values("number_of_game_sets", "number_of_games", "points_info", "money_balance", "collection__name",
+                          "draw__number", "lottery__name")
+    df = pd.DataFrame(data)
+    df = parse_data_to_export(df)
+    df.to_csv(output)
+    output.seek(0)
+    return {"content_type": "text/csv", "output": output,
+            "file_name": "resultados.csv"}

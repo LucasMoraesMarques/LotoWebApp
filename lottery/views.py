@@ -1,3 +1,5 @@
+import io
+
 from django.shortcuts import render, redirect
 from lottery.forms import CreateCollectionForm, UploadCollectionForm
 from lottery.models import Lottery, LOTTERY_CHOICES, Game, Draw, Gameset, Collection, Combinations
@@ -365,6 +367,24 @@ def send_results_reports(request, result_id):
     else:
         messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
     return redirect_to
+
+
+@login_required
+def export_results_reports(request):
+    user_results = results.get_by_user(request.user)
+    results_to_send = request.POST.getlist("results", [])
+    results_to_send = user_results.filter(id__in=results_to_send)
+    if request.method == "POST":
+        file_type = request.POST.get("file-type", "excel")
+        handler = eval(f"results.export_by_{file_type}")
+        data = handler(results_to_send)
+
+        response = HttpResponse(
+            data["output"],
+            content_type=data["content_type"],
+        )
+        response["Content-Disposition"] = f'attachment; filename={data["file_name"]}'
+        return response
 
 
 @login_required

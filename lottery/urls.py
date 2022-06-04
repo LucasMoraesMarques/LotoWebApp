@@ -33,6 +33,7 @@ urlpatterns = [
     path("resultados/<int:result_id>", views.results_reports_detail, name="result-detail"),
     path("deletar-resultados/<int:result_id>", views.delete_results_reports, name="delete-results-reports"),
     path("enviar-resultados/<int:result_id>", views.send_results_reports, name="send-results-reports"),
+    path("exportar-resultados", views.export_results_reports, name="export-results-reports"),
     path("profile", views.profile, name="profile"),
     path("login", views.CustomLoginView.as_view(), name="login"),
     path("logout", views.CustomLogoutView.as_view(), name="logout"),

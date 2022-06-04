@@ -172,16 +172,47 @@ function handleDeleteResults() {
   })
 }
 
+function handleExportResults() {
+  fireModal(`Você realmente deseja EXPORTAR os resultados selecionados?`,
+    "Tem certeza ?", "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#results-table").DataTable()
+      var rows = table.rows({ "selected": true })
+      var form = $("#export-results-form")
+      var lotteries = []
+      for (row of rows[0]) {
+        var tr = table.row(row).node()
+        var input = $(tr).find("td:first-child input")
+        var lottery = $(tr).find("p:hidden").text()
+        if (!lotteries.includes(lottery)) {
+          lotteries.push(lottery)
+        }
+        form.append(input)
+      }
+      form.append(`<input type="hidden" name="file-type" value="${this.id}">`)
+      if (lotteries.length > 1) {
+        fireToast("Selecione somente resultados de uma única modalidade da loteria e exporte por loteria.", "Atenção", "warning")
+        form.find("input").remove("[name=results]")
+        form.find("input").remove("[name=file-type]")
+      }
+      else {
+        //form.submit()
+      }
+    }
+  })
+}
+
 
 function showCheckboxes() {
-    var checkboxes = $(this).parent().find(".checkBoxes");
-    if (show) {
-        checkboxes.css("display", "block")
-        show = false;
-    } else {
-        checkboxes.css("display", "none")
-        show = true;
-    }
+  var checkboxes = $(this).parent().find(".checkBoxes");
+  if (show) {
+    checkboxes.css("display", "block")
+    show = false;
+  } else {
+    checkboxes.css("display", "none")
+    show = true;
+  }
 }
 
 $(document).ready(function () {
@@ -193,4 +224,5 @@ $(document).ready(function () {
   $(".send-results-btn").click(handleSendResults)
   $("#delete-results-btn").click(handleDeleteResults)
   $(".selectBox").click(showCheckboxes)
+  $(".export-results-btn").click(handleExportResults)
 })
