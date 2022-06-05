@@ -11,6 +11,8 @@ from io import BytesIO
 import pandas as pd
 import requests
 import csv
+from fpdf import FPDF
+
 
 def create_text_report_file(draw, total_scores, collection, total_balance, abridged=False):
     result = draw.result
@@ -19,7 +21,7 @@ def create_text_report_file(draw, total_scores, collection, total_balance, abrid
     scores_by_games_set = total_scores["Conjuntos"]
     total_by_scores = total_scores["Total"]
     balance_labels = ['Premiacao', 'Valor Gasto', 'Saldo']
-    file_name = f'{collection.name.replace(" ", "_")}_{draw.number}_{"resumido" if abridged else "completo"}.txt'
+    file_name = f'{collection.name.replace(" ", "_")}_{draw.number}_{"resumido" if abridged else "completo"}.pdf'
     lines = []
     result_text = ''
     for number in result:
@@ -46,8 +48,8 @@ def create_text_report_file(draw, total_scores, collection, total_balance, abrid
         lines.append('\n')
         if not abridged:
             lines.append(f"\n\nBalanco por Jogo\n")
-            for game_number, score in scores["Jogos"].items():
-                lines.append(f"\nJogo {game_number}: {score} acertos")
+            for game_number, score in enumerate(scores["Jogos"].values()):
+                lines.append(f"\nJogo {game_number + 1}: {score} acertos")
 
     if len(scores_by_games_set) > 1:
         lines.append(f"\n\n{'':=^30}")
@@ -59,13 +61,24 @@ def create_text_report_file(draw, total_scores, collection, total_balance, abrid
             lines.append(f"\n{label}: R$ {total_balance['Total Geral'][label]:,.2f}")
         lines.append(f"\nNumero de Jogos: {total_balance['Total Geral']['Numero de Jogos']:,.2f}")
         lines.append('\n')
-    file_path = os.path.join(f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/txt/{file_name}")
-    if default_storage.exists(file_path):
+    file_path = f"resultados/usuario_{collection.user.id}/{lottery.name}/{draw.number}/{file_name}"
+
+    if default_storage.exists(os.path.join(settings.MEDIA_ROOT, file_path)):
         output = default_storage.open(file_path, "w+")
         output.write("".join(lines))
         output.close()
     else:
-        default_storage.save(file_path, ContentFile("".join(lines)))
+        """ Save string io buffer in S3
+        output = io.StringIO()
+        output.writelines(lines)
+        output.seek(0)
+        default_storage.save(file_path, ContentFile(output.getvalue().encode("utf-8")))"""
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Arial', 'B', 14)
+        pdf.multi_cell(0, 10, "".join(lines))
+        content = (bytes(pdf.output(file_path, dest='S'), encoding='latin1'))
+        default_storage.save(os.path.join(settings.MEDIA_ROOT, file_path), ContentFile(content))
 
     result_obj, was_created = Result.objects.get_or_create(
         lottery=lottery,
@@ -73,7 +86,7 @@ def create_text_report_file(draw, total_scores, collection, total_balance, abrid
         draw=draw,
         number_of_game_sets=len(scores_by_games_set),
         number_of_games=total_balance["Total Geral"]["Numero de Jogos"],
-        report_file=file_path,
+        report_file=os.path.join(settings.MEDIA_ROOT, file_path),
         abridged=abridged)
     if was_created:
         result_obj.points_info = total_scores
@@ -212,24 +225,24 @@ def send_by_email(user, results, user_results):
 
 
 def send_by_whatsapp(user, results, user_results):
-    from twilio.twiml.messaging_response import MessagingResponse
     from twilio.rest import Client
-    message = """
-    *Resultados*
-    """
-    phone = '+5531983086959'
 
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+    message = client.messages.create(
+        from_='whatsapp:+14155238886',
+        body=f'Oĺá, {user.first_name} {user.last_name}. Segue os arquivos de resultados selecionados.',
+        to='whatsapp:+553183086959',
+    )
     for result_id in results:
         result = user_results.filter(id=result_id).first()
         if result:
-            message += f"\n{result.report_file.url}"
-    account_sid = 'AC206789752706a6333002964c24f080fc'
-    auth_token = 'a59d54db595c4da8e5f1dd0697ef54c0'
-    client = Client(account_sid, auth_token)
-    resp = MessagingResponse()
-    msg = resp.message()
-    msg.body(message)
-    requests.get(whatsapp_api)
+            message = client.messages.create(
+                from_='whatsapp:+14155238886',
+                to='whatsapp:+553183086959',
+                media_url=result.report_file.url
+            )
+
 
 def parse_data_to_export(df):
     df["points_info"] = df["points_info"].apply(lambda x: x["Total"])

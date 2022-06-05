@@ -183,7 +183,7 @@ function handleExportResults() {
       var lotteries = []
       for (row of rows[0]) {
         var tr = table.row(row).node()
-        var input = $(tr).find("td:first-child input")
+        var input = $(tr).find("td:first-child input").clone()
         var lottery = $(tr).find("p:hidden").text()
         if (!lotteries.includes(lottery)) {
           lotteries.push(lottery)
@@ -193,12 +193,13 @@ function handleExportResults() {
       form.append(`<input type="hidden" name="file-type" value="${this.id}">`)
       if (lotteries.length > 1) {
         fireToast("Selecione somente resultados de uma única modalidade da loteria e exporte por loteria.", "Atenção", "warning")
-        form.find("input").remove("[name=results]")
-        form.find("input").remove("[name=file-type]")
       }
       else {
-        //form.submit()
+        form.submit()
       }
+      form.find("input").remove("[name=results]")
+      form.find("input").remove("[name=file-type]")
+      table.rows().deselect()
     }
   })
 }
