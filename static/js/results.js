@@ -216,6 +216,41 @@ function showCheckboxes() {
   }
 }
 
+function handleExportResultGames() {
+  fireModal(`Você realmente deseja EXPORTAR os jogos selecionados?`,
+    "Tem certeza ?", "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var tables = $(".results-table")
+      var form = $("#export-results-reports-games")
+      var total = 0
+      for (let tb of tables) {
+        var table = $(`#${tb.id}`).DataTable()
+        var rows = table.rows({ "selected": true })
+        for (row of rows[0]) {
+          var tr = table.row(row).node()
+          var input = $(tr).find("td:first-child input").clone()
+          form.append(input)
+          total += 1
+        }
+        table.rows().deselect()
+      }
+
+      form.append(`<input type="hidden" name="file-type" value="${this.id}">`)
+      if (total == 0) {
+        fireToast("Selecione algum jogo para exportar!", "Atenção", "warning")
+      }
+      else {
+        form.submit()
+      }
+      form.find("input").remove("[name=games]")
+      form.find("input").remove("[name=file-type]")
+      
+    }
+  })
+
+}
+
 $(document).ready(function () {
   show = true;
   fireMessagesToasts()
@@ -226,4 +261,5 @@ $(document).ready(function () {
   $("#delete-results-btn").click(handleDeleteResults)
   $(".selectBox").click(showCheckboxes)
   $(".export-results-btn").click(handleExportResults)
+  $(".export-results-reports-games-btn").click(handleExportResultGames)
 })

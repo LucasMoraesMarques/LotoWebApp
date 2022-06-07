@@ -430,6 +430,27 @@ def create_results_report(request):
 
 
 @login_required
+def export_results_reports_games(request, result_id):
+    user_results = results.get_by_user(request.user)
+    result = user_results.get(id=result_id)
+    if request.method == "POST":
+        print(request.POST)
+        if result:
+            games_ids = request.POST.getlist("games", [])
+            games_to_export = Game.objects.filter(id__in=games_ids)
+            file_type = request.POST.get("file-type", "excel")
+            handler = eval(f"results.export_results_games_by_{file_type}")
+            data = handler(games_to_export)
+
+            response = HttpResponse(
+                data["output"],
+                content_type=data["content_type"],
+            )
+            response["Content-Disposition"] = f'attachment; filename={data["file_name"]}'
+            return response
+
+
+@login_required
 def get_combinations(request):
     combs_size = request.GET.get("combs-size")
     lottery = request.GET.get("lottery")

@@ -429,45 +429,24 @@ body{margin-top:20px;}
           </div>
         </div>
         <div class="buttons d-flex flex-row align-items-center mt-1">
-                  <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Exportar resultados" data-container="body" data-animation="true">
-                    <a href="" id="export-results" class="" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary"></i></a>
-                    <ul class="dropdown-menu" aria-labelledby="export-results">
-                      <li>
-                        <a id="by-csv" role="button" class="fs-5"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
-                      </li>
-                      <li>
-                        <a id="by-excel" role="button" class="fs-5"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Enviar resultados" data-container="body" data-animation="true">
-                    <a href="" id="send-results" class="" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-envelope fs-4 text-primary"></i></a>
-                    <ul class="dropdown-menu" aria-labelledby="send-results">
-                      <li>
-                        <a id="by-email" role="button" class="fs-5"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
-                      </li>
-                      <li>
-                        <a id="by-whatsapp" role="button" class="fs-5"><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="mx-3">
-                    <form action="{% url 'lottery:delete-results-reports' 0 %}" method="POST" id="action-results">
-                      {% csrf_token %}
-                      <a id="delete-results" role="button" data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Deletar resultados" data-container="body" data-animation="true"><i class="fas fa-trash-alt fs-4 text-danger"></i></a>
-
-                      <input type="hidden" name="action" value="">
-                    </form>
-                  </div>
-                </div>
+          <form action="{% url 'lottery:export-results-reports-games' result.id %}" method="POST" id="export-results-reports-games">
+                    {% csrf_token %}
+          <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               title="Exportar jogos selecionados" data-container="body" data-animation="true">
+            <a href="" id="export-results" class="" data-bs-toggle="dropdown"
+               aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary"></i></a>
+            <ul class="dropdown-menu" aria-labelledby="export-results">
+              <li>
+                <a id="csv" role="button" class="fs-5 export-results-reports-games-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
+              </li>
+              <li>
+                <a id="excel" role="button" class="fs-5 export-results-reports-games-btn"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
+              </li>
+            </ul>
+          </div>
+          </form>
+        </div>
         <div class="nav-wrapper position-relative end-0 my-3">
           <!-- Tabs Nav -->
           <ul class="nav nav-pills nav-fill p-1" role="tablist">
@@ -492,11 +471,13 @@ body{margin-top:20px;}
                  aria-labelledby="nav-{{games_set}}-tab">
               <div class="card-body px-2 pt-0 pb-2">
                 <div class="table-responsive p-0">
-                  <table class="table align-items-center mb-0 display" id="results-{{games_set}}-table"
+                  <table class="table align-items-center mb-0 display results-table" id="results-{{games_set}}-table"
                          data-order='[[0, "asc"]]'>
                     <thead>
                     <tr>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">Selecionar</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder px-1">
+                      <input type="checkbox" name="select-all" value="">
+                    </th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 align-middle">
                         Jogo
                       </th>
@@ -511,7 +492,7 @@ body{margin-top:20px;}
                     <tbody>
                     {% for game_id, game_data in games_data.items %}
                     <tr>
-                      <td><input type="hidden" name="results" ></td>
+                      <td><input type="hidden" name="games" value="{{game_id}}"></td>
                       <td>
                         <p class="text-center text-xs font-weight-bold mb-0">Jogo {{forloop.counter}}</p>
                       </td>

@@ -308,3 +308,48 @@ def export_by_csv(results):
     output.seek(0)
     return {"content_type": "text/csv", "output": output,
             "file_name": "resultados.csv"}
+
+
+def export_results_games_by_excel(games):
+    output = io.BytesIO()
+    data = games.values("lottery__name", "arrayNumbers")
+    df = pd.DataFrame(data)
+    df.rename(columns={"lottery__name": "Loteria",
+                       "arrayNumbers": "Números",
+                       }, inplace=True)
+    game_length = len(df["Números"][0])
+    df = pd.concat([df, pd.DataFrame(df["Números"].tolist(), columns=[f"Bola {i}" for i in range(1, game_length + 1)])],
+                   axis=1)
+    df.drop("Números", inplace=True, axis=1)
+    writer = pd.ExcelWriter(output, engine="xlsxwriter")
+    df.to_excel(writer, index=False, sheet_name=f"Jogos")
+    wbook = writer.book
+    wsheet = writer.sheets[f"Jogos"]
+    wsheet.set_default_row(30)
+    formats = wbook.add_format({"align": "center"})
+    formats.set_align("vcenter")
+    for column in df.columns:
+        column_width = max(df[column].astype(str).map(len).max() + 10, len(column) + 5)
+        col_idx = df.columns.get_loc(column)
+        formatting = formats
+        wsheet.set_column(col_idx, col_idx, column_width, formatting)
+    wbook.close()
+    output.seek(0)
+    return {"content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "output": output,
+            "file_name": "jogos-selecionados.xlsx"}
+
+
+def export_results_games_by_csv(games):
+    output = io.StringIO()
+    data = games.values("lottery__name", "arrayNumbers")
+    df = pd.DataFrame(data)
+    df.rename(columns={"lottery__name": "Loteria",
+                       "arrayNumbers": "Números",
+                       }, inplace=True)
+    game_length = len(df["Números"][0])
+    df = pd.concat([df, pd.DataFrame(df["Números"].tolist(), columns=[f"Bola {i}" for i in range(1, game_length + 1)])], axis=1)
+    df.drop("Números", inplace=True, axis=1)
+    df.to_csv(output)
+    output.seek(0)
+    return {"content_type": "text/csv", "output": output,
+            "file_name": "jogos-selecionados.csv"}
