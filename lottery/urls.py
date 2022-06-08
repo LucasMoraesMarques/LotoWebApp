@@ -32,6 +32,7 @@ urlpatterns = [
     path("resultados", views.results_reports, name="results"),
     path("resultados/<int:result_id>", views.results_reports_detail, name="result-detail"),
     path("resultados/<int:result_id>/exportar-jogos", views.export_results_reports_games, name="export-results-reports-games"),
+    path("resultados/<int:result_id>/criar-conjunto", views.create_game_set_from_result, name="create_game_set_from_result"),
     path("deletar-resultados/<int:result_id>", views.delete_results_reports, name="delete-results-reports"),
     path("enviar-resultados/<int:result_id>", views.send_results_reports, name="send-results-reports"),
     path("exportar-resultados", views.export_results_reports, name="export-results-reports"),

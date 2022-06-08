@@ -451,6 +451,33 @@ def export_results_reports_games(request, result_id):
 
 
 @login_required
+def create_game_set_from_result(request, result_id):
+    if request.method == "POST":
+        result = results.get_by_user(request.user).filter(id=result_id)
+        if result:
+            game_set_name = request.POST.get("gameset-name")
+            is_active = int(request.POST.get("is-active"))
+            games_ids = request.POST.getlist("games")
+            if game_set_name and games_ids:
+                games_to_include = Game.objects.filter(id__in=games_ids)
+                game_set = Gameset.objects.create(name=game_set_name,
+                                                  user=request.user,
+                                                  lottery=result[0].lottery,
+                                                  numberOfGames=games_to_include.count(),
+                                                  gameLength=len(games_to_include[0].arrayNumbers),
+                                                  isActive=bool(is_active)
+                                                  )
+                game_set.games.set(games_to_include)
+                game_set.save()
+                messages.success(request, "Conjunto criado com sucesso!")
+                return redirect('lottery:game-set-detail', game_set_id=game_set.id)
+            messages.error(request, "Ocorreu algum erro inesperado. Tente novamente!")
+            return redirect('lottery:result-detail', result_id=result_id)
+    messages.error(request, "Ocorreu algum erro inesperado. Tente novamente!")
+    return redirect('lottery:result-detail', result_id=result_id)
+
+
+@login_required
 def get_combinations(request):
     combs_size = request.GET.get("combs-size")
     lottery = request.GET.get("lottery")

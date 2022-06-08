@@ -428,7 +428,7 @@ body{margin-top:20px;}
             </p>
           </div>
         </div>
-        <div class="buttons d-flex flex-row align-items-center mt-1">
+          <div class="buttons d-flex flex-row align-items-center mt-1 ms-3">
           <form action="{% url 'lottery:export-results-reports-games' result.id %}" method="POST" id="export-results-reports-games">
                     {% csrf_token %}
           <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
@@ -445,6 +445,15 @@ body{margin-top:20px;}
               </li>
             </ul>
           </div>
+          </form>
+          <form action="{% url 'lottery:create_game_set_from_result' result.id %}" method="POST" id="create-game-set-form">
+            {% csrf_token %}
+            <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                 data-bs-placement="top"
+                 title="Criar conjunto com os jogos selecionados" data-container="body" data-animation="true">
+              <a href="" id="create-game-set-btn" class="fs-5" data-bs-toggle="dropdown"
+                 aria-expanded="false"><i class="fa fa-plus-circle text-primary"></i></a>
+            </div>
           </form>
         </div>
         <div class="nav-wrapper position-relative end-0 my-3">

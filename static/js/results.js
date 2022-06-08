@@ -245,10 +245,57 @@ function handleExportResultGames() {
       }
       form.find("input").remove("[name=games]")
       form.find("input").remove("[name=file-type]")
-      
+
     }
   })
 
+}
+
+function handleCreateGamesetFromSelected() {
+  SwalModal
+  SwalModal.fire({
+    title: 'Criar Conjunto',
+    html: `<input type="text" id="gameset-name" class="swal2-input" placeholder="Nome do Conjunto" required>
+    <div class="d-flex align-items-center justify-content-center"><span>Ativo?</span>
+    <input type="checkbox" id="is-active" class="swal2-input my-auto" placeholder="Ativo?">
+    </div>`,
+    denyButtonText: "Cancelar",
+    confirmButtonText: 'Criar',
+    preConfirm: () => {
+      const gameSetName = Swal.getPopup().querySelector('#gameset-name').value
+      const isActive = Swal.getPopup().querySelector('#is-active').checked
+      if(gameSetName.length == 0){
+        Swal.showValidationMessage(`Escolha um nome válido`)
+      }
+      return { gameSetName: gameSetName, isActive: Boolean(isActive) ? 1 : 0}
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      var form = $("#create-game-set-form")
+      form.append(`<input type="hidden" name="gameset-name" value=${result.value.gameSetName}>`)
+      form.append(`<input type="hidden" name="is-active" value=${result.value.isActive}>`)
+      var tables = $(".results-table")
+      var total = 0
+      for (let tb of tables) {
+        var table = $(`#${tb.id}`).DataTable()
+        var rows = table.rows({ "selected": true })
+        for (row of rows[0]) {
+          var tr = table.row(row).node()
+          var input = $(tr).find("td:first-child input").clone()
+          form.append(input)
+          total += 1
+        }
+        table.rows().deselect()
+      }
+      if (total == 0) {
+        fireToast("Selecione algum jogo para exportar!", "Atenção", "warning")
+      }
+      else {
+        form.submit()
+      }
+      console.log(result)
+    }
+  })
 }
 
 $(document).ready(function () {
@@ -262,4 +309,5 @@ $(document).ready(function () {
   $(".selectBox").click(showCheckboxes)
   $(".export-results-btn").click(handleExportResults)
   $(".export-results-reports-games-btn").click(handleExportResultGames)
+  $("#create-game-set-btn").click(handleCreateGamesetFromSelected)
 })
