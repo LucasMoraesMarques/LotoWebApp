@@ -33,87 +33,55 @@ $(document).ready(function () {
     }
     Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
   }
-
-  $('#gamesets-table').DataTable({
-    "language": {
-      "lengthMenu": "Mostrar _MENU_ jogos por página",
-      "zeroRecords": "",
-      "info": "Página _PAGE_ de _PAGES_",
-      "infoEmpty": "Nenhum jogo encontrado",
-      "infoFiltered": "(Filtrados de _MAX_ jogos)",
-      "paginate": {
-        "previous": "←",
-        "next": "→"
+  $("#gamesets-table").DataTable({
+    language: {
+      lengthMenu: "Mostrar _MENU_ jogos por página",
+      zeroRecords: "",
+      info: "Página _PAGE_ de _PAGES_",
+      infoEmpty: "Nenhum jogo encontrado",
+      infoFiltered: "(Filtrados de _MAX_ jogod)",
+      paginate: {
+        previous: "←",
+        next: "→",
       },
-      "searchPlaceholder": "Busque jogos por loteria, nome ou status",
-      "search": "Filtrar"
-
+      searchPlaceholder: "Filtre por loteria, nome ou status",
+      search: "Filtrar",
     },
-    "dom": "Brtip",
-    "buttons": [
-        {
-        "extend": "collection",
-            "text": "Exportar",
-            "autoClose": true,
-            "className": "btn btn-primary",
-            "buttons":[
-                {
-                extend:    'excelHtml5',
-                text:      '<i class="fa fa-file-excel fs-5"></i>',
-                titleAttr: 'Exportar como Excel',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            },
-            {
-                extend:    'csvHtml5',
-                text:      '<i class="fa fa-file-text fs-5"></i>',
-                titleAttr: 'Exportar como CSV',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            },
-            {
-                extend:    'pdfHtml5',
-                text:      '<i class="fa fa-file-pdf fs-5"></i>',
-                titleAttr: 'Exportar como PDF',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            },
-            {
-                extend:    'print',
-                text:      '<i class="fa fa-print fs-5"></i>',
-                titleAttr: 'Imprimir tabela',
-                className: "btn btn-secondary fs-5 px-3 py-2"
-            }
-            ]
-            },
-            {
-            "extend": "collection",
-            "text": "Selecionar",
-            "autoClose": true,
-            "className": "btn btn-primary",
-            "buttons":[
-                {
-                    "extend": "selectAll",
-                    "text": "Selecionar tudo",
-                    "className": "btn btn-secondary px-3 py-2"
-                },
-                {
-                    "extend": "selectNone",
-                    "text": "Limpar seleção",
-                    "className": "btn btn-secondary px-3 py-2"
-                },
-            ]
-            },
+    dom: "fBlrtip",
+    buttons: [
+      {
+        extend: "collection",
+        text: "Selecionar",
+        autoClose: true,
+        className: "btn btn-primary d-none opacity-0",
+        buttons: [
+          {
+            extend: "selectAll",
+            text: "Selecionar tudo",
+            className: "btn btn-secondary px-3 py-2",
+          },
+          {
+            extend: "selectNone",
+            text: "Limpar seleção",
+            className: "btn btn-secondary px-3 py-2",
+          },
+        ],
+      },
     ],
 
-    "columnDefs": [ {
-            "orderable": false,
-            "className": 'select-checkbox',
-            "targets":   0
-        },
-         ],
-    "select": {
-        "style": "multi",
-        "selector": "td:first-child",
+    columnDefs: [
+      {
+        orderable: false,
+        className: "select-checkbox",
+        targets: 0,
+      },
+    ],
+    select: {
+      style: "multi",
+      selector: "td:first-child",
     },
   });
+
 
   $('#collections-table').DataTable({
     "language": {
