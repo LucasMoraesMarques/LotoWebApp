@@ -456,6 +456,7 @@ def create_game_set_from_result(request, result_id):
         result = results.get_by_user(request.user).filter(id=result_id)
         if result:
             game_set_name = request.POST.get("gameset-name")
+            print(game_set_name, request.POST)
             is_active = int(request.POST.get("is-active"))
             games_ids = request.POST.getlist("games")
             if game_set_name and games_ids:

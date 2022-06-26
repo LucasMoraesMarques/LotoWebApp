@@ -285,15 +285,24 @@ $(document).ready(function () {
 
 function mapNumbers(cellId, op) { // Update grid of fixed and removed numbers
   console.log(op, cellId)
+  let lottery = $("input[name='lottery_name']:checked").val()
+  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nPlayedChosen = parseInt($("input[name=nPlayed]:checked").val())
+  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nPossiblesList = lotteryInfo[lottery].nPossiblesList
   switch (op) {
     case "removed":
-      counterFixedId = cellId.replace(op, 'fixed');
+    if(nFixed.length < nPlayedChosen){
+       counterFixedId = cellId.replace(op, 'fixed');
       $("#label-".concat(counterFixedId)).toggleClass('disabled');
+    }
       break;
-
     case "fixed":
-      counterRemovedId = cellId.replace(op, 'removed');
+    if(nRemoved.length < (nPossiblesList.length - nPlayedChosen)){
+        counterRemovedId = cellId.replace(op, 'removed');
       $("#label-".concat(counterRemovedId)).toggleClass('disabled')
+    }
+
       break;
   }
 
@@ -311,6 +320,7 @@ function handleLotteryParams(lottery) { // Handle change in lottery type, updati
   resetFixedAndRemovedGrids(lottery)
   updateFixedAndRemovedGrids()
   handleGeneratorSelect($("input[name=generator]:checked").get(0))
+  $("#counters").show()
 }
 
 function updateNPlayedRadio(lottery){ // Update nPlayed options
@@ -345,8 +355,7 @@ function resetFixedAndRemovedGrids(lottery){ // Reset fixed and removed numbers 
           <input type="checkbox" class="btn-check" id="check-fixed-${value}"
             name="nFixed" value="${value}" autocomplete="off"
             onchange="mapNumbers(this.id, 'fixed')">
-          <label class="btn btn-outline-success mb-2 disabled" for="check-fixed-${value}"
-            style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
+          <label class="btn btn-outline-success mb-2 disabled games-checkbox" for="check-fixed-${value}"
             id="label-check-fixed-${value}">${value}</label>
       </div>`
     )
@@ -358,8 +367,7 @@ function resetFixedAndRemovedGrids(lottery){ // Reset fixed and removed numbers 
           <input type="checkbox" class="btn-check" id="check-removed-${value}"
             name="nRemoved" value="${value}" autocomplete="off"
             onchange="mapNumbers(this.id, 'removed')">
-          <label class="btn btn-outline-danger mb-2 disabled" for="check-removed-${value}"
-            style="padding:3px 3px; width:40px; height:40px; font-size:20px;"
+          <label class="btn btn-outline-danger mb-2 disabled games-checkbox" for="check-removed-${value}"
             id="label-check-removed-${value}">${value}</label>
       </div>`
     )
@@ -373,23 +381,58 @@ function updateFixedAndRemovedGrids(){ // Callback to reset grids on nPlayed val
   let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
   let lottery = $("input[name='lottery_name']:checked").val()
   let nPossiblesList = lotteryInfo[lottery].nPossiblesList
-  let sum = nFixed.length + nRemoved.length
-  if (sum == nPlayedChosen) {
+  if (nRemoved.length < (nPossiblesList.length - nPlayedChosen)){
+    nPossiblesList.map((ind, el) => {
+      let value = parseInt(el) + 1
+      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+        $("label[for='check-removed-" + value + "']").removeClass('disabled');
+      }
+    })
+  }
+  else if ((nRemoved.length == (nPossiblesList.length - nPlayedChosen))) {
     nPossiblesList.map((ind, el) => {
       let value = parseInt(el) + 1 
       if(!(nFixed.includes(value) || nRemoved.includes(value))){
-        console.log("equal", value)
-        $("label[for='check-fixed-" + value + "']").addClass('disabled');
         $("label[for='check-removed-" + value + "']").addClass('disabled');
       }
     })
   }
-  else if (sum > nPlayedChosen){
-    $("#calc-combs-btn").addClass("disabled")
+  else {
+    while (nRemoved.length > (nPossiblesList.length - nPlayedChosen)){
+        $("input[id='check-removed-" + nRemoved[0] + "']").prop("checked", false);
+        $("label[for='check-removed-" +  nRemoved[0] + "']").addClass('disabled');
+        $("label[for='check-fixed-" +  nRemoved[0] + "']").removeClass('disabled');
+        nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+    }
+  }
+  if (nFixed.length < nPlayedChosen){
+    nPossiblesList.map((ind, el) => {
+      let value = parseInt(el) + 1
+      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+        $("label[for='check-fixed-" + value + "']").removeClass('disabled');
+      }
+    })
+  }
+  else if (nFixed.length == nPlayedChosen){
+    nPossiblesList.map((ind, el) => {
+      let value = parseInt(el) + 1
+      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+        $("label[for='check-fixed-" + value + "']").addClass('disabled');
+      }
+    })
   }
   else {
+    while (nFixed.length > nPlayedChosen){
+        $("input[id='check-fixed-" + nFixed[0] + "']").prop("checked", false);
+        $("label[for='check-fixed-" +  nFixed[0] + "']").addClass('disabled');
+        $("label[for='check-removed-" +  nFixed[0] + "']").removeClass('disabled');
+        nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+    }
+  }
+
+  if(!nRemoved.length && !nFixed.length){
     nPossiblesList.map((ind, el) => {
-      let value = parseInt(el) + 1 
+      let value = parseInt(el) + 1
       console.log(nFixed.includes(value), nRemoved.includes(value))
       if(!(nFixed.includes(value) || nRemoved.includes(value)) && (nPlayedChosen)){
         console.log("diff", value)
@@ -397,7 +440,10 @@ function updateFixedAndRemovedGrids(){ // Callback to reset grids on nPlayed val
         $("label[for='check-removed-" + value + "']").removeClass('disabled');
       }
     })
-  }
+    }
+    console.log("here2")
+    $("#counter-fixed").text(nFixed.length)
+  $("#counter-removed").text(nRemoved.length)
 }
 
 
@@ -421,6 +467,7 @@ function handleActionButtons(state) { // Handle which buttons appears in a given
   var submitGeneratorForm = $("#submit-generator")
   var resetGeneratorForm = $("#reset-generator-form")
   var seeGameSet = $("#see-games-set")
+  var counters = $("#counters")
   switch (state) {
     case "calc":
       calcCombsBtn.show();
@@ -428,6 +475,7 @@ function handleActionButtons(state) { // Handle which buttons appears in a given
       submitGeneratorForm.hide();
       resetGeneratorForm.hide();
       seeGameSet.hide();
+      counters.show()
       break;
     case "submit":
       calcCombsBtn.hide();
@@ -435,12 +483,14 @@ function handleActionButtons(state) { // Handle which buttons appears in a given
       resetGeneratorForm.show();
       seeGameSet.hide();
       $("#nJogos-input").show()
+      counters.hide()
       break;
     case "see":
       calcCombsBtn.hide();
       submitGeneratorForm.hide();
       seeGameSet.show();
       resetGeneratorForm.show();
+      counters.hide()
       break;
     case "reset":
       calcCombsBtn.hide();
@@ -448,6 +498,9 @@ function handleActionButtons(state) { // Handle which buttons appears in a given
       seeGameSet.hide();
       resetGeneratorForm.show();
       handleGeneratorSelect($("input[name=generator]:checked").get(0))
+      $("#counter-fixed").text(0)
+      $("#counter-removed").text(0)
+      counters.hide()
       break;
   }
 }
@@ -518,10 +571,10 @@ $("#submit-generator").click(function () { // Handle if form submition is valid
   var nJogos = parseInt($("#nJogos-input").val())
   var nCombs = parseInt($("#nCombs").val())
   if (nJogos <= 0 | !nJogos) {
-    showAlertMessage("O número de jogos pedidos deve ser maior que zero e diferente de vazio. Tente novamente!", "danger")
+    fireToast("O número de jogos pedidos deve ser maior que zero e diferente de vazio. Tente novamente!", "Atenção", "warning")
   }
   else if (nJogos > nCombs) {
-    showAlertMessage("O número de jogos pedidos é maior que o número de combinação possíveis. Tente novamente!", "danger")
+    fireToast("O número de jogos pedidos é maior que o número de combinação possíveis. Tente novamente!", "Atenção", "warning")
   }
   else {
     $("#gerador-form").submit()
@@ -591,6 +644,9 @@ $("#reset-generator-form").click(function () { // Reset generator form completel
   $("#grid-removed .numbers").empty()
   $("#grid-fixed .numbers").empty()
   $("#check-nPlayed .numbers").empty()
+  $("#counter-fixed").text(0)
+  $("#counter-removed").text(0)
+  $("#counters").hide()
 })
 
 $("#gerador-form").change(function () { // Listen to changes on generator form and handle calc-combs-btn display
@@ -599,8 +655,7 @@ $("#gerador-form").change(function () { // Listen to changes on generator form a
   let nPlayed = parseInt($("input[name=nPlayed]:checked").val())
   let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
   let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
-  let sum = nFixed.length + nRemoved.length
-  if (generator && lottery && nPlayed && sum <= nPlayed) {
+  if (generator && lottery && nPlayed) {
     $("#calc-combs-btn").removeClass("disabled")
   }
   else {

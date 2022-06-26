@@ -296,7 +296,8 @@
                       </div>
                     </div>
                   </div>
-                  <div id="actions-buttons">
+                  <div class="d-flex flex-row justify-content-between align-items-center">
+                     <div id="actions-buttons" class="flex-fill">
                     <input type="button" class="btn btn-primary mt-2 disabled" id="calc-combs-btn"
                          value="Calcular Combinações" onclick="calcNumberOfCombinations()">
                   <input type="button" class="btn btn-primary mt-2" id="submit-generator" value="Gerar jogos" style="display:none">
@@ -304,6 +305,11 @@
                          style="display:none">
                   <input type="button" class="btn btn-primary mt-2 mx-2" id="see-games-set" style="display:none"
                          value="Ver Jogos" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  </div>
+                    <div id="counters" style="display:none">
+                      <span class="btn pe-none btn-outline-success mb-2 games-checkbox" id="counter-fixed">0</span>
+                      <span class="btn pe-none btn-outline-danger mb-2 games-checkbox" id="counter-removed">0</span>
+                    </div>
                   </div>
                 </form>
               </div>

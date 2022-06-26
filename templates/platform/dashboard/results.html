@@ -452,8 +452,8 @@
                     <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Exportar resultados" data-container="body" data-animation="true">
-                    <a href="" id="export-results" class="" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary"></i></a>
+                    <a role="button" id="export-results" class="" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary align-middle"></i> Exportar</a>
                     <ul class="dropdown-menu" aria-labelledby="export-results">
                       <li>
                         <a id="csv" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
@@ -469,8 +469,8 @@
                       <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Enviar resultados" data-container="body" data-animation="true">
-                    <a href="" id="send-results-options" class="" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-envelope fs-4 text-primary"></i></a>
+                    <a role="button" id="send-results-options" class="text-center" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-envelope fs-4 text-primary align-middle"></i> Enviar</a>
                     <ul class="dropdown-menu" aria-labelledby="send-results-options">
                       <li>
                         <a id="email" role="button" class="fs-5 send-results-btn"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
@@ -479,18 +479,19 @@
                         <a id="whatsapp" role="button" class="fs-5 send-results-btn" ><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
                       </li>
                     </ul>
-                  </div>
-                    </form>
-                  <div class="mx-3">
+                      </div>
+                  </form>
                     <form action="{% url 'lottery:delete-results-reports' 0 %}" method="POST" id="action-results">
                       {% csrf_token %}
-                      <a id="delete-results-btn" role="button" data-bs-toggle="tooltip"
+                       <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
-                               title="Deletar resultados" data-container="body" data-animation="true"><i class="fas fa-trash-alt fs-4 text-danger"></i></a>
+                               title="Deletar resultados" data-container="body" data-animation="true">
+                      <a role="button" id="delete-results-btn" class="text-center"><i
+                              class="fas fa-trash-alt fs-4 text-danger align-middle"></i>Deletar</a>
+                         </div>
 
                       <input type="hidden" name="action" value="">
                     </form>
-                  </div>
                 </div>
               </div>
               <div class="card-body px-2 pt-0 pb-2">
