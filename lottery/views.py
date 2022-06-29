@@ -142,6 +142,34 @@ def games(request):
 
 
 @login_required
+def export_games_sets(request):
+    user_games_sets = gamesets.all(request.user)
+    games_sets_to_export = request.POST.getlist("games-sets", [])
+    games_sets_to_export = user_games_sets.filter(id__in=games_sets_to_export)
+    if request.method == "POST":
+        file_type = request.POST.get("file-type", "excel")
+        handler = eval(f"gamesets.export_by_{file_type}")
+        data = handler(games_sets_to_export)
+
+        response = HttpResponse(
+            data["output"],
+            content_type=data["content_type"],
+        )
+        response["Content-Disposition"] = f'attachment; filename={data["file_name"]}'
+        return response
+
+
+@login_required
+def delete_game_sets(request):
+    pass
+
+
+@login_required
+def send_game_sets(request):
+    pass
+
+
+@login_required
 def games_generators(request):
     if request.is_ajax and request.method == "POST":
         form = forms.Form(request.POST)

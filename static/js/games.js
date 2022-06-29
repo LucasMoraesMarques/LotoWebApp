@@ -47,28 +47,7 @@ $(document).ready(function () {
       searchPlaceholder: "Filtre por loteria, nome ou status",
       search: "Filtrar",
     },
-    dom: "fBlrtip",
-    buttons: [
-      {
-        extend: "collection",
-        text: "Selecionar",
-        autoClose: true,
-        className: "btn btn-primary d-none opacity-0",
-        buttons: [
-          {
-            extend: "selectAll",
-            text: "Selecionar tudo",
-            className: "btn btn-secondary px-3 py-2",
-          },
-          {
-            extend: "selectNone",
-            text: "Limpar seleção",
-            className: "btn btn-secondary px-3 py-2",
-          },
-        ],
-      },
-    ],
-
+    dom: "flrtip",
     columnDefs: [
       {
         orderable: false,
@@ -98,55 +77,7 @@ $(document).ready(function () {
       "search": "Filtrar"
 
     },
-    "dom": "Brtip",
-    "buttons": [
-        {
-            "extend": "collection",
-            "text": "Exportar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "csv",
-                    "text": "CSV",
-                    "className": ""
-                },
-                {
-                    "extend": "excel",
-                    "text": "EXCEL",
-                    "className": ""
-                },
-                {
-                    "extend": "pdf",
-                    "text": "PDF",
-                    "className": ""
-                },
-                {
-                    "extend": "print",
-                    "text": "IMPRIMIR",
-                    "className": ""
-                }]
-            },
-            {
-            "extend": "collection",
-            "text": "Selecionar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "selectAll",
-                    "text": "Selecionar tudo",
-                    "className": ""
-                },
-                {
-                    "extend": "selectNone",
-                    "text": "Limpar seleção",
-                    "className": ""
-                },
-            ]
-            },
-    ],
-
+    "dom": "frtip",
     "columnDefs": [ {
             "orderable": false,
             "className": 'select-checkbox',
@@ -159,84 +90,6 @@ $(document).ready(function () {
     },
     "searchBuilder": true,
   });
-
-  $('#results-table').DataTable({
-    "language": {
-      "lengthMenu": "Mostrar _MENU_ jogos por página",
-      "zeroRecords": "",
-      "info": "Página _PAGE_ de _PAGES_",
-      "infoEmpty": "Nenhum jogo encontrado",
-      "infoFiltered": "(Filtrados de _MAX_ jogos)",
-      "paginate": {
-        "previous": "←",
-        "next": "→"
-      },
-      "searchPlaceholder": "Busque jogos por loteria, nome ou status",
-      "search": "Filtrar"
-
-    },
-    "dom": "Brtip",
-    "buttons": [
-        {
-            "extend": "collection",
-            "text": "Exportar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "csv",
-                    "text": "CSV",
-                    "className": ""
-                },
-                {
-                    "extend": "excel",
-                    "text": "EXCEL",
-                    "className": ""
-                },
-                {
-                    "extend": "pdf",
-                    "text": "PDF",
-                    "className": ""
-                },
-                {
-                    "extend": "print",
-                    "text": "IMPRIMIR",
-                    "className": ""
-                }]
-            },
-            {
-            "extend": "collection",
-            "text": "Selecionar",
-            "autoClose": true,
-            "className": "",
-            "buttons":[
-                {
-                    "extend": "selectAll",
-                    "text": "Selecionar tudo",
-                    "className": ""
-                },
-                {
-                    "extend": "selectNone",
-                    "text": "Limpar seleção",
-                    "className": ""
-                },
-            ]
-            },
-    ],
-
-    "columnDefs": [ {
-            "orderable": false,
-            "className": 'select-checkbox',
-            "targets":   0
-        },
-         ],
-    "select": {
-        "style": "multi",
-        "selector": "td:first-child",
-    },
-    "searchBuilder": true,
-  });
-
 
 
   $('#collectionsTable_filter input[type="search"]').attr(
@@ -702,6 +555,85 @@ $("#collection-file-form").submit(function (e) { // Handle file input to create 
       alert(response.responseJSON["error"]);
     }
 
+  })
+})
+
+$(document).ready(function() {
+  $(".messages p").each((ind, el) => {
+  console.log(el)
+    Toast.fire({
+    icon: 'success',
+    title: el.innerText
+})
+  })
+} );
+
+$("#activate-gamesets, #delete-gamesets, #deactivate-gamesets").click(function(){
+  var action = this.innerText
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja ${this.innerText} os conjuntos selecionados?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    confirmButtonColor: "green",
+    denyButtonColor: "red",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+    var table = $("#gamesets-table").DataTable()
+    var rows = table.rows({selected: true})
+    var form = $("#modify-gameset")
+    for(row of rows[0]){
+      var tr = table.row(row).node()
+      var input = $(tr).find("td:first-child input")
+      form.append(input)
+    }
+      $("#modify-gameset input[name=action]").val(action)
+      $("#modify-gameset").submit()
+    }
+    else if (answer.isDenied){
+
+    }
+  })
+})
+
+$("#delete-collections").click(function(){
+  var action = this.innerText
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja ${this.innerText} os coleções selecionadas?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    confirmButtonColor: "green",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+    var table = $("#collections-table").DataTable()
+    var rows = table.rows({"selected": true})
+    var form = $("#edit-collection")
+    for(row of rows[0]){
+      var tr = table.row(row).node()
+      var input = $(tr).find("td:first-child input")
+      form.append(input)
+    }
+      $("#edit-collection input[name=action]").val(action)
+      form.submit()
+    }
+    else if (answer.isDenied){
+
+    }
   })
 })
 

@@ -450,9 +450,10 @@
                     <a href=""><i class="fa fa-file-csv fs-2 mx-3"></i></a>
                   </p>
                   </p>
-                    <button class="btn btn-outline-primary mb-0" type="button" id="add-collection3" data-bs-toggle="modal" data-bs-target="#addCollectionModal">Criar
-                              nova
-                            </button>
+                  <button class="btn btn-outline-primary mb-0" type="button" id="add-collection3" data-bs-toggle="modal"
+                          data-bs-target="#addCollectionModal">Criar
+                    nova
+                  </button>
                 </div>
               </div>
             </div>
@@ -480,7 +481,9 @@
                   <table class="table align-items-center mb-0 display" id="collections-table">
                     <thead>
                     <tr>
-                      <th>Selecionar</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center">
+                        <input type="checkbox" name="select-all" value="">
+                      </th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Loteria</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder ps-2">Nome</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder">Nº de
@@ -560,18 +563,18 @@
                           <div class="timeline-content">
                       <h6 class="text-dark text-sm font-weight-bold mb-0"> {{collection.name|capfirst}}</h6>
                       <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">{{collection.createdAt|date:"d M Y"}}</p>
-                    </div>
-                        </a>
+                          </div>
+                    </a>
 
                   </div>
                 </div>
 
-                    {% endwith %}
-                    {% endfor %}
+                {% endwith %}
+                {% endfor %}
 
               </div>
             </div>
-          </div>
+            </div>
         </div>
 
 
@@ -732,23 +735,73 @@
                     <i class="fa fa-search-plus text-success" aria-hidden="true"></i>
                     {{collectionsData.totalGamesets}} conjuntos encontrados
                   </p>
+
+                <div class="buttons d-flex flex-row align-items-center mt-1 position-absolute">
+                  <form action="{% url 'lottery:export-results-reports' %}" method="POST" id="export-results-form">
+                    {% csrf_token %}
+                    <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Exportar resultados" data-container="body" data-animation="true">
+                    <a role="button" id="export-results" class="" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary align-middle"></i> Exportar</a>
+                    <ul class="dropdown-menu" aria-labelledby="export-results">
+                      <li>
+                        <a id="csv" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
+                      </li>
+                      <li>
+                        <a id="excel" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
+                      </li>
+                    </ul>
+                  </div>
+                  </form>
+                  <form action="{% url 'lottery:send-results-reports' 0 %}" method="POST" id="send-results-form">
+                      {% csrf_token %}
+                      <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Enviar resultados" data-container="body" data-animation="true">
+                    <a role="button" id="send-results-options" class="text-center" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-envelope fs-4 text-primary align-middle"></i> Enviar</a>
+                    <ul class="dropdown-menu" aria-labelledby="send-results-options">
+                      <li>
+                        <a id="email" role="button" class="fs-5 send-results-btn"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
+                      </li>
+                      <li>
+                        <a id="whatsapp" role="button" class="fs-5 send-results-btn" ><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
+                      </li>
+                    </ul>
+                      </div>
+                  </form>
+                      <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Editar status" data-container="body" data-animation="true">
+                    <a role="button" id="edit-gameset-status-options" class="text-center" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-check-circle fs-4 text-primary align-middle"></i> Status</a>
+                    <ul class="dropdown-menu" aria-labelledby="edit-gameset-status-options">
+                      <li>
+                        <a id="activate-gamesets" role="button" class="fs-5 send-results-btn"><i class="fa fa-check text-primary mx-2"></i>Ativar</a>
+                      </li>
+                      <li>
+                        <a id="deactivate-gamesets" role="button" class="fs-5 send-results-btn" ><i class="fa fa-times text-primary mx-2"></i>Desativar</a>
+                      </li>
+                    </ul>
+                      </div>
+                    <form action="{% url 'lottery:delete-results-reports' 0 %}" method="POST" id="action-results">
+                      {% csrf_token %}
+                       <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Deletar conjuntos" data-container="body" data-animation="true">
+                      <a role="button" id="delete-gamesets" class="text-center"><i
+                              class="fas fa-trash-alt fs-4 text-danger align-middle"></i>Deletar</a>
+                         </div>
+
+                      <input type="hidden" name="action" value="">
+                    </form>
+                </div>
                 </div>
                 <form action="{% url 'lottery:games' %}" id="modify-gameset" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="">
                  </form>
-                <div class="buttons">
-                  <div class="btn-group" role="group">
-                  <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    STATUS
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                    <button type="button" class="btn btn-success" id="activate-gamesets">ATIVAR</button>
-                    <button type="button" class="btn btn-danger" id="deactivate-gamesets">DESATIVAR</button>
-                  </ul>
-                </div>
-                  <button type="button" class="btn btn-danger" id="delete-gamesets">DELETAR</button>
-                </div>
               </div>
               <div class="card-body px-2 pt-0 pb-2">
                   <div class="table-responsive p-0">
@@ -919,90 +972,6 @@
 
 {% block script %}
 <script src="{% static 'js/games.js' %}"></script>
-<script>
-
-$(document).ready(function() {
-  $(".messages p").each((ind, el) => {
-  console.log(el)
-    Toast.fire({
-    icon: 'success',
-    title: el.innerText
-})
-  })
-} );
-
-$("#activate-gamesets, #delete-gamesets, #deactivate-gamesets").click(function(){
-  var action = this.innerText
-  Swal.fire({
-    icon:"warning",
-    title: "Tem certeza ?",
-    text: `Você realmente deseja ${this.innerText} os conjuntos selecionados?`,
-    showDenyButton: true,
-    confirmButtonText: "SIM",
-    denyButtonText: "NÃO",
-    confirmButtonColor: "green",
-    denyButtonColor: "red",
-    customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-    var table = $("#gamesets-table").DataTable()
-    var rows = table.rows({selected: true})
-    var form = $("#modify-gameset")
-    for(row of rows[0]){
-      var tr = table.row(row).node()
-      var input = $(tr).find("td:first-child input")
-      form.append(input)
-    }
-      $("#modify-gameset input[name=action]").val(action)
-      $("#modify-gameset").submit()
-    }
-    else if (answer.isDenied){
-
-    }
-  })
-})
-
-$("#delete-collections").click(function(){
-  var action = this.innerText
-  Swal.fire({
-    icon:"warning",
-    title: "Tem certeza ?",
-    text: `Você realmente deseja ${this.innerText} os coleções selecionadas?`,
-    showDenyButton: true,
-    confirmButtonText: "SIM",
-    denyButtonText: "NÃO",
-    confirmButtonColor: "green",
-    customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-    var table = $("#collections-table").DataTable()
-    var rows = table.rows({"selected": true})
-    var form = $("#edit-collection")
-    for(row of rows[0]){
-      var tr = table.row(row).node()
-      var input = $(tr).find("td:first-child input")
-      form.append(input)
-    }
-      $("#edit-collection input[name=action]").val(action)
-      form.submit()
-    }
-    else if (answer.isDenied){
-
-    }
-  })
-})
-</script>
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.1/math.js"></script>
 {% endblock %}
 
 
