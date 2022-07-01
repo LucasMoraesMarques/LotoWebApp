@@ -55,7 +55,7 @@ class Command(BaseCommand):
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3', 'Accept-Encoding': 'gzip, deflate, sdch',
                 'Accept-Language': 'en-US,en;q=0.8', 'Connection': 'keep-alive'}
-            response = requests.get(loto.urlDailyResultAPI, headers=headers)
+            response = requests.get(loto.urlDailyResultAPI, headers=headers, verify=False)
         except Exception:
             raise CommandError("Error in requisition! '%s'" % response.status_code)
         else:

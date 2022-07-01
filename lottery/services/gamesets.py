@@ -2,9 +2,7 @@ from typing import List
 from django.contrib.auth import get_user_model
 from django.db.models import F
 import io
-from lottery.models import Games, Gameset
-from LotoWebApp import settings
-from lottery.services import email_sending
+
 import pandas as pd
 
 
