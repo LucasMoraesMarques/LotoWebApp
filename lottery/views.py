@@ -36,7 +36,7 @@ def create_collection(request):
         form = CreateCollectionForm(request.POST)
         data = {}
         if form.is_valid():
-            user_collections = collections.all(request.user)
+            user_collections = collections.get_by_user(request.user)
             if user_collections.filter(name=form.cleaned_data["name"]).exists():
                 data = {'error': "Já existe um coleção com esse nome. Tente novamente com outro nome!"}
             else:
@@ -98,9 +98,9 @@ def lottery_detail(request, name=''):
 @login_required
 def games(request):
     lotteries_objs = Lottery.objects.all()
-    user_games_sets = gamesets.all(request.user)
+    user_games_sets = gamesets.get_by_user(request.user)
     last_games_sets = gamesets.historic(request.user)
-    user_collections = collections.all(request.user)
+    user_collections = collections.get_by_user(request.user)
     last_collections = collections.historic(request.user)
     collection_creation_form = CreateCollectionForm()
     upload_collection_file_form = UploadCollectionForm()
@@ -143,7 +143,7 @@ def games(request):
 
 @login_required
 def export_games_sets(request):
-    user_games_sets = gamesets.all(request.user)
+    user_games_sets = gamesets.get_by_user(request.user)
     games_sets_to_export = request.POST.getlist("games-sets", [])
     games_sets_to_export = user_games_sets.filter(id__in=games_sets_to_export).prefetch_related("games")
     if request.method == "POST":
@@ -160,13 +160,32 @@ def export_games_sets(request):
 
 
 @login_required
-def delete_game_sets(request):
-    pass
+def edit_games_sets(request):
+    user_games_sets = gamesets.get_by_user(request.user)
+    games_sets_to_edit = request.POST.getlist("games-sets", [])
+    is_detail_view = request.POST.get("is_detail", "False")
+    games_sets_to_edit = user_games_sets.filter(id__in=games_sets_to_edit).prefetch_related("games")
+    redirect_to = redirect('lottery:games')
+    if request.POST:
+        if eval(is_detail_view):
+            redirect_to = redirect('lottery:game-set-detail', game_set_id=games_sets_to_edit.first().id)
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            action = request.POST.get("action")
+            games_sets_ids = [int(i) for i in request.POST.getlist("games-sets")]
+            if games_sets_ids and action:
+                action_name = gamesets.apply_action(games_sets_to_edit, [], action)
+                messages.success(request, f"Conjuntos {action_name} com sucesso!")
+        else:
+            messages.error(request, f"Formulário Inválido! Tente novamente.")
+    else:
+        messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect_to
 
 
 @login_required
 def send_game_sets(request, game_set_id):
-    user_games_sets = gamesets.all(request.user)
+    user_games_sets = gamesets.get_by_user(request.user)
     games_sets_to_send = request.POST.getlist("games-sets", [])
     games_sets_to_send = user_games_sets.filter(id__in=games_sets_to_send).prefetch_related("games")
     method = request.POST.get('method', '')
@@ -188,6 +207,77 @@ def send_game_sets(request, game_set_id):
             gamesets.send_by_whatsapp(request.user, games_sets_to_send, user_games_sets)
         messages.success(request, f"Conjuntos ENVIADOS com sucesso!" if len(
             games_sets_to_send) > 1 else f"Conjuntos ENVIADO com sucesso!")
+    else:
+        messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect_to
+
+
+@login_required
+def export_collections(request):
+    user_collections = collections.get_by_user(request.user)
+    collections_to_export = request.POST.getlist("collections", [])
+    collections_to_export = user_collections.filter(id__in=collections_to_export).prefetch_related("gamesets", "gamesets__games")
+    if request.method == "POST":
+        file_type = request.POST.get("file-type", "excel")
+        handler = eval(f"collections.export_collections_by_{file_type}")
+        data = handler(collections_to_export)
+        response = HttpResponse(
+            data["output"],
+            content_type=data["content_type"],
+        )
+        response["Content-Disposition"] = f'attachment; filename={data["file_name"]}'
+        return response
+
+
+@login_required
+def edit_collections(request):
+    user_collections = collections.get_by_user(request.user)
+    user_games_sets = gamesets.get_by_user(request.user)
+    collections_to_edit = request.POST.getlist("collections", [])
+    is_detail_view = request.POST.get("is_detail", "False")
+    collections_to_edit = user_collections.filter(id__in=collections_to_edit).prefetch_related("gamesets", "gamesets__games")
+    redirect_to = redirect('lottery:games')
+    if request.POST:
+        if eval(is_detail_view):
+            redirect_to = redirect('lottery:collection-detail', collection_id=collections_to_edit.first().id)
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            action = request.POST.get("action")
+            collections_ids = [int(i) for i in request.POST.getlist("collections")]
+            if collections_ids and action:
+                action_name = collections.apply_action(collections_to_edit, [], [], action)
+                messages.success(request, f"Coleções {action_name} com sucesso!")
+        else:
+            messages.error(request, f"Formulário Inválido! Tente novamente.")
+    else:
+        messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect_to
+
+
+@login_required
+def send_collections(request):
+    user_collections = collections.get_by_user(request.user)
+    collections_to_send = request.POST.getlist("collections", [])
+    collections_to_send = user_collections.filter(id__in=collections_to_send).prefetch_related("gamesets", "gamesets__games")
+    method = request.POST.get('method', '')
+    is_detail_view = request.POST.get("is_detail", "False")
+    redirect_to = redirect('lottery:games')
+    if request.POST:
+        if eval(is_detail_view):
+            redirect_to = redirect('lottery:collection-detail', collection_id=collections_to_send.first().id)
+        form = forms.Form(request.POST)
+        if form.is_valid():
+            if collections_to_send and method:
+                if method == "email":
+                    collections.send_by_email(request.user, collections_to_send)
+                elif method == "whatsapp":
+                    collections.send_by_whatsapp(request.user, collections_to_send, user_collections)
+                messages.success(request, f"Coleções ENVIADAS com sucesso!" if len(
+                    collections_to_send) > 1 else f"Coleções ENVIADA com sucesso!")
+            else:
+                messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+        else:
+            messages.error(request, f"Formulário Inválido! Tente novamente.")
     else:
         messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
     return redirect_to
@@ -244,7 +334,7 @@ def save_games_batch(request):
             collections_list = request.POST.getlist('collection')
             game_length = int(request.POST.get('nPlayed'))
             gamesets.update_quantifiers(instance, games_ids, collections_list, game_length)
-            instances = collections.all(request.user).filter(id__in=collections_list)
+            instances = collections.get_by_user(request.user).filter(id__in=collections_list)
             collections.update_quantifiers(instances, games_ids)
             messages.success(request, f"Conjunto {games_set_name} salvo com sucesso!")
         return HttpResponseRedirect('jogos')
@@ -276,7 +366,7 @@ def game_set_detail(request, game_set_id):
 @login_required
 def collection_detail(request, collection_id):
     collection = Collection.objects.get(id=collection_id)
-    user_games_sets = gamesets.all(request.user)
+    user_games_sets = gamesets.get_by_user(request.user)
     user_games_sets = user_games_sets.filter(lottery=collection.lottery)
     user_games_sets = gamesets.check_in_collection(user_games_sets, collection)
     if request.POST:
@@ -337,7 +427,7 @@ def draw_detail(request, name, number):
 def results_reports(request):
     lotteries_objs = Lottery.objects.all()
     user_results = results.get_by_user(request.user)
-    user_collections = collections.all(request.user)
+    user_collections = collections.get_by_user(request.user)
     last_results = user_results.order_by("-id")
     last_results = last_results[:5]
     total = user_results.aggregate(collections=Count('collection', distinct=True), games_sets=Sum("number_of_game_sets"), games=Sum("number_of_games"))
@@ -443,7 +533,7 @@ def export_results_reports(request):
 def get_draws_numbers(request, name=''):
     draws = Draw.objects.filter(lottery__name=name).order_by("-date")
     draws_numbers = list(draws.values('number'))
-    user_collections = collections.all(request.user)
+    user_collections = collections.get_by_user(request.user)
     user_collections = user_collections.filter(lottery__name=name).values('id', 'name')
     data = {
         'draws': draws_numbers,
@@ -458,8 +548,8 @@ def create_results_report(request):
         form = forms.Form(request.POST)
         if form.is_valid():
             data = request.POST
-            selected_collection = collections.all(request.user).get(id=data.get("collection_id"))
-            user_games_sets = gamesets.all(request.user).prefetch_related("collections")
+            selected_collection = collections.get_by_user(request.user).get(id=data.get("collection_id"))
+            user_games_sets = gamesets.get_by_user(request.user).prefetch_related("collections")
             games_sets_in_collection = user_games_sets.filter(collections=selected_collection)
             games_sets_actives = data.get("active", True)
             filtered_games_sets = games_sets_in_collection.filter(isActive=games_sets_actives)

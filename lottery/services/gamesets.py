@@ -1,23 +1,22 @@
 from typing import List
 from django.contrib.auth import get_user_model
-from django.db.models import F
+from django.db.models import F, QuerySet
 import io
 import pandas as pd
 from LotoWebApp import settings
 from lottery.services import email_sending
+from lottery.models import Gameset
 
 
-def all(user):
+def get_by_user(user):
     return user.gamesets.all().order_by('-createdAt')
 
 
 def historic(user, n=5):
-    return all(user)[:n]
+    return get_by_user(user)[:n]
 
 
-def apply_action(games_sets_ids: List[int], games_ids: List[int], action: str, user: get_user_model) -> str:
-    user_games_sets = all(user)
-    games_sets_to_update = user_games_sets.filter(id__in=games_sets_ids)
+def apply_action(games_sets_to_update: QuerySet[Gameset], games_ids: List[int], action: str) -> str:
     print(action)
     action = action.upper()
     if action == "ATIVAR":

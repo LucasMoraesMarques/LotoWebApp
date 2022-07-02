@@ -568,40 +568,7 @@ $(document).ready(function() {
   })
 } );
 
-$("#activate-gamesets, #delete-gamesets, #deactivate-gamesets").click(function(){
-  var action = this.innerText
-  Swal.fire({
-    icon:"warning",
-    title: "Tem certeza ?",
-    text: `Você realmente deseja ${this.innerText} os conjuntos selecionados?`,
-    showDenyButton: true,
-    confirmButtonText: "SIM",
-    denyButtonText: "NÃO",
-    confirmButtonColor: "green",
-    denyButtonColor: "red",
-    customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-    var table = $("#gamesets-table").DataTable()
-    var rows = table.rows({selected: true})
-    var form = $("#modify-gameset")
-    for(row of rows[0]){
-      var tr = table.row(row).node()
-      var input = $(tr).find("td:first-child input")
-      form.append(input)
-    }
-      $("#modify-gameset input[name=action]").val(action)
-      $("#modify-gameset").submit()
-    }
-    else if (answer.isDenied){
 
-    }
-  })
-})
 
 $("#delete-collections").click(function(){
   var action = this.innerText
@@ -637,8 +604,8 @@ $("#delete-collections").click(function(){
   })
 })
 
-function handleSendResults() {
-  var send_by = this.id;
+function handleSendGamesSets() {
+  var send_by = $(this).attr("data-send-by")
   fireModal(
     `Você realmente deseja enviar os conjuntos de jogos selecionados por ${send_by}?`,
     "Tem certeza ?",
@@ -667,27 +634,43 @@ function handleSendResults() {
   });
 }
 
-function handleDeleteResults() {
-  fireModal(
-    `Você realmente deseja DELETAR os resultados selecionados?`,
-    "Tem certeza ?",
-    "warning"
-  ).then((answer) => {
-    if (answer.isConfirmed) {
-      var table = $("#results-table").DataTable();
-      var rows = table.rows({ selected: true });
-      var form = $("#action-results");
-      for (row of rows[0]) {
-        var tr = table.row(row).node();
-        var input = $(tr).find("td:first-child input");
-        form.append(input);
-      }
-      form.submit();
+function handleEditGamesSets() {
+  var action = $(this).attr('data-action')
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja ${this.innerText} os conjuntos selecionados?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    confirmButtonColor: "green",
+    denyButtonColor: "red",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+    var table = $("#gamesets-table").DataTable()
+    var rows = table.rows({selected: true})
+    var form = $("#edit-games-sets-form")
+    for(row of rows[0]){
+      var tr = table.row(row).node()
+      var input = $(tr).find("td:first-child input")
+      form.append(input)
     }
-  });
+      $("#edit-games-sets-form input[name=action]").val(action)
+      $("#edit-games-sets-form").submit()
+    }
+    else if (answer.isDenied){
+
+    }
+  })
 }
 
-function handleExportResults() {
+function handleExportGamesSets() {
+  var fileType = $(this).attr("data-export-by")
   fireModal(
     `Você realmente deseja EXPORTAR os conjuntos selecionados?`,
     "Tem certeza ?",
@@ -702,7 +685,7 @@ function handleExportResults() {
         var input = $(tr).find("td:first-child input").clone();
         form.append(input);
       }
-      form.append(`<input type="hidden" name="file-type" value="${this.id}">`);
+      form.append(`<input type="hidden" name="file-type" value="${fileType}">`);
       if (1 != 1) {
         fireToast(
           "Selecione somente resultados de uma única modalidade da loteria e exporte por loteria.",
@@ -712,19 +695,122 @@ function handleExportResults() {
       } else {
         form.submit();
       }
-      //form.find("input").remove("[name=gamesets]");
-      //form.find("input").remove("[name=file-type]");
-      //table.rows().deselect();
+      form.find("input").remove("[name=gamesets]");
+      form.find("input").remove("[name=file-type]");
+      table.rows().deselect();
     }
   });
 }
 
 
+function handleSendCollections() {
+  var send_by = $(this).attr("data-send-by")
+  fireModal(
+    `Você realmente deseja enviar as coleções de conjuntos selecionadas por ${send_by}?`,
+    "Tem certeza ?",
+    "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#collections-table").DataTable();
+      var rows = table.rows({ selected: true });
+      var form = $("#send-collections-form");
+      if (rows[0].length != 0) {
+        for (row of rows[0]) {
+          var tr = table.row(row).node();
+          var input = $(tr).find("td:first-child input");
+          form.append(input);
+        }
+        form.append(`<input name="method" value="${send_by}" type="hidden">`);
+        form.submit();
+      } else {
+        fireToast(
+          "Nenhuma coleção foi selecionada para envio. Clique nos botões na primeira coluna para selecionar",
+          "Atenção",
+          "warning"
+        );
+      }
+    }
+  });
+}
+
+function handleEditCollections() {
+  var action = $(this).attr('data-action')
+  Swal.fire({
+    icon:"warning",
+    title: "Tem certeza ?",
+    text: `Você realmente deseja ${this.innerText} as coleções selecionadas?`,
+    showDenyButton: true,
+    confirmButtonText: "SIM",
+    denyButtonText: "NÃO",
+    confirmButtonColor: "green",
+    denyButtonColor: "red",
+    customClass: {
+    actions: 'my-actions',
+    confirmButton: 'order-1',
+    denyButton: 'order-2',
+  }
+  }).then((answer)=>{
+    if (answer.isConfirmed){
+    var table = $("#collections-table").DataTable()
+    var rows = table.rows({selected: true})
+    var form = $("#edit-collections-form")
+    for(row of rows[0]){
+      var tr = table.row(row).node()
+      var input = $(tr).find("td:first-child input")
+      form.append(input)
+    }
+      $("#edit-collections-form input[name=action]").val(action)
+      $("#edit-collections-form").submit()
+    }
+    else if (answer.isDenied){
+
+    }
+  })
+}
+
+function handleExportCollections() {
+  var fileType = $(this).attr("data-export-by")
+  fireModal(
+    `Você realmente deseja EXPORTAR os conjuntos selecionados?`,
+    "Tem certeza ?",
+    "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#collections-table").DataTable();
+      var rows = table.rows({ selected: true });
+      var form = $("#export-collections-form");
+      for (row of rows[0]) {
+        var tr = table.row(row).node();
+        var input = $(tr).find("td:first-child input").clone();
+        form.append(input);
+      }
+      form.append(`<input type="hidden" name="file-type" value="${fileType}">`);
+      if (1 != 1) {
+        fireToast(
+          "Selecione somente resultados de uma única modalidade da loteria e exporte por loteria.",
+          "Atenção",
+          "warning"
+        );
+      } else {
+        form.submit();
+      }
+      form.find("input").remove("[name=collections]");
+      form.find("input").remove("[name=file-type]");
+      table.rows().deselect();
+    }
+  });
+}
+
 $(document).ready(function () {
   fireMessagesToasts();
-  $(".send-games-sets-btn").click(handleSendResults);
-  $("#delete-results-btn").click(handleDeleteResults);
-  $(".export-games-sets-btn").click(handleExportResults);
+  $(".send-games-sets-btn").click(handleSendGamesSets);
+  $("#delete-results-btn").click(handleEditGamesSets);
+  $(".export-games-sets-btn").click(handleExportGamesSets);
+  $(".edit-games-sets-btn").click(handleEditGamesSets)
+
+  $(".send-collections-btn").click(handleSendCollections);
+  $(".export-collections-btn").click(handleExportCollections);
+  $(".edit-collections-btn").click(handleEditCollections)
 });
 
 
