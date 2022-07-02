@@ -145,10 +145,10 @@ def games(request):
 def export_games_sets(request):
     user_games_sets = gamesets.all(request.user)
     games_sets_to_export = request.POST.getlist("games-sets", [])
-    games_sets_to_export = user_games_sets.filter(id__in=games_sets_to_export)
+    games_sets_to_export = user_games_sets.filter(id__in=games_sets_to_export).prefetch_related("games")
     if request.method == "POST":
         file_type = request.POST.get("file-type", "excel")
-        handler = eval(f"gamesets.export_by_{file_type}")
+        handler = eval(f"gamesets.export_games_sets_by_{file_type}")
         data = handler(games_sets_to_export)
 
         response = HttpResponse(
@@ -165,8 +165,32 @@ def delete_game_sets(request):
 
 
 @login_required
-def send_game_sets(request):
-    pass
+def send_game_sets(request, game_set_id):
+    user_games_sets = gamesets.all(request.user)
+    games_sets_to_send = request.POST.getlist("games-sets", [])
+    games_sets_to_send = user_games_sets.filter(id__in=games_sets_to_send).prefetch_related("games")
+    method = request.POST.get('method', '')
+    redirect_to = redirect('lottery:games')
+    if game_set_id:
+        games_sets_to_send = [game_set_id]
+        redirect_to = redirect('lottery:game-set-detail', result_id=game_set_id)
+    if request.POST and not game_set_id:
+        form = forms.Form(request.POST)
+        if form.is_valid() and games_sets_to_send:
+            pass
+        else:
+            games_sets_to_send = []
+            messages.error(request, f"Formulário Inválido! Tente novamente.")
+    if games_sets_to_send and method:
+        if method == "email":
+            gamesets.send_by_email(request.user, games_sets_to_send)
+        elif method == "whatsapp":
+            gamesets.send_by_whatsapp(request.user, games_sets_to_send, user_games_sets)
+        messages.success(request, f"Conjuntos ENVIADOS com sucesso!" if len(
+            games_sets_to_send) > 1 else f"Conjuntos ENVIADO com sucesso!")
+    else:
+        messages.error(request, f"Desculpe, ocorreu um erro inesperado! Tente novamente.")
+    return redirect_to
 
 
 @login_required

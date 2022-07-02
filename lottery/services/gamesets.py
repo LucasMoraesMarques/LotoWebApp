@@ -2,8 +2,9 @@ from typing import List
 from django.contrib.auth import get_user_model
 from django.db.models import F
 import io
-
 import pandas as pd
+from LotoWebApp import settings
+from lottery.services import email_sending
 
 
 def all(user):
@@ -61,44 +62,68 @@ def check_in_collection(games_sets, collection):
 
 def export_games_sets_by_excel(games_sets):
     output = io.BytesIO()
-    data = games.values("lottery__name", "arrayNumbers")
-    df = pd.DataFrame(data)
-    df.rename(columns={"lottery__name": "Loteria",
-                       "arrayNumbers": "Números",
-                       }, inplace=True)
-    game_length = len(df["Números"][0])
-    df = pd.concat([df, pd.DataFrame(df["Números"].tolist(), columns=[f"Bola {i}" for i in range(1, game_length + 1)])],
-                   axis=1)
-    df.drop("Números", inplace=True, axis=1)
     writer = pd.ExcelWriter(output, engine="xlsxwriter")
-    df.to_excel(writer, index=False, sheet_name=f"Jogos")
     wbook = writer.book
-    wsheet = writer.sheets[f"Jogos"]
-    wsheet.set_default_row(30)
-    formats = wbook.add_format({"align": "center"})
-    formats.set_align("vcenter")
-    for column in df.columns:
-        column_width = max(df[column].astype(str).map(len).max() + 10, len(column) + 5)
-        col_idx = df.columns.get_loc(column)
-        formatting = formats
-        wsheet.set_column(col_idx, col_idx, column_width, formatting)
+    for games_set in games_sets:
+        numbers_list = [[f"Jogo {index+1}"] + game.arrayNumbers for index, game in enumerate(games_set.games.all())]
+        df_columns = ["Jogo"] + [f"Bola {i}" for i in range(1, games_set.gameLength +1)]
+        df = pd.DataFrame(numbers_list, columns=df_columns)
+        df.rename(columns={"arrayNumbers": "Números"}, inplace=True)
+        df.to_excel(writer, index=False, sheet_name=f"{games_set.name}")
+        wsheet = writer.sheets[f"{games_set.name}"]
+        wsheet.set_default_row(20)
+        formats = wbook.add_format({"align": "center"})
+        formats.set_align("vcenter")
+        for column in df.columns:
+            column_width = max(df[column].astype(str).map(len).max() + 2, len(column) + 2)
+            col_idx = df.columns.get_loc(column)
+            formatting = formats
+            wsheet.set_column(col_idx, col_idx, column_width, formatting)
     wbook.close()
     output.seek(0)
     return {"content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "output": output,
-            "file_name": "jogos-selecionados.xlsx"}
+            "file_name": "conjuntos-de-jogos-selecionados.xlsx"}
 
 
-def export_games_sets_by_csv(games):
+def export_games_sets_by_csv(games_sets):
     output = io.StringIO()
-    data = games.values("lottery__name", "arrayNumbers")
-    df = pd.DataFrame(data)
-    df.rename(columns={"lottery__name": "Loteria",
-                       "arrayNumbers": "Números",
-                       }, inplace=True)
-    game_length = len(df["Números"][0])
-    df = pd.concat([df, pd.DataFrame(df["Números"].tolist(), columns=[f"Bola {i}" for i in range(1, game_length + 1)])], axis=1)
-    df.drop("Números", inplace=True, axis=1)
-    df.to_csv(output)
+    data = pd.DataFrame()
+    for games_set in games_sets:
+        numbers_list = [[f"Jogo {index + 1}"] + game.arrayNumbers for index, game in enumerate(games_set.games.all())]
+        df_columns = ["Jogo"] + [f"Bola {i}" for i in range(1, games_set.gameLength + 1)]
+        df = pd.DataFrame(numbers_list,
+                          columns=df_columns)
+        df.rename(columns={"arrayNumbers": "Números"}, inplace=True)
+        data = pd.concat([data, df], axis=0)
+    data.to_csv(output, index=False)
     output.seek(0)
     return {"content_type": "text/csv", "output": output,
-            "file_name": "jogos-selecionados.csv"}
+            "file_name": "conjuntos-de-jogos-selecionados.csv"}
+
+
+def send_by_email(user, games_sets):
+    emails_info = {"SUBJECT": "Conjuntos de Jogos | LotoAssistant",
+                   "BODY": "Seguem os conjuntos de jogos selecionados.", "FROM": settings.DEFAULT_FROM_EMAIL,
+                   "TO": [user.email], "TEMPLATE": "emails/template1.html",
+                   "FILE": export_games_sets_by_excel(games_sets), "USER": user}
+    email_sending.send_games_sets_by_email(emails_info)
+
+
+def send_by_whatsapp(user, results, user_results):
+    from twilio.rest import Client
+
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+    message = client.messages.create(
+        from_='whatsapp:+14155238886',
+        body=f'Oĺá, {user.first_name} {user.last_name}. Segue os arquivos de resultados selecionados.',
+        to='whatsapp:+553183086959',
+    )
+    for result_id in results:
+        result = user_results.filter(id=result_id).first()
+        if result:
+            message = client.messages.create(
+                from_='whatsapp:+14155238886',
+                to='whatsapp:+553183086959',
+                media_url=result.report_file.url
+            )

@@ -97,7 +97,7 @@ $(document).ready(function () {
   )
 
   $('.dataTables_filter input[type="search"]').css(
-    { 'width': '300px', 'display': 'inline-block' }
+    { 'width': '250px', 'display': 'inline-block' }
   );
 });
 
@@ -636,6 +636,96 @@ $("#delete-collections").click(function(){
     }
   })
 })
+
+function handleSendResults() {
+  var send_by = this.id;
+  fireModal(
+    `Você realmente deseja enviar os conjuntos de jogos selecionados por ${send_by}?`,
+    "Tem certeza ?",
+    "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#gamesets-table").DataTable();
+      var rows = table.rows({ selected: true });
+      var form = $("#send-games-sets-form");
+      if (rows[0].length != 0) {
+        for (row of rows[0]) {
+          var tr = table.row(row).node();
+          var input = $(tr).find("td:first-child input");
+          form.append(input);
+        }
+        form.append(`<input name="method" value="${send_by}" type="hidden">`);
+        form.submit();
+      } else {
+        fireToast(
+          "Nenhum conjunto foi selecionado para envio. Clique nos botões na primeira coluna para selecionar",
+          "Atenção",
+          "warning"
+        );
+      }
+    }
+  });
+}
+
+function handleDeleteResults() {
+  fireModal(
+    `Você realmente deseja DELETAR os resultados selecionados?`,
+    "Tem certeza ?",
+    "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#results-table").DataTable();
+      var rows = table.rows({ selected: true });
+      var form = $("#action-results");
+      for (row of rows[0]) {
+        var tr = table.row(row).node();
+        var input = $(tr).find("td:first-child input");
+        form.append(input);
+      }
+      form.submit();
+    }
+  });
+}
+
+function handleExportResults() {
+  fireModal(
+    `Você realmente deseja EXPORTAR os conjuntos selecionados?`,
+    "Tem certeza ?",
+    "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#gamesets-table").DataTable();
+      var rows = table.rows({ selected: true });
+      var form = $("#export-games-sets-form");
+      for (row of rows[0]) {
+        var tr = table.row(row).node();
+        var input = $(tr).find("td:first-child input").clone();
+        form.append(input);
+      }
+      form.append(`<input type="hidden" name="file-type" value="${this.id}">`);
+      if (1 != 1) {
+        fireToast(
+          "Selecione somente resultados de uma única modalidade da loteria e exporte por loteria.",
+          "Atenção",
+          "warning"
+        );
+      } else {
+        form.submit();
+      }
+      //form.find("input").remove("[name=gamesets]");
+      //form.find("input").remove("[name=file-type]");
+      //table.rows().deselect();
+    }
+  });
+}
+
+
+$(document).ready(function () {
+  fireMessagesToasts();
+  $(".send-games-sets-btn").click(handleSendResults);
+  $("#delete-results-btn").click(handleDeleteResults);
+  $(".export-games-sets-btn").click(handleExportResults);
+});
 
 
 

@@ -736,46 +736,46 @@
                     {{collectionsData.totalGamesets}} conjuntos encontrados
                   </p>
 
-                <div class="buttons d-flex flex-row align-items-center mt-1 position-absolute">
-                  <form action="{% url 'lottery:export-results-reports' %}" method="POST" id="export-results-form">
+                <div class="buttons d-flex flex-row align-items-center flex-wrap position-absolute">
+                  <form action="{% url 'lottery:export-games-sets' %}" method="POST" id="export-games-sets-form">
                     {% csrf_token %}
-                    <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                    <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Exportar resultados" data-container="body" data-animation="true">
-                    <a role="button" id="export-results" class="" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-file-export fs-4 text-primary align-middle"></i> Exportar</a>
-                    <ul class="dropdown-menu" aria-labelledby="export-results">
+                    <a role="button" id="export-games-sets" class="" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-file-export fs-5 text-primary align-middle"></i> Exportar</a>
+                    <ul class="dropdown-menu" aria-labelledby="export-games-sets">
                       <li>
-                        <a id="csv" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
+                        <a id="csv" role="button" class="fs-5 export-games-sets-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
                       </li>
                       <li>
-                        <a id="excel" role="button" class="fs-5 export-results-btn"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
+                        <a id="excel" role="button" class="fs-5 export-games-sets-btn"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
                       </li>
                     </ul>
                   </div>
                   </form>
-                  <form action="{% url 'lottery:send-results-reports' 0 %}" method="POST" id="send-results-form">
+                  <form action="{% url 'lottery:send-games-sets' 0 %}" method="POST" id="send-games-sets-form">
                       {% csrf_token %}
-                      <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                      <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
-                               title="Enviar resultados" data-container="body" data-animation="true">
-                    <a role="button" id="send-results-options" class="text-center" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-envelope fs-4 text-primary align-middle"></i> Enviar</a>
-                    <ul class="dropdown-menu" aria-labelledby="send-results-options">
+                               title="Enviar conjuntos de jogos" data-container="body" data-animation="true">
+                    <a role="button" id="send-games-sets-options" class="text-center" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-envelope fs-5 text-primary align-middle"></i> Enviar</a>
+                    <ul class="dropdown-menu" aria-labelledby="send-games-sets-options">
                       <li>
-                        <a id="email" role="button" class="fs-5 send-results-btn"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
+                        <a id="email" role="button" class="fs-5 send-games-sets-btn"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
                       </li>
                       <li>
-                        <a id="whatsapp" role="button" class="fs-5 send-results-btn" ><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
+                        <a id="whatsapp" role="button" class="fs-5 send-games-sets-btn" ><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
                       </li>
                     </ul>
                       </div>
                   </form>
-                      <div class="btn-group mx-3" role="group" data-bs-toggle="tooltip"
+                      <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
                                data-bs-placement="top"
                                title="Editar status" data-container="body" data-animation="true">
                     <a role="button" id="edit-gameset-status-options" class="text-center" data-bs-toggle="dropdown"
-                       aria-expanded="false"><i class="fas fa-check-circle fs-4 text-primary align-middle"></i> Status</a>
+                       aria-expanded="false"><i class="fas fa-check-circle fs-5 text-primary align-middle"></i> Status</a>
                     <ul class="dropdown-menu" aria-labelledby="edit-gameset-status-options">
                       <li>
                         <a id="activate-gamesets" role="button" class="fs-5 send-results-btn"><i class="fa fa-check text-primary mx-2"></i>Ativar</a>
@@ -791,7 +791,7 @@
                                data-bs-placement="top"
                                title="Deletar conjuntos" data-container="body" data-animation="true">
                       <a role="button" id="delete-gamesets" class="text-center"><i
-                              class="fas fa-trash-alt fs-4 text-danger align-middle"></i>Deletar</a>
+                              class="fas fa-trash-alt fs-5 text-danger align-middle"></i>Deletar</a>
                          </div>
 
                       <input type="hidden" name="action" value="">
@@ -829,7 +829,7 @@
                     {% with 'assets/img/loterias/logos/'|add:gameset.lottery.name|add:'.png' as lotteryLogo %}
                     <tr>
                       <td class="align-middle text-center text-sm">
-                        <input type="hidden" name="gamesets" value="{{gameset.id}}">
+                        <input type="hidden" name="games-sets" value="{{gameset.id}}">
                       </td>
                       <td>
                         <div class="d-flex px-2 py-1">

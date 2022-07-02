@@ -47,3 +47,28 @@ def get_mime_type(file_extension):
     elif file_extension == "xls":
         mime_type = "application/vnd.ms-excel"
     return mime_type
+
+
+def send_games_sets_by_email(email_info):
+    with get_connection() as connection:
+        template = get_template(email_info["TEMPLATE"])
+        ctx = {"user": email_info["USER"]}
+        html = template.render(ctx)
+
+        email = EmailMultiAlternatives(
+            email_info["SUBJECT"],
+            email_info["BODY"],
+            email_info["FROM"],
+            to=email_info["TO"],
+            bcc=[settings.ADMINS],
+            connection=connection,
+        )
+        email.attach_alternative(html, "text/html")
+        email.attach(
+            email_info["FILE"]["file_name"],
+            email_info["FILE"]["output"].read(),
+            email_info["FILE"]["content_type"],
+        )
+        email.send()
+
+
