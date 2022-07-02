@@ -12,6 +12,7 @@
   {% endfor %}
   {% endif %}
 </div>
+<input type="hidden" name="collection-id" value="{{collection.id}}">
 <div class="container-fluid py-4 w-100">
   <div class="row">
     <div class="card h-100 mb-4">
@@ -112,23 +113,110 @@
   </div>
   <div class="col">
     <div class="card">
-      <div class="card-header pb-0 d-flex flex-row justify-content-between align-items-center">
+      <div class="card-header w-100">
         <div class="d-inline">
-          <h5 class="font-weight-bolder">Coleção {{collection.name}}</h5>
-          <p class="text-sm">
-          <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo da coleção</p>
+          <div class="d-flex flex-row justify-content-between">
+            <h5 class="font-weight-bolder">Coleção {{collection.name}}</h5>
+            <span>
+              {% if collection.is_reported %}
+              <span data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Relatórios ativados" data-container="body" data-animation="true">
+                <i class="fa fa-check text-success mx-2"></i>Reportada
+              </span>
+
+              {% else %}
+              <span data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Relatórios desativados" data-container="body" data-animation="true">
+              </span>
+                <i class="fa fa-times text-danger mx-2"></i>Não Reportada
+              {% endif %}
+            </span>
+          </div>
+          <p class="text-sm">Clique em info para ver detalhes de cada conjunto e/ou jogo da coleção. Para receber os
+          resultados dos jogos dessa coleção, verifique se ela está ativada para envio de relatórios. Mude o status caso
+          ela não esteja sendo enviada.
+        </p>
           <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
           {{collection.numberOfGamesets}} conjuntos encontrados
           </p>
+          <div class="buttons d-flex flex-row align-items-center flex-wrap position-absolute">
+                  <form action="{% url 'lottery:export-collections' %}" method="POST" id="export-collections-form">
+                    {% csrf_token %}
+                    <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Exportar coleções" data-container="body" data-animation="true">
+                    <a role="button" id="export-collections" class="" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-file-export fs-5 text-primary align-middle"></i> Exportar</a>
+                    <ul class="dropdown-menu" aria-labelledby="export-collections">
+                      <li>
+                        <a data-export-by="csv" role="button" class="fs-5 export-collections-btn"><i class="fa fa-file-csv text-primary mx-2"></i>CSV</a>
+                      </li>
+                      <li>
+                        <a data-export-by="excel" role="button" class="fs-5 export-collections-btn"><i class="fa fa-file-excel text-primary mx-2"></i>Excel</a>
+                      </li>
+                    </ul>
+                  </div>
+                    <input type="hidden" name="is_detail" value="True">
+                  </form>
+                  <form action="{% url 'lottery:send-collections' %}" method="POST" id="send-collections-form">
+                      {% csrf_token %}
+                      <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Enviar coleções" data-container="body" data-animation="true">
+                    <a role="button" id="send-collections-options" class="text-center" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-envelope fs-5 text-primary align-middle"></i> Enviar</a>
+                    <ul class="dropdown-menu" aria-labelledby="send-collections-options">
+                      <li>
+                        <a data-send-by="email" role="button" class="fs-5 send-collections-btn"><i class="fa fa-envelope-open-text text-primary mx-2"></i>Email</a>
+                      </li>
+                      <li>
+                        <a data-send-by="whatsapp" role="button" class="fs-5 send-collections-btn" ><i class="fa fa-whatsapp text-primary mx-2"></i>WhatsApp</a>
+                      </li>
+                    </ul>
+                      </div>
+                    <input type="hidden" name="is_detail" value="True">
+                  </form>
+                  <form action="{% url 'lottery:edit-collections' %}" method="POST" id="edit-collections-form">
+                      {% csrf_token %}
+                      <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Editar envio de relatórios" data-container="body" data-animation="true">
+                    <a role="button" id="edit-collections-options" class="text-center" data-bs-toggle="dropdown"
+                       aria-expanded="false"><i class="fas fa-check-circle fs-5 text-primary align-middle"></i> Status</a>
+                    <ul class="dropdown-menu" aria-labelledby="edit-games-set-status-options">
+                      <li>
+                        <a id="activate-collections" role="button" class="fs-5 edit-collections-btn" data-action="ATIVAR"><i class="fa fa-check text-primary me-1"></i>Ativar</a>
+                      </li>
+                      <li>
+                        <a id="deactivate-collections" role="button" class="fs-5 edit-collections-btn" data-action="DESATIVAR"><i class="fa fa-times text-primary me-2"></i>Desativar</a>
+                      </li>
+                    </ul>
+                      </div>
+                    <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Editar conjuntos" data-container="body" data-animation="true">
+                      <a role="button" id="edit-collections-games-sets" class="text-center edit-collections-btn" data-action="Deletar"><i
+                              class="fas fa-edit fs-5 text-success align-middle"></i>Editar</a>
+                         </div>
+                       <div class="btn-group mx-1" role="group" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Deletar coleções" data-container="body" data-animation="true">
+                      <a role="button" id="delete-collections" class="text-center edit-collections-btn" data-action="DELETAR"><i
+                              class="fas fa-trash-alt fs-5 text-danger align-middle"></i>Deletar</a>
+                         </div>
+                      <input type="hidden" name="action" value="">
+                    <input type="hidden" name="is_detail" value="True">
+                    </form>
+                </div>
         </div>
-        <div class="buttons">
-          <button type="button" class="btn btn-success" id="edit-gamesets">EDITAR CONJUNTOS</button>
-          <button type="button" class="btn btn-danger" id="delete-collection">DELETAR</button>
           <div id="gameset-form" style="display:none">
-            <form action="{% url 'lottery:collection-detail' collection.pk %}" method="POST" id="modify-collection">
+            <form action="{% url 'lottery:edit-collections' %}" method="POST" id="modify-collection">
             {% csrf_token %}
             <input type="hidden" name="action" value="">
-              <table class="table mb-0 mx-auto" style="max-width: 150px !important;" id="table-gamesets">
+              <input type="hidden" name="is_detail" value="True">
+              <table class="table mb-0 mx-auto" style="max-width: 150px !important;" id="collection-games-sets-table">
                 <thead>
                 <tr>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Editar</th>
@@ -159,11 +247,10 @@
               </table>
           </form>
           </div>
-        </div>
       </div>
       <div class="card-body px-2 pt-0 pb-2">
         <div class="table-responsive p-0">
-          <table class="table align-items-center mb-0 display" id="gamesTable">
+          <table class="table align-items-center mb-0 display" id="collection-table-detail">
             <thead>
             <tr>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Loteria</th>
@@ -229,91 +316,5 @@
 {% endblock %}
 
 {% block script %}
-<script>
-var html = $("#gameset-form").html()
-$(document).ready(function() {
-    $('table.display').DataTable({
-      language: {
-            "lengthMenu": "Mostrar _MENU_ jogos por página",
-            "zeroRecords": "",
-            "info": "Página _PAGE_ de _PAGES_",
-            "infoEmpty": "Nenhum jogo encontrado",
-            "infoFiltered": "(Filtrados de _MAX_ jogos)",
-            "paginate": {
-              "previous": "←",
-              "next": "→"
-            },
-            "searchPlaceholder": "Busque jogos por loteria, nome ou status",
-            "search": "Filtrar"
-
-        }
-    });
-
-    $('#collectionsTable_filter input[type="search"]').attr(
-      'placeholder', "Busque por loteria, nome ou nº de jogos"
-    )
-
-    $('.dataTables_filter input[type="search"]').css(
-     {'width':'300px','display':'inline-block'}
-  );
-} );
-
-$("#delete-collection").click(function(){
-  var action = this.innerText
-  Swal.fire({
-    title: `Você realmente deseja ${this.innerText} essa coleção de conjuntos de jogos?`,
-    showDenyButton: true,
-    confirmButtonText: "SIM",
-    denyButtonText: "NÃO",
-    customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-      $("#modify-collection input[name=action]").val(action)
-      $("#modify-collection").submit()
-    }
-    else if (answer.isDenied){
-    }
-  })
-})
-
-
-
-$("#edit-gamesets").click(function(){
-$("#gameset-form").remove()
-Swal.fire({
-  title: "Escolha os conjuntos",
-  html: html,
-  showDenyButton: true,
-  confirmButtonText: "SALVAR",
-  denyButtonText: "CANCELAR",
-  confirmButtonColor: 'green',
-  focusConfirm: false,
-  didRender: () => {
-    $("#table-gamesets").DataTable({
-      searching: false,
-      ordering: true,
-      paging: false,
-    })
-  }
-}).then((result) => {
-  if(result.isConfirmed){
-  $("#modify-collection input[name=action]").val("ADICIONAR")
-    $("#modify-collection").submit()
-  }
-})
-})
-
-$(".messages p").each((ind, el) => {
-    Toast.fire({
-    icon: 'success',
-    title: el.innerText
-})
-  })
-</script>
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="{% static 'js/games.js' %}"></script>
 {% endblock %}

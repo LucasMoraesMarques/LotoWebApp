@@ -234,19 +234,21 @@ def edit_collections(request):
     user_collections = collections.get_by_user(request.user)
     user_games_sets = gamesets.get_by_user(request.user)
     collections_to_edit = request.POST.getlist("collections", [])
+    games_sets_ids = [int(i) for i in request.POST.getlist("gamesets", [])]
     is_detail_view = request.POST.get("is_detail", "False")
     collections_to_edit = user_collections.filter(id__in=collections_to_edit).prefetch_related("gamesets", "gamesets__games")
     redirect_to = redirect('lottery:games')
+    action = request.POST.get("action")
     if request.POST:
         if eval(is_detail_view):
-            redirect_to = redirect('lottery:collection-detail', collection_id=collections_to_edit.first().id)
+            if not action == "DELETAR":
+                redirect_to = redirect('lottery:collection-detail', collection_id=collections_to_edit.first().id)
         form = forms.Form(request.POST)
         if form.is_valid():
-            action = request.POST.get("action")
             collections_ids = [int(i) for i in request.POST.getlist("collections")]
             if collections_ids and action:
-                action_name = collections.apply_action(collections_to_edit, [], [], action)
-                messages.success(request, f"Coleções {action_name} com sucesso!")
+                message = collections.apply_action(collections_to_edit, games_sets_ids, user_games_sets, action)
+                messages.success(request, message)
         else:
             messages.error(request, f"Formulário Inválido! Tente novamente.")
     else:

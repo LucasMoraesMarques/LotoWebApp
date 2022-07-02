@@ -1,7 +1,7 @@
 // General Initialisation
 //import Swal from "sweetalert2"
 //const Swal = require("sweetalert2")
-
+var html = $("#gameset-form").html()
 var lotteryInfo = new Object({
   lotofacil: {
     nPlayedList: Array.from(new Array(6), (x, i) => i + 15),
@@ -78,15 +78,15 @@ $(document).ready(function () {
 
     },
     "dom": "frtip",
-    "columnDefs": [ {
-            "orderable": false,
-            "className": 'select-checkbox',
-            "targets":   0
-        },
-         ],
+    "columnDefs": [{
+      "orderable": false,
+      "className": 'select-checkbox',
+      "targets": 0
+    },
+    ],
     "select": {
-        "style": "multi",
-        "selector": "td:first-child",
+      "style": "multi",
+      "selector": "td:first-child",
     },
     "searchBuilder": true,
   });
@@ -101,28 +101,67 @@ $(document).ready(function () {
   );
 });
 
+function setCollectionGamesSetTable(){
+  $('#collection-games-sets-table').DataTable({
+    language: {
+          "lengthMenu": "Mostrar _MENU_ conjuntos por página",
+          "zeroRecords": "",
+          "info": "Página _PAGE_ de _PAGES_",
+          "infoEmpty": "Nenhum conjunto encontrado",
+          "infoFiltered": "(Filtrados de _MAX_ conjuntos)",
+          "paginate": {
+            "previous": "←",
+            "next": "→"
+          },
+          "searchPlaceholder": "Busque conjuntos por nome",
+          "search": "Filtrar"
+      },
+      dom: "flrtip",
+  });
+  $('#collection-games-sets-table_filter').addClass("d-flex")
+  $('#collection-games-sets-table_filter input[type="search"]').css(
+    { 'width': '300px' }
+  );
+}
+$('#collection-table-detail').DataTable({
+  language: {
+        "lengthMenu": "Mostrar _MENU_ conjuntos por página",
+        "zeroRecords": "",
+        "info": "Página _PAGE_ de _PAGES_",
+        "infoEmpty": "Nenhum conjunto encontrado",
+        "infoFiltered": "(Filtrados de _MAX_ conjuntos)",
+        "paginate": {
+          "previous": "←",
+          "next": "→"
+        },
+        "searchPlaceholder": "Busque conjuntos por nome, loteria ou status",
+        "search": "Filtrar"
+    },
+    dom: "flrtip",
+});
+
 
 // Generators Tab
 
 function mapNumbers(cellId, op) { // Update grid of fixed and removed numbers
   console.log(op, cellId)
   let lottery = $("input[name='lottery_name']:checked").val()
-  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => { return parseInt(el.value) }))
   let nPlayedChosen = parseInt($("input[name=nPlayed]:checked").val())
-  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => { return parseInt(el.value) }))
   let nPossiblesList = lotteryInfo[lottery].nPossiblesList
   switch (op) {
     case "removed":
-    if(nFixed.length < nPlayedChosen){
-       counterFixedId = cellId.replace(op, 'fixed');
-      $("#label-".concat(counterFixedId)).toggleClass('disabled');
-    }
+      if (nFixed.length < nPlayedChosen) {
+        counterFixedId = cellId.replace(op, 'fixed');
+        $("#label-".concat(counterFixedId)).toggleClass('disabled');
+      }
       break;
     case "fixed":
-    if(nRemoved.length < (nPossiblesList.length - nPlayedChosen)){
+      if (nRemoved.length < (nPossiblesList.length - nPlayedChosen)) {
         counterRemovedId = cellId.replace(op, 'removed');
-      $("#label-".concat(counterRemovedId)).toggleClass('disabled')
-    }
+        $("#label-".concat(counterRemovedId)).toggleClass('disabled')
+      }
 
       break;
   }
@@ -144,8 +183,8 @@ function handleLotteryParams(lottery) { // Handle change in lottery type, updati
   $("#counters").show()
 }
 
-function updateNPlayedRadio(lottery){ // Update nPlayed options
-  for (value of lotteryInfo[lottery].nPlayedList) { 
+function updateNPlayedRadio(lottery) { // Update nPlayed options
+  for (value of lotteryInfo[lottery].nPlayedList) {
     $("#check-nPlayed .numbers").append(
       `<div class="form-check" id="check-n-{{value}}}">
           <input class="form-check-input mx-2" type="radio" id="check-played-${value}" name="nPlayed"
@@ -157,7 +196,7 @@ function updateNPlayedRadio(lottery){ // Update nPlayed options
   }
 }
 
-function updateCollectionsSelect(lottery){
+function updateCollectionsSelect(lottery) {
   $("#collection-gen-select").children().map((ind, option) => { // Update collections
     if ($(option).attr("loto-name") == lottery) {
       $(option).show()
@@ -168,9 +207,9 @@ function updateCollectionsSelect(lottery){
   })
 }
 
-function resetFixedAndRemovedGrids(lottery){ // Reset fixed and removed numbers grids
+function resetFixedAndRemovedGrids(lottery) { // Reset fixed and removed numbers grids
   let nPossiblesList = lotteryInfo[lottery].nPossiblesList
-  for (value of nPossiblesList) { 
+  for (value of nPossiblesList) {
     $("#grid-fixed .numbers").append(
       `<div class="col">
           <input type="checkbox" class="btn-check" id="check-fixed-${value}"
@@ -196,74 +235,74 @@ function resetFixedAndRemovedGrids(lottery){ // Reset fixed and removed numbers 
 
 }
 
-function updateFixedAndRemovedGrids(){ // Callback to reset grids on nPlayed value change
-  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+function updateFixedAndRemovedGrids() { // Callback to reset grids on nPlayed value change
+  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => { return parseInt(el.value) }))
   let nPlayedChosen = parseInt($("input[name=nPlayed]:checked").val())
-  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => { return parseInt(el.value) }))
   let lottery = $("input[name='lottery_name']:checked").val()
   let nPossiblesList = lotteryInfo[lottery].nPossiblesList
-  if (nRemoved.length < (nPossiblesList.length - nPlayedChosen)){
+  if (nRemoved.length < (nPossiblesList.length - nPlayedChosen)) {
     nPossiblesList.map((ind, el) => {
       let value = parseInt(el) + 1
-      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+      if (!(nFixed.includes(value) || nRemoved.includes(value))) {
         $("label[for='check-removed-" + value + "']").removeClass('disabled');
       }
     })
   }
   else if ((nRemoved.length == (nPossiblesList.length - nPlayedChosen))) {
     nPossiblesList.map((ind, el) => {
-      let value = parseInt(el) + 1 
-      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+      let value = parseInt(el) + 1
+      if (!(nFixed.includes(value) || nRemoved.includes(value))) {
         $("label[for='check-removed-" + value + "']").addClass('disabled');
       }
     })
   }
   else {
-    while (nRemoved.length > (nPossiblesList.length - nPlayedChosen)){
-        $("input[id='check-removed-" + nRemoved[0] + "']").prop("checked", false);
-        $("label[for='check-removed-" +  nRemoved[0] + "']").addClass('disabled');
-        $("label[for='check-fixed-" +  nRemoved[0] + "']").removeClass('disabled');
-        nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+    while (nRemoved.length > (nPossiblesList.length - nPlayedChosen)) {
+      $("input[id='check-removed-" + nRemoved[0] + "']").prop("checked", false);
+      $("label[for='check-removed-" + nRemoved[0] + "']").addClass('disabled');
+      $("label[for='check-fixed-" + nRemoved[0] + "']").removeClass('disabled');
+      nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => { return parseInt(el.value) }))
     }
   }
-  if (nFixed.length < nPlayedChosen){
+  if (nFixed.length < nPlayedChosen) {
     nPossiblesList.map((ind, el) => {
       let value = parseInt(el) + 1
-      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+      if (!(nFixed.includes(value) || nRemoved.includes(value))) {
         $("label[for='check-fixed-" + value + "']").removeClass('disabled');
       }
     })
   }
-  else if (nFixed.length == nPlayedChosen){
+  else if (nFixed.length == nPlayedChosen) {
     nPossiblesList.map((ind, el) => {
       let value = parseInt(el) + 1
-      if(!(nFixed.includes(value) || nRemoved.includes(value))){
+      if (!(nFixed.includes(value) || nRemoved.includes(value))) {
         $("label[for='check-fixed-" + value + "']").addClass('disabled');
       }
     })
   }
   else {
-    while (nFixed.length > nPlayedChosen){
-        $("input[id='check-fixed-" + nFixed[0] + "']").prop("checked", false);
-        $("label[for='check-fixed-" +  nFixed[0] + "']").addClass('disabled');
-        $("label[for='check-removed-" +  nFixed[0] + "']").removeClass('disabled');
-        nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
+    while (nFixed.length > nPlayedChosen) {
+      $("input[id='check-fixed-" + nFixed[0] + "']").prop("checked", false);
+      $("label[for='check-fixed-" + nFixed[0] + "']").addClass('disabled');
+      $("label[for='check-removed-" + nFixed[0] + "']").removeClass('disabled');
+      nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => { return parseInt(el.value) }))
     }
   }
 
-  if(!nRemoved.length && !nFixed.length){
+  if (!nRemoved.length && !nFixed.length) {
     nPossiblesList.map((ind, el) => {
       let value = parseInt(el) + 1
       console.log(nFixed.includes(value), nRemoved.includes(value))
-      if(!(nFixed.includes(value) || nRemoved.includes(value)) && (nPlayedChosen)){
+      if (!(nFixed.includes(value) || nRemoved.includes(value)) && (nPlayedChosen)) {
         console.log("diff", value)
         $("label[for='check-fixed-" + value + "']").removeClass('disabled');
         $("label[for='check-removed-" + value + "']").removeClass('disabled');
       }
     })
-    }
-    console.log("here2")
-    $("#counter-fixed").text(nFixed.length)
+  }
+  console.log("here2")
+  $("#counter-fixed").text(nFixed.length)
   $("#counter-removed").text(nRemoved.length)
 }
 
@@ -365,7 +404,7 @@ function calcNumberOfCombinations() { // Calculate the number of combinations in
   }
 }
 
-function showCombsInput(nCombs){ // Show a number input to get nJogos
+function showCombsInput(nCombs) { // Show a number input to get nJogos
   $("#nJogos-input-div").show()
   $("#nCombs-span").text("O número de combinações possíveis é " + nCombs)
   if (nCombs != 0) {
@@ -474,8 +513,8 @@ $("#gerador-form").change(function () { // Listen to changes on generator form a
   var generator = $("input[name='generator']:checked").val()
   var lottery = $("input[name='lottery_name']:checked").val()
   let nPlayed = parseInt($("input[name=nPlayed]:checked").val())
-  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => {return parseInt(el.value)}))
-  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => {return parseInt(el.value)}))
+  let nFixed = Array.from($("input[name='nFixed']:checked").map((ind, el) => { return parseInt(el.value) }))
+  let nRemoved = Array.from($("input[name='nRemoved']:checked").map((ind, el) => { return parseInt(el.value) }))
   if (generator && lottery && nPlayed) {
     $("#calc-combs-btn").removeClass("disabled")
   }
@@ -515,11 +554,11 @@ $("#add-collection-form").submit(function (e) { // Add new collections
       $("#collection-gen-select").prepend(
         `<option value="${response.id}" loto-name="${response.lottery}">${response.name}</option>`
       )
-       Toast.fire({
-    icon: 'success',
-    title: "Sucesso!",
-    text: `Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`
-})
+      Toast.fire({
+        icon: 'success',
+        title: "Sucesso!",
+        text: `Coleção ${response.name} da loteria ${response.lottery} criada com sucesso`
+      })
 
     },
     error: function (response) {
@@ -558,47 +597,38 @@ $("#collection-file-form").submit(function (e) { // Handle file input to create 
   })
 })
 
-$(document).ready(function() {
+$(document).ready(function () {
   $(".messages p").each((ind, el) => {
-  console.log(el)
+    console.log(el)
     Toast.fire({
-    icon: 'success',
-    title: el.innerText
-})
+      icon: 'success',
+      title: el.innerText
+    })
   })
-} );
+});
 
 
 
-$("#delete-collections").click(function(){
+$("#delete-collections").click(function () {
   var action = this.innerText
-  Swal.fire({
-    icon:"warning",
-    title: "Tem certeza ?",
-    text: `Você realmente deseja ${this.innerText} os coleções selecionadas?`,
-    showDenyButton: true,
-    confirmButtonText: "SIM",
-    denyButtonText: "NÃO",
-    confirmButtonColor: "green",
-    customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-    var table = $("#collections-table").DataTable()
-    var rows = table.rows({"selected": true})
-    var form = $("#edit-collection")
-    for(row of rows[0]){
-      var tr = table.row(row).node()
-      var input = $(tr).find("td:first-child input")
-      form.append(input)
-    }
+  fireModal(
+    `Você realmente deseja ${action} os coleções selecionadas?`,
+    "Tem certeza ?",
+    "warning"
+  ).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#collections-table").DataTable()
+      var rows = table.rows({ "selected": true })
+      var form = $("#edit-collection")
+      for (row of rows[0]) {
+        var tr = table.row(row).node()
+        var input = $(tr).find("td:first-child input")
+        form.append(input)
+      }
       $("#edit-collection input[name=action]").val(action)
       form.submit()
     }
-    else if (answer.isDenied){
+    else if (answer.isDenied) {
 
     }
   })
@@ -637,7 +667,7 @@ function handleSendGamesSets() {
 function handleEditGamesSets() {
   var action = $(this).attr('data-action')
   Swal.fire({
-    icon:"warning",
+    icon: "warning",
     title: "Tem certeza ?",
     text: `Você realmente deseja ${this.innerText} os conjuntos selecionados?`,
     showDenyButton: true,
@@ -646,24 +676,24 @@ function handleEditGamesSets() {
     confirmButtonColor: "green",
     denyButtonColor: "red",
     customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-    var table = $("#gamesets-table").DataTable()
-    var rows = table.rows({selected: true})
-    var form = $("#edit-games-sets-form")
-    for(row of rows[0]){
-      var tr = table.row(row).node()
-      var input = $(tr).find("td:first-child input")
-      form.append(input)
+      actions: 'my-actions',
+      confirmButton: 'order-1',
+      denyButton: 'order-2',
     }
+  }).then((answer) => {
+    if (answer.isConfirmed) {
+      var table = $("#gamesets-table").DataTable()
+      var rows = table.rows({ selected: true })
+      var form = $("#edit-games-sets-form")
+      for (row of rows[0]) {
+        var tr = table.row(row).node()
+        var input = $(tr).find("td:first-child input")
+        form.append(input)
+      }
       $("#edit-games-sets-form input[name=action]").val(action)
       $("#edit-games-sets-form").submit()
     }
-    else if (answer.isDenied){
+    else if (answer.isDenied) {
 
     }
   })
@@ -705,100 +735,125 @@ function handleExportGamesSets() {
 
 function handleSendCollections() {
   var send_by = $(this).attr("data-send-by")
+  var isDetailView = $("input[name=is_detail]").val()
   fireModal(
-    `Você realmente deseja enviar as coleções de conjuntos selecionadas por ${send_by}?`,
+    isDetailView === 'False' ? `Você realmente deseja enviar as coleções de conjuntos selecionadas por ${send_by}?` : `Você realmente deseja enviar essa coleção por ${send_by}?`,
     "Tem certeza ?",
     "warning"
   ).then((answer) => {
     if (answer.isConfirmed) {
-      var table = $("#collections-table").DataTable();
-      var rows = table.rows({ selected: true });
       var form = $("#send-collections-form");
-      if (rows[0].length != 0) {
-        for (row of rows[0]) {
-          var tr = table.row(row).node();
-          var input = $(tr).find("td:first-child input");
-          form.append(input);
+      if (isDetailView === "False") {
+        var table = $("#collections-table").DataTable();
+        var rows = table.rows({ selected: true });
+        if (rows[0].length != 0) {
+          for (row of rows[0]) {
+            var tr = table.row(row).node();
+            var input = $(tr).find("td:first-child input");
+            form.append(input);
+          }
+        } else {
+          fireToast(
+            "Nenhuma coleção foi selecionada para envio. Clique nos botões na primeira coluna para selecionar",
+            "Atenção",
+            "warning"
+          );
         }
-        form.append(`<input name="method" value="${send_by}" type="hidden">`);
-        form.submit();
-      } else {
-        fireToast(
-          "Nenhuma coleção foi selecionada para envio. Clique nos botões na primeira coluna para selecionar",
-          "Atenção",
-          "warning"
-        );
       }
+      else{
+        var collectionId = $("input[name=collection-id]").val()
+        form.append($(`<input type="hidden" name="collections" value="${collectionId}">`))
+      }
+      form.append(`<input name="method" value="${send_by}" type="hidden">`);
+      form.submit();
+
     }
   });
 }
 
 function handleEditCollections() {
   var action = $(this).attr('data-action')
-  Swal.fire({
-    icon:"warning",
-    title: "Tem certeza ?",
-    text: `Você realmente deseja ${this.innerText} as coleções selecionadas?`,
-    showDenyButton: true,
-    confirmButtonText: "SIM",
-    denyButtonText: "NÃO",
-    confirmButtonColor: "green",
-    denyButtonColor: "red",
-    customClass: {
-    actions: 'my-actions',
-    confirmButton: 'order-1',
-    denyButton: 'order-2',
-  }
-  }).then((answer)=>{
-    if (answer.isConfirmed){
-    var table = $("#collections-table").DataTable()
-    var rows = table.rows({selected: true})
-    var form = $("#edit-collections-form")
-    for(row of rows[0]){
-      var tr = table.row(row).node()
-      var input = $(tr).find("td:first-child input")
-      form.append(input)
-    }
+  var isDetailView = $("input[name=is_detail]").val()
+  fireModal(
+    isDetailView === "False" ? `Você realmente deseja ${action} as coleções selecionadas?` : `Você realmente deseja ${action} esta coleção?`,
+    "Tem certeza ?",
+    "warning").then((answer) => {
+    if (answer.isConfirmed) {
+      var form = $("#edit-collections-form")
+      if (isDetailView === "False") {
+        var table = $("#collections-table").DataTable()
+        var rows = table.rows({ selected: true })
+        for (row of rows[0]) {
+          var tr = table.row(row).node()
+          var input = $(tr).find("td:first-child input")
+          form.append(input)
+        }
+      }
+      else{
+        var collectionId = $("input[name=collection-id]").val()
+        form.append($(`<input type="hidden" name="collections" value="${collectionId}">`))
+      }
       $("#edit-collections-form input[name=action]").val(action)
-      $("#edit-collections-form").submit()
+      form.submit()
     }
-    else if (answer.isDenied){
 
-    }
   })
 }
 
 function handleExportCollections() {
   var fileType = $(this).attr("data-export-by")
+  var isDetailView = $("input[name=is_detail]").val()
   fireModal(
-    `Você realmente deseja EXPORTAR os conjuntos selecionados?`,
+    isDetailView === "False" ? `Você realmente deseja EXPORTAR as coleções selecionadas?` : `Você realmente deseja EXPORTAR essa coleção?`,
     "Tem certeza ?",
     "warning"
   ).then((answer) => {
     if (answer.isConfirmed) {
-      var table = $("#collections-table").DataTable();
-      var rows = table.rows({ selected: true });
       var form = $("#export-collections-form");
-      for (row of rows[0]) {
-        var tr = table.row(row).node();
-        var input = $(tr).find("td:first-child input").clone();
-        form.append(input);
+      if( isDetailView === "False"){
+        var table = $("#collections-table").DataTable();
+        var rows = table.rows({ selected: true });
+        for (row of rows[0]) {
+          var tr = table.row(row).node();
+          var input = $(tr).find("td:first-child input").clone();
+          form.append(input);
+        }
+        table.rows().deselect();
+      }
+      else{
+        var collectionId = $("input[name=collection-id]").val()
+        form.append($(`<input type="hidden" name="collections" value="${collectionId}">`))
+      }
       }
       form.append(`<input type="hidden" name="file-type" value="${fileType}">`);
-      if (1 != 1) {
-        fireToast(
-          "Selecione somente resultados de uma única modalidade da loteria e exporte por loteria.",
-          "Atenção",
-          "warning"
-        );
-      } else {
-        form.submit();
-      }
+      form.submit();
       form.find("input").remove("[name=collections]");
-      form.find("input").remove("[name=file-type]");
-      table.rows().deselect();
-    }
+      form.find("input").remove("[name=file-type]");      
   });
+}
+
+
+function handleEditCollectionsGamesSets() {
+  $("#gameset-form").remove()
+  Swal.fire({
+    title: "Escolha os conjuntos",
+    html: html,
+    showDenyButton: true,
+    confirmButtonText: "SALVAR",
+    denyButtonText: "CANCELAR",
+    confirmButtonColor: 'green',
+    focusConfirm: false,
+    didRender: () => {
+      setCollectionGamesSetTable()
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $("#modify-collection input[name=action]").val("ADICIONAR")
+      var collectionId = $("input[name=collection-id]").val()
+      $("#modify-collection").append($(`<input type="hidden" name="collections" value="${collectionId}">`))
+      $("#modify-collection").submit()
+    }
+  })
 }
 
 $(document).ready(function () {
@@ -811,6 +866,8 @@ $(document).ready(function () {
   $(".send-collections-btn").click(handleSendCollections);
   $(".export-collections-btn").click(handleExportCollections);
   $(".edit-collections-btn").click(handleEditCollections)
+
+  $("#edit-collections-games-sets").click(handleEditCollectionsGamesSets)
 });
 
 

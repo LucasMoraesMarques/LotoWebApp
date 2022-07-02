@@ -19,17 +19,18 @@ def historic(user, n=5):
 
 def apply_action(collections_to_update: QuerySet[Collection], games_sets_ids, user_games_sets, action: str) -> str:
     action = action.upper()
+    message = ""
     if action == "ATIVAR":
-        action_name = "ATIVADOS"
         collections_to_update.update(is_reported=True)
+        message = "Coleções ATIVADAS com sucesso!"
     elif action == "DESATIVAR":
-        action_name = "DESATIVADOS"
         collections_to_update.update(is_reported=False)
+        message = "Coleções DESATIVADAS com sucesso!"
     elif action == "DELETAR":
         action_name = "DELETADOS"
-        collections_to_update.delete()
+        #collections_to_update.delete()
+        message = "Coleções DELETADAS com sucesso!"
     elif action == "ADICIONAR":
-        action_name = "ADICIONADOS"
         collection = collections_to_update[0]
         collection.numberOfGamesets = 0
         collection.numberOfGames = 0
@@ -41,7 +42,8 @@ def apply_action(collections_to_update: QuerySet[Collection], games_sets_ids, us
             else:
                 collection.gamesets.remove(games_set.id)
             collection.save()
-    return action_name
+        message = "Conjuntos ADICIONADOS com sucesso!"
+    return message
 
 
 def update_quantifiers(instances, games_ids):
